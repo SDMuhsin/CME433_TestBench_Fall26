@@ -18,6 +18,8 @@ set pg   = (`tclsh $MQ65/syn/common/site_get.tcl MQ65_PG`)
 tclsh $MQ65/signoff/lvs/filler_stubs.tcl > fillers.sp
 v2lvs -v $pnr/mq_chip.lvs.v -o source.sp -s $cdl -s fillers.sp -s1 $pg[1] -s0 $pg[2] >& v2lvs.log
 $MQ65/signoff/lvs/runset.sh $deck $pnr/mq_chip.gds $out/source.sp mq_chip $pg[1] $pg[2] > runset.svrf
+# a failed run (e.g. rule file compile error) must not leave the previous report in place
+if (-e lvs.rep) mv -f lvs.rep lvs.rep.prev
 calibre -lvs -hier -automatch -turbo 8 runset.svrf >& lvs.log
 $MQ65/signoff/lvs/digest.sh lvs.rep > summary.txt
 cp -f summary.txt $MQ65/build/summary/lvs_$1.txt

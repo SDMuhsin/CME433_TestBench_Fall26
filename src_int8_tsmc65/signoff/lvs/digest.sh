@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Digest of a Calibre LVS report (stdout): overall result, cell/net/instance counts,
-# discrepancy and extraction warning counts (no cell names).
+# Digest of a Calibre LVS report (stdout): overall result, cell verdict counts, top-cell
+# port / net / instance counts, discrepancy and warning counts (no cell names).
 rep=$1
 echo "calibre lvs digest of $(basename "$rep")"
-grep -m1 -E 'CORRECT|INCORRECT|NOT COMPARED' "$rep" | sed 's/^ */result: /'
-grep -E '^\s*(Nets|Instances|Ports|Total Inst):' "$rep" | head -8 | sed 's/^ */  /'
-grep -cE '^\s*[0-9]+\s+(Net|Instance|Port)' "$rep" | sed 's/^/discrepancy lines: /'
-grep -E 'LVS (BOX|Shorts|Softchk)|Error|Warning' "$rep" | sort | uniq -c | head -10 | sed 's/^/  /'
+grep -m1 -oE 'NOT COMPARED|INCORRECT|CORRECT' "$rep" | sed 's/^/result: /'
+grep -E '^ +(CORRECT|INCORRECT|NOT COMPARED) +[^ ]+ +[^ ]+ *$' "$rep" | awk '{print $1}' | sort | uniq -c |
+    sed 's/^ */cells: /'
+top=$(sed -n '/CELL COMPARISON RESULTS ( TOP LEVEL )/,$p' "$rep")
+echo "top cell (initial, after transformation):"
+grep -E '^ (Ports|Nets):|^ Total Inst:' <<< "$top" | sed 's/^ */  /'
+grep -cE '^ +[0-9]+ +(Net|Instance|Port) ' <<< "$top" | sed 's/^/discrepancies: /'
+grep -E '^ +(Error|Warning):' <<< "$top" | sort | uniq -c | sed 's/^ */  /'

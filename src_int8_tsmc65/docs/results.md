@@ -38,7 +38,7 @@ ICC2 typical at tt are run as labelled cross-checks (StarRC vs ICC2 at tt agree 
 | Equivalence | - (open-source flow) | Formality RTL vs netlist SUCCEEDED [`results/fm_ss_p3.9.txt`] | **Formality netlist vs routed netlist SUCCEEDED** [`results/fm_post_ss_p3.9.txt`] |
 | Gate-level sim | SDF GLS 31 tokens, 3 corners PASS [GF s.4] | 31 tokens bit-exact [`signoff_pre_layout.md` s.3] | **31 tokens bit-exact** (routed netlist) |
 | DRC / antenna | clean (filled GDS: 2 density items) [GF s.6] | - | **0 / 0**, plus 12 low-density results (no dummy fill) [`results/drc_*`] |
-| LVS | Netgen match [GF s.6] | - | **Calibre: INCORRECT (open, section 6)**; ICC2 connectivity check 0 [`results/lvs_ss_p3.9.txt`] |
+| LVS | Netgen match [GF s.6] | - | **Calibre: CORRECT** (183 cells incl. top; 57,167 instances, 57,323 nets, 64 ports matched) [`results/lvs_ss_p3.9.txt`] |
 
 [GF s.n] = section n of `src_int8/docs/results.md`. Energy / token = average power x 1.821 ms (250 MHz) or 18.21 ms
 (25 MHz), the token window (START -> end of logit read-back) of the SAIF.
@@ -115,7 +115,7 @@ which pre-layout were ideal and unannotated). Against GF180 (503 uJ / token at 2
 | ICC2 route / connectivity checks | 0 DRC, 0 antenna, 0 open, 0 short, 0 floating PG, legality 0 | `results/pnr_ss_p3.9.txt` |
 | Calibre DRC, main deck of the layout's metal stack (action-required rules) | **0** results except **12 low-density (DN.1) windows on M2-M9**: the block has no dummy fill, which is added at chip assembly | `results/drc_ss_p3.9_MQ65_DRC_DECK.txt` |
 | Calibre antenna | **0** | `results/drc_ss_p3.9_MQ65_ANT_DECK.txt` |
-| Calibre LVS (hierarchical, library cells matched by name) | **INCORRECT** - open, section 6 | `results/lvs_ss_p3.9.txt` |
+| Calibre LVS (hierarchical, library cells matched by name, names case-sensitive) | **CORRECT**: 182 library cells + top cell; top after reduction 57,167 / 57,167 instances, 57,323 / 57,323 nets, 64 / 64 ports, 0 discrepancies (warnings only: ambiguity resolved arbitrarily, unequal finger smashing in flattened cells) | `results/lvs_ss_p3.9.txt`, server `build/signoff/ss_p3.9/lvs/lvs.rep` |
 
 **How Formality passes.** No black-box, don't-verify, user-match or register-merge settings are used; only
 `synopsys_auto_setup` and the clock-gate hold mode (for the DC-inserted gates) as in the RTL check. The first layout
@@ -127,14 +127,11 @@ matches one to one and all STA / power / GLS / DRC numbers here are from that la
 
 ## 6. Open items and headroom (honest list)
 
-1. **Calibre LVS is not clean.** All 182 library cells compare CORRECT and all 57,167 top-level instances match, but
-   the top cell is INCORRECT: 151 nets reported (each source net paired with two layout nets of the same total
-   connections, in the writeback, lane and sequencer blocks), layout 25 nets fewer than source, ports 64 vs 65, plus
-   "ambiguity resolved arbitrarily" and "unbalanced smashed MOS" warnings. No texted short is reported (constant pad-
-   control outputs that shared one net were the cause of the first run's short; each output port now has its own
-   driver). Checked and ruled out: GDS / LEF pin geometry and labels of every used cell, M2 / via1 shapes outside the
-   LEF, cell instance counts GDS vs netlist, layer datatypes. ICC2's own connectivity check is clean, so the suspects
-   left are routing touching cell-internal metal that the LEF does not describe, or a deck setting. Not signed off.
+1. **Calibre LVS (closed).** The first runs reported the top cell INCORRECT (151 nets, each source net paired with
+   two layout nets). Cause: the foundry deck leaves `SOURCE CASE` / `LAYOUT CASE` at the Calibre default (fold case),
+   so synthesis nets differing only in case in one module (e.g. `n154` and `N154`) were merged into one source net.
+   `signoff/lvs/runset.sh` now sets both to YES; the layout and netlist are unchanged, so no other check is affected.
+   The initial source port count (65 vs 64) is a port-only passthrough net removed by Calibre's reduction (64 / 64 after).
 2. **No pad ring / seal ring / fill.** Areas and power are for the core block; low-density DRC results are expected
    until fill.
 3. **Headroom not taken** (by decision, no further redesign): letting placement merge clock gates cut the 250 MHz
