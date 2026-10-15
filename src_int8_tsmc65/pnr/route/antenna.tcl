@@ -1,7 +1,9 @@
-# Load the kit's antenna rules (written for the older Milkyway-based tool): the few
-# commands that do not exist in ICC2 are mapped to their ICC2 equivalents or ignored.
-proc set_parameter {args} {}
-if {[info commands current_mw_lib] eq ""} { proc current_mw_lib {} { return [current_lib] } }
-if {[info commands remove_antenna_rules] eq ""} { proc remove_antenna_rules {args} {} }
-source $::MQ65_ANT_RULES
+# Load the kit's antenna rules. The file is written for the older Milkyway-based tool: its
+# rule commands take the library as a first argument, which ICC2 does not, and it sets a
+# router parameter that does not exist here. Both are stripped before the rules are applied.
+set f [open $::MQ65_ANT_RULES r]; set rules [read $f]; close $f
+regsub -all -line {^\s*set_parameter .*$} $rules {} rules
+regsub -all -line {^\s*set lib .*$} $rules {} rules
+regsub -all {\$lib\M;?} $rules {} rules
+uplevel #0 $rules
 report_antenna_rules > [mq65_rpt route_antenna_rules.rpt]
