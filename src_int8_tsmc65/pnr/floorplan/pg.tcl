@@ -24,5 +24,5 @@ set_pg_strategy mq_rails -core -pattern {{name: mq_rails} {nets: {VDD VSS}}}
 compile_pg -strategies {mq_ring mq_mesh mq_rails}
 # block PG pins: the core ring segments become terminals of the VDD / VSS ports
 foreach n $::MQ65_PG {
-    create_terminal -of_objects [get_shapes -of_objects [get_nets $n] -filter "shape_use==ring"] -port [get_ports $n]
+    create_terminal -of_objects [get_shapes -of_objects [get_nets $n] -filter "shape_use==ring"]
 }
