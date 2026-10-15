@@ -7,7 +7,7 @@ directory. Only the templates are tracked.
 | Template (tracked) | Copy to (ignored) | Read by | Holds |
 |---|---|---|---|
 | `site.example.tcl` | `site.tcl` | `syn/common/libs.tcl` | library dir and per-corner .db names, operating conditions, techfile, RC tech files, reference cells (NAND2, ICG, drivers, load) |
-| `site.example.csh` | `site.csh` | `syn/common/env.csh` | tool setup scripts, `MQ65_KIT` (kit root) |
+| `site.example.csh` | `site.csh` | `syn/common/env.csh` | tool setup scripts, `MQ65_KIT` (kit root), `MQ65_VLOG` (cell simulation models) |
 | `site.example.sh` | `site.sh` | `sync.sh` | ssh host alias and remote tree |
 | `mq65_icg_site.example.v` | `mq65_icg_site.v` | synthesis / LEC (via `::MQ65_ICG_RTL`) | `mq65_icg` mapped to the library clock-gating cell |
 

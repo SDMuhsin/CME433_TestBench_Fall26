@@ -6,3 +6,4 @@ source <TOOL_SETUP_SCRIPT_PT>
 source <TOOL_SETUP_SCRIPT_VCS>
 source <TOOL_SETUP_SCRIPT_FM>
 setenv MQ65_KIT <STDCELL_KIT_ROOT>
+setenv MQ65_VLOG <STDCELL_VERILOG_MODELS>      # cell simulation models (gate-level simulation)

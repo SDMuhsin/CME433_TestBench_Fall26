@@ -3,6 +3,7 @@
 # template site/site.example.sh). Code reaches the server through git (push here, pull there).
 #   src_int8_tsmc65/sync.sh pull   summary text files only ($MQ65/build/summary) to results/
 #   src_int8_tsmc65/sync.sh site   site/ config files (git-ignored) to the server's clone
+#   src_int8_tsmc65/sync.sh vec <dir>   GLS golden vectors (sim/gls/make_vec.sh) to build/gls/vec/<name>
 # Only scripts and summary text cross the link; libraries, netlists, SDF, SAIF and full
 # reports stay on the server.
 set -eu
@@ -20,5 +21,10 @@ site)
     $RS --exclude '*.example.*' --exclude README.md "$T65/site/" "$MQ65_HOST:$MQ65_REMOTE/site/"
     echo "site config copied"
     ;;
-*)  echo "usage: $0 pull|site"; exit 1 ;;
+vec)
+    D=${2%/}
+    $RS "$D/" "$MQ65_HOST:$MQ65_REMOTE/build/gls/vec/$(basename "$D")/"
+    echo "vectors copied to build/gls/vec/$(basename "$D")"
+    ;;
+*)  echo "usage: $0 pull|site|vec <dir>"; exit 1 ;;
 esac

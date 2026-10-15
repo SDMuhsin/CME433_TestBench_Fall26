@@ -1,0 +1,46 @@
+# Formality: RTL (reference) vs DC netlist (implementation) with the DC guidance file.
+# Environment (set by lec/run_fm.csh): MQ65 MQ65_SYN (DC output dir) MQ65_CORNER MQ65_OUT MQ65_TAG
+# Reference = the RTL DC read (rtl_mem/chip65.f, site ICG wrapper); both containers link the
+# DC target library of that run.
+source $::env(MQ65)/syn/common/libs.tcl
+source $::env(MQ65)/syn/common/rtl.tcl
+set syn $::env(MQ65_SYN)
+set out $::env(MQ65_OUT)
+file mkdir $out/rpt
+set_host_options -max_cores 8
+
+set_app_var synopsys_auto_setup true
+# DC -gate_clock inserted latch-based integrated clock gates that are not in the RTL
+set_app_var verification_clock_gate_hold_mode any
+set_svf $syn/mq_chip.svf
+
+read_db -technology_library [mq65_db $::env(MQ65_CORNER)]
+set_app_var search_path [concat . [mq65_rtl_incdirs]]
+read_verilog -container r -libname WORK -05 [mq65_rtl_files]
+set_top r:/WORK/mq_chip
+read_verilog -container i -libname WORK -05 $syn/mq_chip.v
+set_top i:/WORK/mq_chip
+
+match
+report_unmatched_points                  > $out/rpt/unmatched.rpt
+set ok [verify]
+report_status                            > $out/rpt/status.rpt
+report_failing_points                    > $out/rpt/failing.rpt
+report_aborted_points                    > $out/rpt/aborted.rpt
+report_unverified_points                 > $out/rpt/unverified.rpt
+report_guidance -summary                 > $out/rpt/guidance.rpt
+
+set fh [open $out/summary.txt w]
+puts $fh "mq_chip 65 nm Formality summary ($::env(MQ65_TAG))"
+puts $fh "netlist [file tail $syn]  library corner $::env(MQ65_CORNER)  verify_return $ok"
+set fs [open $out/rpt/status.rpt r]
+foreach line [split [read $fs] "\n"] {
+    if {[regexp {(Verification|Passing|Failing|Aborted|Unverified|Not Compared|Unread|Unmatched|Matched|Compare Points|BBPin)} $line]} { puts $fh "  $line" }
+}
+close $fs
+puts $fh "unmatched (after match, before verify):"
+set fu [open $out/rpt/unmatched.rpt r]
+foreach line [split [read $fu] "\n"] { if {[regexp {^\s*[0-9]+ Unmatched} $line]} { puts $fh "  $line" } }
+close $fu
+close $fh
+exit
