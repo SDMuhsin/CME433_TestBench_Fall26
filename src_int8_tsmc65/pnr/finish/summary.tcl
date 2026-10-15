@@ -32,7 +32,7 @@ puts $fh [format "filler_cells %d  antenna_diodes %d" [sizeof_collection $fill] 
 
 redirect -variable rd {report_design -routing}
 foreach line [split $rd "\n"] {
-    if {[regexp -nocase {(total wire length|number of vias|wire length)} $line]} { puts $fh "routing: [string trim $line]" }
+    if {[regexp -nocase {^\s*total wire length} $line]} { puts $fh "routing: [string trim $line]" }
 }
 
 puts $fh "icc2 timing (TLU+ RC of each corner, propagated clocks):"
@@ -48,8 +48,8 @@ foreach {sc t} {func_ss max func_tt max func_ff min} {
 
 set r $::env(MQ65_PNR)/rpt
 puts $fh "checks:"
-mq65_grep_rpt $fh $r/finish_check_routes.rpt {(?i)(total number of drcs|drc|open|antenna).*[0-9]}
-mq65_grep_rpt $fh $r/finish_check_lvs.rpt   {(?i)(short|open|floating|total|error)}
-mq65_grep_rpt $fh $r/finish_pg_conn.rpt     {(?i)(floating|number of)}
-mq65_grep_rpt $fh $r/finish_legality.rpt    {(?i)(violation|illegal|legal)}
+mq65_grep_rpt $fh $r/finish_check_routes.rpt {^Total number of (DRCs|antenna violations|open nets)}
+mq65_grep_rpt $fh $r/finish_check_lvs.rpt   {Total number of (short violations|open nets|floating route)}
+mq65_grep_rpt $fh $r/finish_pg_conn.rpt     {Number of floating (wires|vias|std cells|terminals)}
+mq65_grep_rpt $fh $r/finish_legality.rpt    {^TOTAL [0-9]+ Violations}
 close $fh
