@@ -3,7 +3,8 @@
 #   MQ65        src_int8_tsmc65 directory      MQ65_SYN  DC output dir (netlist)
 #   MQ65_PNR    run directory (holds mq65.nlib, rpt/, out/)
 #   MQ65_PERIOD clock period, ns                MQ65_UTIL target core utilisation
-# Blocks are saved per stage as labels of one block: mq_chip/<stage>.
+# The working block is always mq_chip; each stage ends with a snapshot mq_chip_<stage>, and
+# a stage starts from the previous stage's snapshot (so any stage can be re-run).
 source $::env(MQ65)/syn/common/libs.tcl
 
 proc mq65_lib_path {} { return $::env(MQ65_PNR)/mq65.nlib }
@@ -12,16 +13,21 @@ proc mq65_rpt {name} { file mkdir $::env(MQ65_PNR)/rpt; return $::env(MQ65_PNR)/
 
 proc mq65_host {} { set_host_options -max_cores 8 }
 
-# open the previous stage's block and continue in a copy labelled <to>
-proc mq65_open_stage {from to} {
+# restore the previous stage's snapshot into the working block mq_chip
+proc mq65_open_stage {from} {
     mq65_host
     open_lib [mq65_lib_path]
-    copy_block -from_block mq_chip/$from -to_block mq_chip/$to -force
-    current_block mq_chip/$to
+    copy_block -from_block mq_chip_$from -to_block mq_chip -force
+    current_block mq_chip
     link_block
 }
 
-proc mq65_save_stage {} { save_block; save_lib }
+# save the working block and its snapshot mq_chip_<stage>
+proc mq65_save_stage {stage} {
+    save_block
+    copy_block -from_block mq_chip -to_block mq_chip_$stage -force
+    save_lib -all
+}
 
 # library cell restrictions: physical-only / special cells excluded from optimisation,
 # clock buffers / inverters reserved for CTS

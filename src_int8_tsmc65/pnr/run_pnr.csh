@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 # ICC2 place and route of a DC netlist:  pnr/run_pnr.csh <syn_tag> <period> [util=0.65] [first_stage]
-#   stages (one icc2_shell session each, block label mq_chip/<stage>):
+#   stages (one icc2_shell session each; snapshot block mq_chip_<stage> after each):
 #     floorplan place cts route finish
 #   output: $MQ65/build/pnr/<syn_tag>/ (mq65.nlib, rpt/, out/, <stage>.log)
 #   needs the reference library from pnr/ndm/run_ndm.csh
