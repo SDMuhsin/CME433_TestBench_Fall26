@@ -9,10 +9,14 @@ file mkdir $o
 write_verilog -exclude {physical_only_cells leaf_module_declarations pg_objects} $o/mq_chip.v
 write_verilog -include {pg_netlist} $o/mq_chip.lvs.v
 write_def -version 5.8 -compress none -include_tech_via_definitions $o/mq_chip.def
-# layer map: pin / net text of each metal on the verification deck's text layer
+# layer map: pin / net text of each metal on the verification deck's text layer, and the
+# kit's stream-out datatype of layers that are not written with datatype 0 (site config)
 set f [open $o/gds_text.map w]
 foreach {m t} $::MQ65_GDS_TEXT {
     foreach pur {0 -1 -2 -3 -4} { puts $f "text $m:$pur:*:* $t:0" }
+}
+if {[info exists ::MQ65_GDS_DATATYPE]} {
+    foreach {l dt} $::MQ65_GDS_DATATYPE { puts $f "data $l:*:*:* $l:$dt" }
 }
 close $f
 write_gds -design mq_chip -hierarchy all -long_names -keep_data_type -output_pin all -units 1000 \

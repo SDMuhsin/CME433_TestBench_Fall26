@@ -12,5 +12,5 @@ sed -e "s|^LAYOUT PATH .*|LAYOUT PATH \"$gds\"|" \
     -e 's|^#DEFINE FULL_CHIP|//#DEFINE FULL_CHIP|' \
     -e 's|^#DEFINE WLCSP_SEALRING|//#DEFINE WLCSP_SEALRING|' \
     -e 's|^//#DEFINE GP |#DEFINE GP |' \
-    -e 's|^#DEFINE \(Recommended\|Guideline\|Analog\|GUIDELINE_[A-Z]*\) |//#DEFINE \1 |' \
+    -e 's@^#DEFINE \(Recommended\|Guideline\|Analog\|GUIDELINE_[A-Z]*\) @//#DEFINE \1 @' \
     "$deck"

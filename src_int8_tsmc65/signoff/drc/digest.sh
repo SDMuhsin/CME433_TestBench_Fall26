@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Digest of a Calibre DRC summary (stdout): total results, results per rule check
-# (rule check names and counts only), density rules separated out.
+# (top-level flat counts of rule checks with results), density rules separated out.
 sum=$1
 echo "calibre drc digest of $(basename "$sum")"
-awk '/RULECHECK .* TOTAL Result Count = [1-9]/ {print $2, $NF}' "$sum" | sort -u > rules.tmp
+awk '/^RULECHECK .* TOTAL Result Count = [1-9]/ {c=$NF; gsub(/[()]/, "", c); print $2, c}' "$sum" | sort -u > rules.tmp
 tot=$(awk '{s+=$2} END {print s+0}' rules.tmp)
 den=$(grep -iE 'DN|DENSITY' rules.tmp | awk '{s+=$2} END {print s+0}')
 echo "total $tot results in $(wc -l < rules.tmp) rule checks (density rules: $den)"
