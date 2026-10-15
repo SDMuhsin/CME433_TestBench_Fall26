@@ -3,6 +3,8 @@
 # Environment: MQ65, MQ65_OUT (output dir; writes $MQ65_OUT/mq65_std.ndm)
 source $::env(MQ65)/syn/common/libs.tcl
 set out $::env(MQ65_OUT)
+# keep the physical-only cells (fillers etc.), which have no timing model
+set_app_options -name lib.workspace.keep_all_physical_cells -value true
 create_workspace mq65_std -technology $::MQ65_TF -flow normal
 read_lef $::MQ65_LEF
 foreach c {ss tt ff} { read_db [mq65_db $c] }
