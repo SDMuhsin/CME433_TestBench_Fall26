@@ -7,6 +7,10 @@ set_app_options -name opt.tie_cell.max_fanout -value 8
 # gates of parallel byte register files) leaves guidance that equivalence checking cannot
 # apply, so the routed netlist would not be provably equivalent to the synthesis netlist.
 set_app_options -name place_opt.flow.merge_clock_gates -value false
+# one driver per output port: ports that share a net (e.g. constant pad-control outputs
+# fed from one tie net inside a sub-block) get their own buffer or tie cell, so that the
+# layout has no two port labels on one net (LVS)
+set_app_options -name opt.port.eliminate_verilog_assign -value true
 place_opt
 check_legality > [mq65_rpt place_legality.rpt]
 report_congestion > [mq65_rpt place_congestion.rpt]
