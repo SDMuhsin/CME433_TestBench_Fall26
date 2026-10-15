@@ -46,17 +46,13 @@ proc mq65_put_hier_power {fh} {
     }
 }
 
-# root clock net (driven by the clk port; no clock tree before CTS): load and activity, and
-# its switching power 0.5 C V^2 TR, which is not attributed to any driving cell
+# root clock net (driven by the clk port; no clock tree before CTS): load and activity.
+# PrimeTime PX attributes net switching power to the driving cell, so this port-driven net's
+# 0.5 C V^2 TR is not in the totals (see docs/power_pre_layout.md).
 proc mq65_put_clock_net {fh} {
     set n [get_nets clk]
-    set c [get_attribute $n total_capacitance_max]
-    set tr [get_attribute $n toggle_rate]
-    set v [get_attribute -quiet [index_collection [get_libs] 0] nom_voltage]
     set loads [sizeof_collection [get_pins -quiet -of_objects $n -leaf -filter "direction==in"]]
     puts $fh [format "clock_root_net loads %d  cap %.4f pF  toggle_rate %s /ns  reported switching %s W" \
-        $loads $c $tr [get_attribute -quiet $n switching_power]]
-    if {$v ne "" && $tr ne ""} {
-        puts $fh [format "clock_root_net 0.5*C*V^2*TR = %.4e W (V = %s)" [expr {0.5 * $c * 1e-12 * $v * $v * $tr * 1e9}] $v]
-    }
+        $loads [get_attribute $n total_capacitance_max] [get_attribute $n toggle_rate] \
+        [get_attribute -quiet $n switching_power]]
 }
