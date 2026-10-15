@@ -25,7 +25,6 @@ NETS: *
 SKIP_CELLS: *
 NETLIST_FORMAT: SPEF
 NETLIST_FILE: $out/mq_chip.star_typ.spef
-SUMMARY_FILE: $out/star.sum
 STAR_DIRECTORY: $out/star_work
 NUM_CORES: 8"
 close $f
