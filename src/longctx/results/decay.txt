@@ -1,0 +1,19 @@
+observed p codes: 1610612736 samples, 0.989833 in [-13, 0)
+max |rel dA| over p in [-13,0): 8.019e-04 (ideal FP16 rounding of 2^p: 4.819e-04)
+p codes with dA == 1 (frozen state): 2497, largest such |p| = 3.510e-04
+tau range [tokens]   codes  max|rel dA|  max|rel(1-dA)|  mean rel(1-dA)  frozen  usage
+[     0,      1)    3131    8.02e-04       3.58e-04      -6.11e-06       0  1.49e-01
+[     1,     10)    3368    8.02e-04       3.64e-03      -3.36e-06       0  4.11e-01
+[    10,    100)    3387    3.88e-04       2.73e-02      +3.10e-04       0  2.79e-01
+[   100,   1000)    3450    2.80e-04       2.04e-01      -8.92e-03       0  1.32e-01
+[  1000,  10000)    3374    2.47e-04       1.01e+00      -2.53e-01    1286  2.73e-02
+[ 10000, 100000)    1211    1.00e-04       1.00e+00      -1.00e+00    1211  5.77e-08
+free decay of the FP16 state, steps to 1/e:  tau  dA(hw)  min / median / max  (stuck)
+     10  0.904785      10 /     10 /     11  (0/97 never reach 1/e)
+     30  0.967285      31 /     31 /     31  (0/97 never reach 1/e)
+    100  0.990234     102 /    103 /    103  (0/97 never reach 1/e)
+    300  0.996582     289 /    290 /    293  (0/97 never reach 1/e)
+   1000  0.999023    1050 /   1104 /   1167  (0/97 never reach 1/e)
+   2000  0.999512    1395 /   1480 /   1566  (0/97 never reach 1/e)
+   3000  0.999512    1395 /   1480 /   1566  (0/97 never reach 1/e)
+   5000  1.000000     - / - / -  (97/97 never reach 1/e)

@@ -1,0 +1,25 @@
+diff --git a/src/v_sdf.c b/src/v_sdf.c
+index 04d162c..6831dfe 100644
+--- a/src/v_sdf.c
++++ b/src/v_sdf.c
+@@ -4050,7 +4050,9 @@ static int32 rd_port_tchk(FILE *f, struct tcterm_t *tctp)
+    tctp->tnam = __pv_stralloc(pnam); 
+    tctp->ti1 = i1;
+    tctp->ti2 = i2;
+-   tctp->eval = eval;
++   /* keep the (posedge/negedge port) edge read above: rd_port_spec only */
++   /* returns an edge for a nested edge form, else NOEDGE (was a wildcard) */
++   if (eval != NOEDGE) tctp->eval = eval;
+    if (__toktyp != RPAR)
+     {
+      __pv_ferr(1363, "port_edge ending ) expected - %s read", prt_sdftok());
+@@ -7313,6 +7315,9 @@ got_num:
+       __pv_ferr(1314, "SDF real number %s illegal", __token);
+       d1 = 1.0;
+      }
++    /* the sign was consumed above: was applied only to integers, so a */
++    /* real like -0.066 (a negative hold limit) was read as +0.066 */
++    if (signv) d1 = -d1;
+     __itok_realval = d1;
+     return(REALNUM);
+    }

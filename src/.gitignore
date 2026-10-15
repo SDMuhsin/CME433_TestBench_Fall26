@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+# Generated build products (tb, syn, flow GLS)
+build/
+# LibreLane run directories and flow logs (regenerate with src/flow/build.sh <TAG>)
+flow/runs/
+flow/logs/
+# Waveforms
+*.vcd
+*.fst
+# KLayout DRC python venv (recreate with src/flow/drc/setup.sh)
+flow/drc/.venv/
+# Open Source CVC build for the SDF GLS (recreate with src/flow/sdf_gls/tools/setup_cvc.sh)
+flow/sdf_gls/tools/.cvc/
+# pytest
+.pytest_cache/
