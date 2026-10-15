@@ -1,0 +1,11 @@
+calibre drc digest of drc.sum
+total 0 results in 0 rule checks (density rules: 0)
+rule checks with results:
+  RULECHECK A.R.1:POLY .......... TOTAL Result Count = 0 (0)
+  RULECHECK A.R.2:POLY .......... TOTAL Result Count = 0 (0)
+  RULECHECK A.R.3:CO ............ TOTAL Result Count = 0 (0)
+  RULECHECK A.R.6__A.R.8:M1 ..... TOTAL Result Count = 0 (0)
+  RULECHECK A.R.4__A.R.7:VIA1 ... TOTAL Result Count = 0 (0)
+  RULECHECK A.R.6__A.R.8:M2 ..... TOTAL Result Count = 0 (0)
+  RULECHECK A.R.4:VIA2 .......... TOTAL Result Count = 0 (0)
+  RULECHECK A.R.7:VIA2 .......... TOTAL Result Count = 0 (0)

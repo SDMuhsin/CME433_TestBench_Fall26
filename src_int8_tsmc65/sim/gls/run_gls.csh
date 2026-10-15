@@ -6,6 +6,8 @@
 #              1ns/1ps is the TB's own 40 ns (25 MHz)
 #   saif_tok: TB token index whose run_token() window is recorded (sim/gls/gls_saif.sv)
 #   output: $MQ65/build/gls/<syn_tag>_<vec_name>[_t<saif_tok> if not 1]/ (tb.log, mq_chip.saif)
+#   MQ65_GLS_PNR=1: simulate the routed netlist $MQ65/build/pnr/<syn_tag>/out/mq_chip.v instead
+#                   (output dir prefixed post_)
 setenv MQ65 `cd $0:h/../.. && pwd`
 source $MQ65/syn/common/env.csh
 set SRC = $MQ65:h/src_int8
@@ -13,7 +15,12 @@ set ts = 100ps
 if ($#argv >= 3) set ts = $3
 set tok = 1
 if ($#argv >= 4) set tok = $4
+set net = $MQ65/build/syn/$1/mq_chip.v
 set out = $MQ65/build/gls/$1_$2
+if ($?MQ65_GLS_PNR) then
+    set net = $MQ65/build/pnr/$1/out/mq_chip.v
+    set out = $MQ65/build/gls/post_$1_$2
+endif
 if ($tok != 1) set out = ${out}_t$tok
 set vec = $MQ65/build/gls/vec/$2
 set vlog = $MQ65_VLOG
@@ -21,7 +28,7 @@ mkdir -p $out
 cd $out
 vcs -full64 -sverilog -override_timescale=$ts/1ps +delay_mode_zero +nospecify +notimingcheck \
     +lint=none -j8 +incdir+$SRC/tb/common -v $vlog -top tb_mq_chip -top gls_saif \
-    $MQ65/build/syn/$1/mq_chip.v $SRC/tb/chip/tb_mq_chip.sv $MQ65/sim/gls/gls_saif.sv \
+    $net $SRC/tb/chip/tb_mq_chip.sv $MQ65/sim/gls/gls_saif.sv \
     -o simv >& compile.log
 if (! -x simv) then
     echo "GLS_DONE $out:t compile FAILED (compile.log)"; exit 1

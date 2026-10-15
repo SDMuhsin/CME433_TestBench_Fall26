@@ -1,6 +1,6 @@
 # mq_chip on 65 nm GP: RTL verification and DC synthesis (phase 1)
 
-mq_chip (`src_int8/`, results in `src_int8/docs/results.md`) is ported to a 65 nm GP
+Post-layout results and the GF180 comparison: `results.md`. mq_chip (`src_int8/`, results in `src_int8/docs/results.md`) is ported to a 65 nm GP
 standard-cell library. The eleven 256 x 8 GF180 SRAM macros are replaced by latch register
 files (`rtl_mem/`); the rest of the RTL is `src_int8/rtl` unchanged. All numbers below are
 pre-layout (ideal clocks, no CTS, no routing). Kit, library and cell names are kept in the
