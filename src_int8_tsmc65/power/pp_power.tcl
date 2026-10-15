@@ -22,5 +22,6 @@ mq65_put_saif_window $fh $::env(MQ65_SAIF)
 mq65_put_coverage $fh $out/rpt/read_saif.rpt $out/rpt/switching.rpt
 mq65_put_power $fh $out/rpt/power.rpt
 mq65_put_hier_power $fh
+mq65_put_clock_net $fh
 close $fh
 exit
