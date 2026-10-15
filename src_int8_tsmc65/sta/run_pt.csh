@@ -16,7 +16,9 @@ setenv MQ65_RC $rc
 setenv MQ65_PERIOD $period
 setenv MQ65_TAG sta_$1_$2_$rc
 set script = pt_sta
-if ($?MQ65_PT_SCRIPT) set script = $MQ65_PT_SCRIPT
+if ($?MQ65_PT_SCRIPT) then
+    set script = $MQ65_PT_SCRIPT
+endif
 setenv MQ65_OUT $MQ65/build/sta/$1_$2_$rc
 if ($script != pt_sta) setenv MQ65_OUT $MQ65_OUT.$script
 mkdir -p $MQ65_OUT $MQ65/build/summary
