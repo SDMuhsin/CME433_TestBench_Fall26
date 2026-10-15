@@ -38,7 +38,7 @@ proc mq65_cell_usage {} {
     }
     foreach p $::MQ65_TIE {
         set c [get_lib_cells -quiet */$p]
-        if {[sizeof_collection $c]} { set_dont_use $c false; set_lib_cell_purpose -include optimization $c }
+        if {[sizeof_collection $c]} { set_lib_cell_purpose -include optimization $c }
     }
     set cts {}
     foreach p $::MQ65_CTS_CELLS { append_to_collection cts [get_lib_cells -quiet */$p] }
