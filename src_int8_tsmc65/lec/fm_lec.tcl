@@ -1,7 +1,7 @@
 # Formality: RTL (reference) vs DC netlist (implementation) with the DC guidance file.
 # Environment (set by lec/run_fm.csh): MQ65 MQ65_SYN (DC output dir) MQ65_CORNER MQ65_OUT MQ65_TAG
 # Post-layout check (MQ65_FM_IMPL set): DC netlist (reference) vs the routed netlist
-# MQ65_FM_IMPL, no guidance file.
+# MQ65_FM_IMPL, with the guidance files written by the place-and-route stages.
 # Reference = the RTL DC read (rtl_mem/chip65.f, site ICG wrapper); both containers link the
 # DC target library of that run.
 source $::env(MQ65)/syn/common/libs.tcl
@@ -24,9 +24,8 @@ if {$post} {
         if {[file exists $f]} { lappend svfs $f }
     }
     if {[llength $svfs]} { set_svf -ordered {*}$svfs }
-    # placement merges equivalent clock gates (same clock and enable, e.g. the word gates of
-    # the three byte-RFs of an HMEM triple): let Formality merge duplicate registers too
-    set_app_var verification_merge_duplicated_registers true
+    # No merge, black-box or don't-verify settings: placement keeps every clock gate
+    # (pnr/place/place.tcl), so all state points match one to one.
 }
 
 read_db -technology_library [mq65_db $::env(MQ65_CORNER)]
