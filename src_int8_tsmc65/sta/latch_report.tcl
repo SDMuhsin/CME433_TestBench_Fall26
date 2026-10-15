@@ -5,8 +5,8 @@ proc mq65_latch_q_pins {} {
 }
 
 # time borrowed at the worst latch endpoint, parsed from the path report
-proc mq65_borrow_of {path_cmd} {
-    redirect -variable r $path_cmd
+proc mq65_borrow_of {ends} {
+    redirect -variable r {report_timing -to $ends -max_paths 1 -nosplit}
     if {[regexp {time borrowed from endpoint\s+(-?[0-9.]+)} $r -> b]} { return $b }
     return 0.0
 }
@@ -14,7 +14,7 @@ proc mq65_borrow_of {path_cmd} {
 proc mq65_put_latch {fh} {
     set d [all_registers -level_sensitive -data_pins]
     set p [get_timing_paths -delay_type max -max_paths 1 -to $d]
-    set borrow [mq65_borrow_of {report_timing -to $d -max_paths 1 -nosplit}]
+    set borrow [mq65_borrow_of $d]
     set nb [sizeof_collection [get_timing_paths -delay_type max -to $d -max_paths 100000 \
                                  -nworst 1 -slack_lesser_than 0.00001]]
     puts $fh [format "latch_in  slack %8.4f ns  borrowed %.4f ns  latch endpoints at slack 0 (borrowing) %d of %d" \

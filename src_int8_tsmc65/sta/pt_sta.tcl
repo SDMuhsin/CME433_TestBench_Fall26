@@ -22,6 +22,7 @@ report_timing -to [all_registers -level_sensitive -data_pins] -max_paths 2 -nosp
 report_timing -through [mq65_latch_q_pins] -max_paths 2 -nosplit > $out/rpt/timing_rf_rd.rpt
 report_constraint -all_violators -nosplit > $out/rpt/violators.rpt
 report_global_timing                     > $out/rpt/global_timing.rpt
+report_disable_timing                    > $out/rpt/disable_timing.rpt
 
 set fh [open $out/summary.txt w]
 puts $fh "mq_chip 65 nm PrimeTime summary ($::env(MQ65_TAG))"
@@ -34,7 +35,7 @@ foreach line [split [read $fc] "\n"] { if {[regexp {^(Warning|Error|Information)
 close $fc
 puts $fh "parasitics annotation:"
 set fc [open $out/rpt/annotated_parasitics.rpt r]
-foreach line [split [read $fc] "\n"] { if {[regexp {^\s*\|.*\|} $line] || [regexp {^\s*(Net|Total|Pin)} $line]} { puts $fh "  $line" } }
+foreach line [split [read $fc] "\n"] { if {[string first "|" $line] >= 0} { puts $fh "  $line" } }
 close $fc
 close $fh
 exit
