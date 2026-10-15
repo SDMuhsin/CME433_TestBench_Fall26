@@ -4,7 +4,7 @@
 #   MQ65_PERIOD   clock period, ns            (default 40)
 #   MQ65_CORNER   ss | tt | ff: target library and RC corner (default ss)
 #   MQ65_TOPO     1 = topographical mode (Milkyway + TLU+), 0 = wire-load model
-#   MQ65_OUT      output directory (netlist, ddc, svf, reports, summary)
+#   MQ65_OUT      output directory (netlist, ddc, svf, spef, reports, summary)
 # Max library = MQ65_CORNER, min library ff for hold fixing (none in the ff run).
 
 source $::env(MQ65)/syn/common/libs.tcl
@@ -72,6 +72,11 @@ change_names -rules verilog -hierarchy
 write -format ddc -hierarchy -output $out/mq_chip.ddc
 write -format verilog -hierarchy -output $out/mq_chip.v
 write_sdc $out/mq_chip.sdc
+# estimated parasitics for PrimeTime (topographical virtual routing; max = this corner's RC, min = best RC)
+if {$topo} {
+    write_parasitics -output $out/mq_chip.max.spef
+    write_parasitics -min -output $out/mq_chip.min.spef
+}
 set_svf -off
 
 report_qor                              > $out/rpt/qor.rpt
