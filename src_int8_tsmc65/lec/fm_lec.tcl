@@ -21,13 +21,13 @@ read_db -technology_library [mq65_db $::env(MQ65_CORNER)]
 set_app_var search_path [concat . [mq65_rtl_incdirs]]
 if {$post} {
     read_verilog -container r -libname WORK -05 $syn/mq_chip.v
-    set impl $::env(MQ65_FM_IMPL)
+    set impl_net $::env(MQ65_FM_IMPL)
 } else {
     read_verilog -container r -libname WORK -05 [mq65_rtl_files]
-    set impl $syn/mq_chip.v
+    set impl_net $syn/mq_chip.v
 }
 set_top r:/WORK/mq_chip
-read_verilog -container i -libname WORK -05 $impl
+read_verilog -container i -libname WORK -05 $impl_net
 set_top i:/WORK/mq_chip
 
 match

@@ -9,4 +9,6 @@ mkdir -p $out
 cd $out
 tclsh $MQ65/ext/star_cmd.tcl $MQ65/build/pnr/$1 $out
 StarXtract -clean star_cmd >& star.log
-echo "STAR_DONE $1 errors `grep -ci '^error' star.log` spef `ls mq_chip.star_typ.spef |& grep -c spef`"
+set ok = 0
+if (-f mq_chip.star_typ.spef) set ok = 1
+echo "STAR_DONE $1 errors `grep -ci '^error' star.log` spef_written $ok"
