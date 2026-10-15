@@ -13,6 +13,8 @@ route_auto
 route_opt
 # a second incremental pass if setup at ss is still negative
 if {[get_attribute [get_timing_paths -scenarios func_ss -max_paths 1] slack] < 0} { route_opt }
+# clean up the routing DRCs left by the optimisation passes
+route_detail -incremental true -initial_drc_from_input true
 check_routes > [mq65_rpt route_check_routes.rpt]
 mq65_stage_reports route
 mq65_save_stage route
