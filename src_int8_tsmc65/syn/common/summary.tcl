@@ -64,7 +64,7 @@ proc mq65_put_area {fh} {
     set rf    [mq65_leaf *u_sram/u_rf/*]
     set a_all [mq65_area $all]
     puts $fh [format "total_cell_area_um2 %.1f" $a_all]
-    puts $fh [format "nand2_ref %s area_um2 %.3f" $::MQ65_NAND2 $nand2]
+    puts $fh [format "nand2_area_um2 %.3f" $nand2]
     puts $fh [format "gate_equivalents %.0f" [expr {$a_all / $nand2}]]
     puts $fh [format "leaf_cells %d" [mq65_count $all]]
     puts $fh [format "flops %d area %.1f" [mq65_count $seq_f] [mq65_area $seq_f]]
@@ -87,11 +87,24 @@ proc mq65_put_area {fh} {
     puts $fh [format "  %-10s %-24s %12.1f %8d" top_glue (top) [mq65_area $top] [mq65_count $top]]
 }
 
-proc mq65_summary {path period topo} {
+# DC report_area category lines and report_power totals (default switching activity)
+proc mq65_put_dc_reports {fh} {
+    redirect -variable ra {report_area -nosplit}
+    foreach k {Combinational Buf/Inv Noncombinational {Macro/Black Box} {Net Interconnect} {Total cell} Total} {
+        if {[regexp -line "^$k area:\\s+(\\S+)" $ra -> v]} { puts $fh [format "dc_area %-18s %s" $k $v] }
+    }
+    redirect -variable rp {report_power -nosplit}
+    foreach k {{Cell Internal Power} {Net Switching Power} {Total Dynamic Power} {Cell Leakage Power}} {
+        if {[regexp -line "^\\s*$k\\s+=\\s+(\\S+\\s+\\S+)" $rp -> v]} { puts $fh [format "dc_power %-20s %s" $k $v] }
+    }
+}
+
+proc mq65_summary {path period corner topo} {
     set fh [open $path w]
     puts $fh "mq_chip 65 nm DC summary"
-    puts $fh "period_ns $period  mode [expr {$topo ? {topographical} : {wire-load}}]  corner $::MQ65_CORNER_DESC"
+    puts $fh "period_ns $period  mode [expr {$topo ? {topographical} : {wire-load}}]  corner $corner ([mq65_oc $corner])"
     mq65_put_area $fh
+    mq65_put_dc_reports $fh
     mq65_put_timing $fh
     close $fh
 }

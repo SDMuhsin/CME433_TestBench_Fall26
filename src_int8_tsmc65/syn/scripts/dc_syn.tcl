@@ -1,16 +1,18 @@
 # DC synthesis of mq_chip on the 65 nm standard-cell library (compile_ultra, DesignWare, clock gating).
 # Environment (set by run_dc.csh):
-#   MQ65          server tree (~/mq65)
+#   MQ65          src_int8_tsmc65 directory of the repository clone
 #   MQ65_PERIOD   clock period, ns            (default 40)
+#   MQ65_CORNER   ss | tt | ff: target library and RC corner (default ss)
 #   MQ65_TOPO     1 = topographical mode (Milkyway + TLU+), 0 = wire-load model
 #   MQ65_OUT      output directory (netlist, ddc, svf, reports, summary)
-# Setup corner ss with ff as min library for hold fixing.
+# Max library = MQ65_CORNER, min library ff for hold fixing (none in the ff run).
 
 source $::env(MQ65)/syn/common/libs.tcl
 source $::env(MQ65)/syn/common/rtl.tcl
 source $::env(MQ65)/syn/common/summary.tcl
 
 set period [expr {[info exists ::env(MQ65_PERIOD)] ? $::env(MQ65_PERIOD) : 40}]
+set corner [expr {[info exists ::env(MQ65_CORNER)] ? $::env(MQ65_CORNER) : "ss"}]
 set topo   [expr {[info exists ::env(MQ65_TOPO)] ? $::env(MQ65_TOPO) : 1}]
 set out    $::env(MQ65_OUT)
 file mkdir $out/rpt
@@ -18,16 +20,16 @@ set_host_options -max_cores 8
 
 # ---------------------------------------------------------------- libraries
 set_app_var search_path [concat . $::MQ65_LIBDIR [mq65_rtl_incdirs] $search_path]
-set_app_var target_library [list [mq65_db ss]]
+set_app_var target_library [list [mq65_db $corner]]
 set_app_var synthetic_library dw_foundation.sldb
-set_app_var link_library [list * [mq65_db ss] dw_foundation.sldb]
-set_min_library [mq65_db ss] -min_version [mq65_db ff]
+set_app_var link_library [list * [mq65_db $corner] dw_foundation.sldb]
+if {$corner ne "ff"} { set_min_library [mq65_db $corner] -min_version [mq65_db ff] }
 if {$topo} {
     set mw $out/mq65_mw
     file delete -force $mw
     create_mw_lib -technology $::MQ65_TF -mw_reference_library $::MQ65_MW_REF $mw
     open_mw_lib $mw
-    mq65_rc_setup
+    mq65_rc_setup $corner ff
 }
 set_svf $out/mq_chip.svf
 
@@ -41,8 +43,8 @@ link
 
 # ---------------------------------------------------------------- constraints
 set ::mq_period $period
-set ::mq_lib [mq65_lib ss]
-set_operating_conditions -max [mq65_oc ss] -max_library [mq65_lib ss] \
+set ::mq_lib [mq65_lib $corner]
+set_operating_conditions -max [mq65_oc $corner] -max_library [mq65_lib $corner] \
                          -min [mq65_oc ff] -min_library [mq65_lib ff]
 if {!$topo} {
     set_wire_load_mode enclosed
@@ -78,8 +80,12 @@ report_area -nosplit                     > $out/rpt/area.rpt
 report_timing -max_paths 5 -nosplit      > $out/rpt/timing_max.rpt
 report_timing -delay_type min -max_paths 5 -nosplit > $out/rpt/timing_min.rpt
 report_constraint -all_violators -nosplit > $out/rpt/violators.rpt
+check_timing                             > $out/rpt/check_timing.rpt
+# latch RF: write path into the word latches (zero-cycle MCP) and latch -> read register
+report_timing -to [all_registers -level_sensitive -data_pins] -max_paths 2 -nosplit > $out/rpt/timing_rf_wr.rpt
+report_timing -from [all_registers -level_sensitive] -max_paths 2 -nosplit > $out/rpt/timing_rf_rd.rpt
 report_clock_gating -nosplit             > $out/rpt/clock_gating.rpt
 report_power -nosplit                    > $out/rpt/power_default.rpt
 report_hierarchy -noleaf                 > $out/rpt/hierarchy.rpt
-mq65_summary $out/summary.txt $period $topo
+mq65_summary $out/summary.txt $period $corner $topo
 exit

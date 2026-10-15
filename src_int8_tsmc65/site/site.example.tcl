@@ -9,7 +9,6 @@ set ::MQ65_LIBDIR <STDCELL_DB_DIR>
 set ::MQ65_VLOG   <STDCELL_VERILOG_MODEL>
 array set ::MQ65_CORNER_LIB {ss <STDCELL_LIB_SS> tt <STDCELL_LIB_TT> ff <STDCELL_LIB_FF>}
 array set ::MQ65_CORNER_OC  {ss <OPCOND_SS> tt <OPCOND_TT> ff <OPCOND_FF>}
-set ::MQ65_CORNER_DESC {ss (<OPCOND_SS>), min ff (<OPCOND_FF>)}
 set ::MQ65_WLM_GROUP <WIRE_LOAD_SELECTION_GROUP>
 
 # ---- physical (DC topographical mode)
@@ -18,10 +17,10 @@ set ::MQ65_MW_REF <MILKYWAY_REFERENCE_LIB>
 set ::MQ65_TF     <TECHFILE>
 set ::MQ65_TLU    <RC_TECH_DIR>
 set ::MQ65_TLU_MAP <RC_TECH_LAYER_MAP>
-# RC setup for DC topographical mode: load the max (ss) / min (ff) RC model files and the
-# layer map with the DC command for your kit's RC model format.
-proc mq65_rc_setup {} {
-    <RC_SETUP_CMD> <MAX_OPT> [mq65_tlu ss] <MIN_OPT> [mq65_tlu ff] <MAP_OPT> $::MQ65_TLU_MAP
+# RC setup for DC topographical mode: load the max / min RC model files of the given corners
+# and the layer map with the DC command for your kit's RC model format.
+proc mq65_rc_setup {max min} {
+    <RC_SETUP_CMD> <MAX_OPT> [mq65_tlu $max] <MIN_OPT> [mq65_tlu $min] <MAP_OPT> $::MQ65_TLU_MAP
 }
 array set ::MQ65_CORNER_TLU {
     ss <RC_TECH_FILE_WORST>

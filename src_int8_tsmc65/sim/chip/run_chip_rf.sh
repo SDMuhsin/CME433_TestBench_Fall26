@@ -26,13 +26,13 @@ LOG=$OUT/tb_mq_chip.log
 if [ $USE_IV -eq 1 ]; then
     iverilog -g2012 -s tb_mq_chip -o "$OUT/tb.vvp" $INC $RTL "$SRC/tb/chip/tb_mq_chip.sv" \
         2>"$OUT/compile.log" || { echo "FAIL: compile (see $OUT/compile.log)"; exit 1; }
-    vvp -n "$OUT/tb.vvp" "+VEC=$VEC" >"$LOG"
+    stdbuf -oL vvp -n "$OUT/tb.vvp" "+VEC=$VEC" >"$LOG"
 else
     VL=${VERILATOR:-$(command -v verilator || ls -d /nix/store/*-verilator-5*/bin/verilator 2>/dev/null | head -1)}
     "$VL" --binary --timing -j 16 -Wno-fatal -Wno-lint -Wno-style $INC --top-module tb_mq_chip \
         -Mdir "$OUT/obj" -o "$OUT/tb_mq_chip" -CFLAGS -O2 $RTL "$SRC/tb/chip/tb_mq_chip.sv" \
         >"$OUT/build.log" 2>&1 || { echo "FAIL: verilator build (see $OUT/build.log)"; exit 1; }
-    "$OUT/tb_mq_chip" "+VEC=$VEC" >"$LOG"
+    stdbuf -oL "$OUT/tb_mq_chip" "+VEC=$VEC" >"$LOG"
 fi
 grep -cE '^TOKEN' "$LOG" | sed 's/^/tokens reported: /'
 grep -E '^(CYCLES|PASS|FAIL)' "$LOG" | tail -4
