@@ -31,6 +31,11 @@ if {$post} {
 set_top r:/WORK/mq_chip
 read_verilog -container i -libname WORK -05 $impl_net
 set_top i:/WORK/mq_chip
+# routed netlist: the block PG ports carry the constant tie-offs
+if {$post} {
+    set_constant -type port i:/WORK/mq_chip/[lindex $::MQ65_PG 0] 1
+    set_constant -type port i:/WORK/mq_chip/[lindex $::MQ65_PG 1] 0
+}
 
 match
 report_unmatched_points                  > $out/rpt/unmatched.rpt
