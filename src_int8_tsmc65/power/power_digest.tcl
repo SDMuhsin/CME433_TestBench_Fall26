@@ -9,14 +9,14 @@ proc mq65_put_saif_window {fh saif} {
     puts $fh [format "saif_window_s %.6e  (%s x %s %s)" [expr {$dur * $tsn * $scale}] $dur $tsn $tsu]
 }
 
-# annotation table rows of report_switching_activity
-proc mq65_put_coverage {fh rpt} {
+# SAIF annotation (read_saif summary) and the report_switching_activity table
+proc mq65_put_coverage {fh saif_rpt sw_rpt} {
     puts $fh "switching activity annotation:"
-    set f [open $rpt r]
-    foreach line [split [read $f] "\n"] {
-        if {[regexp {^\s*(Object|Nets|Pins|Ports|Total|Cells|Clock|Sequential|Combinational|Register|Driver|Black|Net|Pin|Static|Toggle)} $line] ||
-            [regexp {%} $line]} { puts $fh "  $line" }
-    }
+    set f [open $saif_rpt r]
+    foreach line [split [read $f] "\n"] { if {[regexp {^(Total|Number)} $line]} { puts $fh "  saif: $line" } }
+    close $f
+    set f [open $sw_rpt r]
+    foreach line [split [read $f] "\n"] { if {[string first "|" $line] >= 0 || [regexp {%} $line]} { puts $fh "  $line" } }
     close $f
 }
 
