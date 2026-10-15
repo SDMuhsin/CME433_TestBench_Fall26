@@ -1,0 +1,17 @@
+calibre lvs digest of lvs.rep
+result: #           #     INCORRECT     #  
+  Ports:              5         5
+  Nets:               7         7
+  Instances:          3         3         MN (4 pins)
+  Total Inst:         6         6
+  Ports:              5         5
+  Nets:               6         6
+  Instances:          1         1         _invv (4 pins)
+  Total Inst:         2         2
+discrepancy lines: 151
+        2   Error:    Connectivity errors.
+        1   Error:    Different numbers of nets (see below).
+        1   Error:    Different numbers of nets.
+       25   Warning:  Ambiguity points were found and resolved arbitrarily.
+        8   Warning:  Unbalanced smashed mosfets were matched.
+        1   ne  = Naming Error (same layout name found in source

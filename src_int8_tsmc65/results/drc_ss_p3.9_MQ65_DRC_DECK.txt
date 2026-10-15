@@ -1,0 +1,19 @@
+calibre drc digest of drc.sum
+total 12 results in 8 rule checks (density rules: 12)
+rule checks with results:
+  M2.DN.1 1
+  M3.DN.1 5
+  M4.DN.1 1
+  M5.DN.1 1
+  M6.DN.1 1
+  M7.DN.1 1
+  M8.DN.1 1
+  M9.DN.1 1
+  RULECHECK G.1:DNWi ...................... TOTAL Result Count = 0 (0)
+  RULECHECK G.1:NWi ....................... TOTAL Result Count = 0 (0)
+  RULECHECK G.1:OD_18i .................... TOTAL Result Count = 0 (0)
+  RULECHECK G.1:OD_25i .................... TOTAL Result Count = 0 (0)
+  RULECHECK G.1:OD25_33 ................... TOTAL Result Count = 0 (0)
+  RULECHECK G.1:OD25_18 ................... TOTAL Result Count = 0 (0)
+  RULECHECK G.1:OD_33i .................... TOTAL Result Count = 0 (0)
+  RULECHECK G.1:OD_DECAP .................. TOTAL Result Count = 0 (0)

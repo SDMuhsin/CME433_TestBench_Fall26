@@ -1,0 +1,28 @@
+mq_chip 65 nm layout summary (ss_p3.9, core-only block, no pad ring)
+netlist ss_p3.9  period_ns 4  target_util 0.65
+die_um 590.60 x 589.20  die_area_um2 347982
+core_um 566.60 x 565.20  core_area_um2 320242
+std_cells 57047  std_cell_area_um2 208251  utilisation 65.0 %
+filler_cells 72793  antenna_diodes 0
+routing: Total wire length = 1206521.21 micron
+icc2 timing (TLU+ RC of each corner, propagated clocks):
+  func_ss  setup WNS  -0.0052 ns  TNS    -0.029 ns  violating_paths 10
+  func_tt  setup WNS   0.6588 ns  TNS     0.000 ns  violating_paths 0
+  func_ff  hold  WNS   0.0000 ns  TNS     0.000 ns  violating_paths 0
+checks:
+  Total number of open nets = 0, of which 0 are frozen
+  Total number of open nets = 0, of which 0 are frozen
+  Total number of DRCs = 0
+  Total number of antenna violations = 0
+  Total number of short violations is 0.
+  Total number of open nets is 0.
+  Total number of floating route violations is 0.
+  Number of floating wires: 0
+  Number of floating vias: 0
+  Number of floating std cells: 0
+  Number of floating terminals: 0
+  Number of floating wires: 0
+  Number of floating vias: 0
+  Number of floating std cells: 0
+  Number of floating terminals: 0
+  TOTAL 0 Violations.

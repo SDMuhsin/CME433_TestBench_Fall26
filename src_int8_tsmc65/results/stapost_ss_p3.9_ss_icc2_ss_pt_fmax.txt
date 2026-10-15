@@ -1,0 +1,9 @@
+mq_chip 65 nm post-layout Fmax sweep (stapost_ss_p3.9_ss_icc2_ss_pt_fmax), corner ss, parasitics icc2_ss, propagated clocks
+period 4.200 ns  setup WNS   0.0000  TNS     0.000  violating 0  hold WNS   0.1499  worst: u_core/u_mem/u_h/GEN_H_5__u_sram/u_rf/wd_r_reg_1_/CP -> u_core/u_mem/u_h/GEN_H_5__u_sram/u_rf/GEN_W_203__lat_reg_1_/D
+period 4.100 ns  setup WNS   0.0000  TNS     0.000  violating 0  hold WNS   0.1385  worst: u_core/u_mem/u_h/GEN_H_5__u_sram/u_rf/wd_r_reg_1_/CP -> u_core/u_mem/u_h/GEN_H_5__u_sram/u_rf/GEN_W_203__lat_reg_1_/D
+period 4.000 ns  setup WNS   0.0000  TNS     0.000  violating 0  hold WNS   0.1185  worst: u_core/u_mem/u_h/GEN_H_5__u_sram/u_rf/wd_r_reg_1_/CP -> u_core/u_mem/u_h/GEN_H_5__u_sram/u_rf/GEN_W_203__lat_reg_1_/D
+period 3.950 ns  setup WNS  -0.0322  TNS    -0.512  violating 36  hold WNS   0.1085  worst: u_core/u_seq/u_loop/pc_reg_7_/CP -> u_core/u_dp/u_wb/y_reg_12_/D
+period 3.900 ns  setup WNS  -0.0822  TNS    -3.123  violating 89  hold WNS   0.0985  worst: u_core/u_seq/u_loop/pc_reg_7_/CP -> u_core/u_dp/u_wb/y_reg_12_/D
+period 3.850 ns  setup WNS  -0.1322  TNS   -14.131  violating 432  hold WNS   0.0885  worst: u_core/u_seq/u_loop/pc_reg_7_/CP -> u_core/u_dp/u_wb/y_reg_12_/D
+period 3.800 ns  setup WNS  -0.1822  TNS   -52.257  violating 1096  hold WNS   0.0785  worst: u_core/u_seq/u_loop/pc_reg_7_/CP -> u_core/u_dp/u_wb/y_reg_12_/D
+period 3.700 ns  setup WNS  -0.2822  TNS  -216.790  violating 2142  hold WNS   0.0585  worst: u_core/u_seq/u_loop/pc_reg_7_/CP -> u_core/u_dp/u_wb/y_reg_12_/D
