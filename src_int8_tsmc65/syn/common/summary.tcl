@@ -108,7 +108,7 @@ proc mq65_put_dc_reports {fh} {
 proc mq65_summary {path period corner topo} {
     set fh [open $path w]
     puts $fh "mq_chip 65 nm DC summary"
-    puts $fh "period_ns $period  mode [expr {$topo ? {topographical} : {wire-load}}]  corner $corner ([mq65_oc $corner])"
+    puts $fh "period_ns $period  mode [expr {$topo ? {topographical} : {wire-load}}]  corner $corner"
     mq65_put_area $fh
     mq65_put_dc_reports $fh
     mq65_put_timing $fh

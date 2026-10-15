@@ -1,0 +1,43 @@
+mq_chip 65 nm DC summary
+period_ns 5  mode topographical  corner ss
+total_cell_area_um2 207794.5
+nand2_area_um2 1.440
+gate_equivalents 144302
+leaf_cells 58558
+flops 0 area 0.0
+latches 22528 area 113541.1
+icg_cells 2890 (rf_word_gates 2816) area 18727.2
+rf_total (11 x 256x8) cells 42274 area 153158.8 (73.7 %)
+rf_latches area 0.0
+rf_icg area 18247.7
+rf_seq_all (latches+flops+icg) area 108935.6
+logic_outside_rf area 54635.8
+hierarchy (leaf-cell area um2, cells):
+  host       u_host                         1188.4      305
+  csr        u_csr                           132.1       51
+  core       u_core                       206436.6    58186
+  fifo       u_core/u_fifo                  2280.2      648
+  seq        u_core/u_seq                   5700.6     1878
+  ucode_rom  u_core/u_seq/u_rom             1348.6      692
+  dp         u_core/u_dp                    8236.4     2639
+  mul24x17   u_core/u_dp/u_mul              3522.2      957
+  lane       u_core/u_dp/u_lane             1438.9      386
+  wb         u_core/u_dp/u_wb               3134.5     1251
+  nlu        u_core/u_nlu                   2452.7     1142
+  nlu_rom    u_core/u_nlu/u_rom             1334.9      690
+  arb        u_core/u_arb                    136.4       40
+  mem        u_core/u_mem                 187612.2    51829
+  hmem       u_core/u_mem/u_h             153345.6    42339
+  bmem       u_core/u_mem/u_b              34124.0     9427
+  top_glue   (top)                            37.4       16
+dc_area Combinational      68513.760521
+dc_area Buf/Inv            7405.920285
+dc_area Noncombinational   139280.759324
+dc_area Macro/Black Box    0.000000
+dc_area Net Interconnect   undefined
+dc_area Total cell         207794.519845
+dc_area Total              undefined
+setup  WNS    0.000 ns  TNS     0.000 ns  violating_endpoints 6122
+       worst path: u_core/u_mem/u_h/GEN_H_2__u_sram/u_rf/wd_r_reg_7_/CP -> u_core/u_mem/u_h/GEN_H_2__u_sram/u_rf/GEN_W_97__lat_reg_7_/D (arrival 0.745 ns)
+hold   WNS    0.001 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_core/u_seq/lane_first_reg/CP -> u_core/u_dp/u_lane/first1_reg/D (arrival 0.070 ns)

@@ -83,7 +83,7 @@ report_constraint -all_violators -nosplit > $out/rpt/violators.rpt
 check_timing                             > $out/rpt/check_timing.rpt
 # latch RF: write path into the word latches (zero-cycle MCP) and latch -> read register
 report_timing -to [all_registers -level_sensitive -data_pins] -max_paths 2 -nosplit > $out/rpt/timing_rf_wr.rpt
-report_timing -from [all_registers -level_sensitive] -max_paths 2 -nosplit > $out/rpt/timing_rf_rd.rpt
+report_timing -through [all_registers -level_sensitive -output_pins] -max_paths 2 -nosplit > $out/rpt/timing_rf_rd.rpt
 report_clock_gating -nosplit             > $out/rpt/clock_gating.rpt
 report_power -nosplit                    > $out/rpt/power_default.rpt
 report_hierarchy -noleaf                 > $out/rpt/hierarchy.rpt

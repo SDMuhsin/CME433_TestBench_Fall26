@@ -1,0 +1,45 @@
+mq_chip 65 nm DC summary
+period_ns 2.7  mode topographical  corner ss
+total_cell_area_um2 216181.1
+nand2_area_um2 1.440
+gate_equivalents 150126
+leaf_cells 60859
+breakdown (cells, area um2):
+  comb           34449      76784.0   35.5 %
+  flops            992       7128.7    3.3 %
+  latches        22528     113541.1   52.5 %
+  icg             2890      18727.2    8.7 %
+  rf_total       42504     155727.0   72.0 %
+  rf_latches     22528     113541.1   52.5 %
+  rf_icg          2846      18442.1    8.5 %
+  rf_flops         304       2185.9    1.0 %
+  rf_comb        26567      57613.7   26.7 %
+hierarchy (leaf-cell area um2, cells):
+  host       u_host                         1206.0      307
+  csr        u_csr                           133.2       51
+  core       u_core                       214782.5    60480
+  fifo       u_core/u_fifo                  2312.6      650
+  seq        u_core/u_seq                   7199.3     2348
+  ucode_rom  u_core/u_seq/u_rom             2462.8     1012
+  dp         u_core/u_dp                   11104.9     3930
+  mul24x17   u_core/u_dp/u_mul              4928.4     1387
+  lane       u_core/u_dp/u_lane             1595.2      591
+  wb         u_core/u_dp/u_wb               4282.9     1865
+  nlu        u_core/u_nlu                   2865.6     1407
+  nlu_rom    u_core/u_nlu/u_rom             1494.4      799
+  arb        u_core/u_arb                    218.2       59
+  mem        u_core/u_mem                 191034.4    52065
+  hmem       u_core/u_mem/u_h             156073.3    42586
+  bmem       u_core/u_mem/u_b              34730.6     9416
+  top_glue   (top)                            59.4       21
+dc_area Combinational      76784.040679
+dc_area Buf/Inv            9258.480344
+dc_area Noncombinational   139397.039289
+dc_area Macro/Black Box    0.000000
+dc_area Total cell         216181.079967
+dc_power internal 6.9178 mW  switching 2.6818e-02 mW  leakage 1.2384e+06 nW  total 8.1830 mW  (default activity)
+setup  WNS   0.0000 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_core/u_mem/u_h/GEN_H_2__u_sram/u_rf/wd_r_reg_3_/CP -> u_core/u_mem/u_h/GEN_H_2__u_sram/u_rf/GEN_W_32__lat_reg_3_/D (arrival 0.587 ns)
+hold   WNS   0.0019 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_host/u_sync/io_s1_reg_2_/CP -> u_host/u_sync/io_reg_2_/D (arrival 0.076 ns)
+setup_to_flops WNS   0.0001 ns  worst path: u_core/u_seq/u_loop/pc_reg_4_/CP -> u_core/u_dp/u_wb/prod_reg_38_/D (arrival 2.448 ns)
