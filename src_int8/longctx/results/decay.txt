@@ -1,0 +1,19 @@
+dA saturates at 1 - 2^-15 (effective tau 32768) for |p| <= 1.907e-06 (true tau >= 756388 tokens)
+tau range [tokens]   codes  max|dA err| LSB  max|rel(1-dA)|  mean rel(1-dA)  sat@1-2^-15  usage
+[     0,       1)  119253         1.19      5.24e-05      -1.75e-06            0  1.59e-01
+[     1,      10)   10637         2.02      5.80e-04      -5.86e-05            0  4.18e-01
+[    10,     100)    1063         2.24      6.25e-03      -8.13e-04            0  -
+[   100,    1000)     107         2.12      1.46e-02      -6.08e-03            0  -
+[  1000,   10000)      10         0.64      7.66e-02      +2.08e-02            0  -
+[ 10000,  100000)       1         0.18      6.54e-02      +6.54e-02            0  -
+[100000,     inf)       1         0.96      2.21e+01      +2.21e+01            1  -
+usage: share of decay evaluations with |p| < 2^-6 (tau > 92): 0.156; with p <= -16 (dA = 0): 0.0103; rows below the bin resolution show "-"
+free decay of the INT24 state, steps to 1/e:  tau  dA(hw)  min / median / max  (stuck)
+      10  0.904877      10 /     11 /     11  (0/97 never reach 1/e)
+      30  0.967285      30 /     31 /     31  (0/97 never reach 1/e)
+     100  0.990112     101 /    101 /    101  (0/97 never reach 1/e)
+     300  0.996704     301 /    303 /    303  (0/97 never reach 1/e)
+    1000  0.998993     993 /    993 /    994  (1/97 never reach 1/e)
+    3000  0.999664    2978 /   2979 /   3003  (1/97 never reach 1/e)
+   10000  0.999908   10888 /  10923 /  11430  (1/97 never reach 1/e)
+   30000  0.999969   30155 /  32774 /  34978  (2/97 never reach 1/e)

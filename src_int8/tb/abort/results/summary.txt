@@ -1,0 +1,25 @@
+tb_mq_abort final runs, 2026-10-14 (src_int8/tb/run_abort.sh; summary lines copied from the run logs)
+
+== Verilator seed 1 (+SEED=1 +NRAND=40)
+[verilator]   state-safe edge: CONV0[0] 05 -> e3 after 197 bytes, every other state byte kept
+[verilator] X CHECK: 0 cycles with X/Z on a driven IO bit or a pad control output; tolerated: 0 cycles of never-written SRAM data in the power-up read-back; 0 cycles with an X OUT value behind OE = 0
+[verilator] PASS: tb_mq_abort -- 170 scenarios, 185 aborts, 174 tokens bit-exact (logits + state), 333 state checks
+rc=0
+
+== Verilator seed 2 (+SEED=2 +NRAND=80)
+[verilator]   state-safe edge: CONV0[0] 05 -> e3 after 197 bytes, every other state byte kept
+[verilator] X CHECK: 0 cycles with X/Z on a driven IO bit or a pad control output; tolerated: 0 cycles of never-written SRAM data in the power-up read-back; 0 cycles with an X OUT value behind OE = 0
+[verilator] PASS: tb_mq_abort -- 210 scenarios, 223 aborts, 214 tokens bit-exact (logits + state), 410 state checks
+rc=0
+
+== Verilator seed 3 (+SEED=3 +NRAND=80)
+[verilator]   state-safe edge: CONV0[0] 05 -> e3 after 197 bytes, every other state byte kept
+[verilator] X CHECK: 0 cycles with X/Z on a driven IO bit or a pad control output; tolerated: 0 cycles of never-written SRAM data in the power-up read-back; 0 cycles with an X OUT value behind OE = 0
+[verilator] PASS: tb_mq_abort -- 210 scenarios, 215 aborts, 214 tokens bit-exact (logits + state), 400 state checks
+rc=0
+
+== iverilog seed 1 (4-state)
+[iverilog]   state-safe edge: CONV0[0] 05 -> e3 after 197 bytes, every other state byte kept
+[iverilog] X CHECK: 0 cycles with X/Z on a driven IO bit or a pad control output; tolerated: 7 cycles of never-written SRAM data in the power-up read-back; 450609 cycles with an X OUT value behind OE = 0
+[iverilog] PASS: tb_mq_abort -- 170 scenarios, 185 aborts, 174 tokens bit-exact (logits + state), 333 state checks
+rc=0

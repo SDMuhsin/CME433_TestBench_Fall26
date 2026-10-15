@@ -1,0 +1,24 @@
+# src/flow/runs/mb_final/06-yosys-synthesis/mb_chip.nl.v
+origin       cells   area_um2
+synth         6138     160994
+tie            235       2063
+sram            10          0
+hier                                            cells   area_um2
+u_core.u_lane                                    2085      50257
+u_core.u_seq                                     1620      37775
+u_core.u_nlu                                      730      17083
+u_core.u_fifo                                     404      15114
+u_host                                            456      13162
+u_core.u_seq.u_loop                               383      10666
+u_core.u_seq.u_rf                                 218       7971
+u_core.u_arb                                      240       5593
+u_host.u_sync                                      26       1170
+u_core.u_mem.GEN_SRAM[8]                           44        988
+(unresolved)                                       68        863
+u_csr                                              27        762
+u_core.u_mem                                       24        687
+u_core.u_mem.GEN_SRAM[0]                           34        641
+u_core.u_mem.GEN_SRAM[2]                           10        255
+u_core.u_mem.GEN_SRAM[4]                            3         48
+u_core.u_mem.GEN_SRAM[6]                            1         22
+u_core.m_addr[7],\u_core.m_addr[6],\u_core         10          0

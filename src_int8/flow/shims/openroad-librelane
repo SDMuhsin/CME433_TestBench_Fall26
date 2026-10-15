@@ -1,0 +1,3 @@
+#!/bin/bash
+# iic-osic-tools name -> LibreLane's openroad (used by build.sh for connect_power.py)
+exec openroad "$@"

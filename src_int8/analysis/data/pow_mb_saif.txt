@@ -1,0 +1,66 @@
+# build/power/power_inst.mb.saif.rpt
+# total internal 12.705 mW switching 5.493 mW
+origin      cells   int_mW    sw_mW   tot_mW
+cts           294    9.175    4.714   13.889
+sram           10    2.264    0.000    2.264
+synth        7935    0.798    0.446    1.244
+fanout        625    0.182    0.146    0.327
+wire          372    0.143    0.099    0.242
+max_cap       356    0.107    0.069    0.176
+hold          280    0.033    0.018    0.051
+iobuf          16    0.003    0.001    0.004
+diode        1395    0.000    0.000    0.000
+?           33127    0.000    0.000    0.000
+tap          5459    0.000    0.000    0.000
+tie           235    0.000    0.000    0.000
+hier                                      cells   int_mW    sw_mW   tot_mW
+u_core.u_lane                              2406    3.443    1.878    5.321
+u_core.u_mem.GEN_SRAM[0]                     37    1.055    0.947    2.002
+u_core.u_fifo                               596    1.377    0.609    1.986
+u_core.u_seq                               2772    1.311    0.665    1.976
+u_core.u_nlu                               1109    1.171    0.607    1.777
+u_core.u_mem.GEN_SRAM[6]                     17    1.397    0.002    1.399
+u_core.u_seq.u_rf                           610    0.960    0.320    1.280
+u_host                                      572    0.612    0.239    0.851
+u_core.u_mem.GEN_SRAM[8]                     45    0.778    0.002    0.779
+u_core.u_seq.u_loop                         600    0.409    0.154    0.563
+(unresolved)                               2220    0.073    0.039    0.113
+u_core.u_mem.GEN_SRAM[2]                     10    0.033    0.001    0.034
+u_core.u_mem.GEN_SRAM[4]                     16    0.031    0.000    0.031
+u_core.u_arb                                312    0.020    0.008    0.028
+u_host.u_sync                                60    0.017    0.011    0.028
+u_core.u_mem                                 79    0.018    0.008    0.025
+u_core.u_mem.GEN_SRAM[1]                     13    0.001    0.000    0.001
+u_core.u_mem.GEN_SRAM[7]                      5    0.000    0.000    0.001
+u_csr                                        32    0.000    0.000    0.001
+u_core.u_mem.GEN_SRAM[9]                      6    0.000    0.000    0.001
+u_core.u_mem.GEN_SRAM[3]                      1    0.000    0.000    0.000
+(not in csv)                              33127    0.000    0.000    0.000
+hier (split)                             flops  cts_mW logic_mW repair_mW
+u_core.u_lane                              144   4.381    0.724     0.216
+u_core.u_mem.GEN_SRAM[0]                     0   1.966    0.000     0.036
+u_core.u_fifo                              149   1.830    0.091     0.065
+u_core.u_seq                                86   1.542    0.191     0.243
+u_core.u_nlu                                46   1.699    0.051     0.027
+u_core.u_mem.GEN_SRAM[6]                     0   0.000    0.000     1.398
+u_core.u_seq.u_rf                           80   1.205    0.003     0.073
+u_host                                      78   0.738    0.102     0.012
+u_core.u_mem.GEN_SRAM[8]                     1   0.000    0.002     0.778
+u_core.u_seq.u_loop                         54   0.506    0.041     0.016
+(unresolved)                                 0   0.000    0.008     0.104
+u_core.u_mem.GEN_SRAM[2]                     0   0.000    0.001     0.033
+u_core.u_mem.GEN_SRAM[4]                     0   0.000    0.000     0.031
+u_core.u_arb                                11   0.007    0.014     0.008
+ref             cells   tot_mW
+clkbuff_12        205   13.516
+sram256x8m8wm1     10    2.264
+buff_2            929    0.472
+clkbuff_4         355    0.308
+mux2_2            763    0.208
+xnor2_2           327    0.153
+clkbuff_8         115    0.116
+and2_2            606    0.113
+inv_6              19    0.106
+inv_4              30    0.098
+ao22_2            381    0.091
+nand2_2           534    0.079

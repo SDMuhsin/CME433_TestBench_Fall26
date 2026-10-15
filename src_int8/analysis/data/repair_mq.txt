@@ -1,0 +1,90 @@
+### diode: 2239 cells on 345 distinct source nets/drivers; top by count:
+    332      0.0 uW  u_core.s_wdata
+     87      0.0 uW  u_core.m_addr
+     64      0.0 uW  u_core.u_mem.u_b.q1
+     42      0.0 uW  u_core.u_mem.u_h.GEN_H[7].u_sram.rdata
+     35      0.0 uW  u_core.u_seq.va
+     28      0.0 uW  _00013_
+     21      0.0 uW  u_core.u_mem.u_h.GEN_H[2].u_sram.rdata
+     21      0.0 uW  ?
+     20      0.0 uW  u_core.u_mem.u_h.GEN_H[0].u_sram.rdata
+     20      0.0 uW  _06767_
+     20      0.0 uW  _06715_
+     18      0.0 uW  u_core.u_mem.u_h.GEN_H[3].u_sram.rdata
+     17      0.0 uW  u_core.l_init
+     17      0.0 uW  _06662_
+  top by power:
+      6      0.0 uW  _00763_
+      3      0.0 uW  _00768_
+      6      0.0 uW  _01806_
+      6      0.0 uW  _03034_
+     28      0.0 uW  _00013_
+      4      0.0 uW  _01817_
+      9      0.0 uW  _01415_
+      2      0.0 uW  _04056_
+### fanout: 910 cells on 229 distinct source nets/drivers; top by count:
+     61     14.4 uW  u_core.u_seq.pc
+     40     86.3 uW  u_core.s_wdata
+     32      0.0 uW  ?
+     30     45.3 uW  u_core.u_fifo.rp
+     21      2.0 uW  u_core.u_dp.u_lane.ps_r
+     17     22.6 uW  st_byte
+     13      2.7 uW  _00013_
+     13      0.8 uW  _03587_
+     11      3.2 uW  _01879_
+     10     37.7 uW  u_core.l_issue
+      9     67.6 uW  _01703_
+      9      0.4 uW  _03575_
+      9      8.7 uW  _07277_
+      8      9.3 uW  u_core.m_addr
+  top by power:
+     40     86.3 uW  u_core.s_wdata
+      9     67.6 uW  _01703_
+     30     45.3 uW  u_core.u_fifo.rp
+     10     37.7 uW  u_core.l_issue
+      8     34.5 uW  _01415_
+      4     27.0 uW  _03413_
+      6     22.9 uW  _00775_
+     17     22.6 uW  st_byte
+### hold: 244 cells on 53 distinct source nets/drivers; top by count:
+     38     22.6 uW  u_core.u_seq.va
+     23      0.0 uW  u_core.l_init
+     17     26.2 uW  u_core.s_wdata
+     16      0.1 uW  u_core.u_seq.u_rf.r[5]
+     16      0.0 uW  u_core.u_seq.u_rf.r[1]
+     15      1.0 uW  u_core.u_seq.vb
+     15      0.0 uW  u_core.u_seq.u_rf.r[6]
+     15      0.1 uW  u_core.u_dp.u_wb.rq_m
+     15      0.1 uW  u_core.u_seq.u_rf.r[4]
+     13      0.0 uW  h_addr
+      4      2.8 uW  u_host.u_sync.io_s1
+      3      1.9 uW  u_core.m_addr
+      3      0.0 uW  busy
+      3      1.0 uW  u_core.l_b
+  top by power:
+     17     26.2 uW  u_core.s_wdata
+     38     22.6 uW  u_core.u_seq.va
+      2     10.2 uW  _02874_
+      2      7.8 uW  u_host.u_sync.sclk_s
+      1      5.3 uW  _02846_
+      4      2.8 uW  u_host.u_sync.io_s1
+      1      2.5 uW  _01412_
+      1      2.1 uW  u_core.u_seq.ph
+### max_cap: 486 cells on 224 distinct source nets/drivers; top by count:
+     38     72.8 uW  u_core.m_addr
+     37      0.0 uW  ?
+     20      5.8 uW  u_core.u_seq.pc
+     15      3.5 uW  _00013_
+     12     24.5 uW  u_core.u_fifo.rp
+     12      1.4 uW  u_core.u_dp.u_lane.ps_r
+      9     61.2 uW  u_core.l_issue
+      6      4.3 uW  _07027_
+      6     37.1 uW  _01415_
+      6      8.8 uW  _07277_
+      6      2.7 uW  _01879_
+      5      2.1 uW  u_core.u_dp.u_lane.first1
+      5     32.0 uW  _04393_
+      4      2.6 uW  _01505_
+  top by power:
+     38     72.8 uW  u_core.m_addr
+      9     61.2 uW  u_core.l_issue

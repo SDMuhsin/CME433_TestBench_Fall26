@@ -1,0 +1,62 @@
+# build/power/power_inst.mq.saif.rpt
+# total internal 18.860 mW switching 9.030 mW
+origin      cells   int_mW    sw_mW   tot_mW
+cts           374   11.322    5.815   17.137
+synth       10630    3.585    1.808    5.392
+sram           11    2.166    0.000    2.166
+wire          565    0.818    0.678    1.496
+fanout        910    0.503    0.393    0.895
+max_cap       486    0.402    0.302    0.704
+hold          244    0.063    0.033    0.096
+iobuf          16    0.003    0.001    0.004
+diode        2239    0.000    0.000    0.000
+?           32586    0.000    0.000    0.000
+tap          4923    0.000    0.000    0.000
+tie           238    0.000    0.000    0.000
+hier                                      cells   int_mW    sw_mW   tot_mW
+u_core.u_dp.u_lane                         2083    2.871    1.474    4.345
+u_core.u_seq                               3773    2.568    1.424    3.992
+u_core.u_dp.u_wb                           2593    2.538    1.243    3.781
+u_core.u_fifo                               581    2.130    1.066    3.197
+u_core.u_mem.u_b                            159    2.361    0.391    2.752
+u_core.u_seq.u_rf                           599    1.528    0.800    2.328
+u_core.u_mem.u_h                            205    1.149    0.771    1.921
+u_host                                      639    1.169    0.558    1.726
+u_core.u_dp                                 556    0.574    0.279    0.853
+u_host.u_sync                                75    0.503    0.279    0.782
+u_core.u_nlu                                619    0.485    0.263    0.748
+u_core.u_seq.u_loop                         671    0.527    0.208    0.735
+(unresolved)                               2645    0.371    0.236    0.607
+u_core.u_arb                                448    0.052    0.025    0.077
+u_core.u_mem                                 48    0.015    0.010    0.025
+u_csr                                        19    0.020    0.000    0.020
+(not in csv)                              32586    0.000    0.000    0.000
+top                                        4923    0.000    0.000    0.000
+hier (split)                             flops  cts_mW logic_mW repair_mW
+u_core.u_dp.u_lane                          45   0.866    2.528     0.951
+u_core.u_seq                               129   2.664    0.628     0.699
+u_core.u_dp.u_wb                           136   1.998    1.215     0.567
+u_core.u_fifo                              150   3.000    0.108     0.090
+u_core.u_mem.u_b                             2   0.730    0.009     2.013
+u_core.u_seq.u_rf                          112   2.154    0.005     0.169
+u_core.u_mem.u_h                             2   1.651    0.004     0.266
+u_host                                      78   1.574    0.122     0.031
+u_core.u_dp                                 32   0.527    0.238     0.088
+u_host.u_sync                               13   0.759    0.005     0.018
+u_core.u_nlu                                27   0.566    0.140     0.042
+u_core.u_seq.u_loop                         56   0.615    0.082     0.038
+(unresolved)                                 0   0.000    0.249     0.358
+u_core.u_arb                                17   0.013    0.045     0.019
+ref             cells   tot_mW
+clkbuff_12        256   16.624
+sram256x8m8wm1     11    2.166
+buff_2           1369    2.059
+xnor2_2           788    1.491
+clkbuff_4         567    1.098
+mux2_2           1167    0.537
+xor2_2            278    0.505
+and2_2            782    0.466
+maj3_2            305    0.332
+nand2_2           624    0.251
+ao21_2            453    0.226
+ao31_2            447    0.216

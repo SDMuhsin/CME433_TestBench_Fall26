@@ -1,0 +1,24 @@
+# src_int8/flow/runs/mq_final/06-yosys-synthesis/mq_chip.nl.v
+origin       cells   area_um2
+synth         8704     227813
+tie            238       2090
+sram            11          0
+hier                                            cells   area_um2
+u_core.u_dp.u_wb                                 1980      50259
+u_core.u_seq                                     2099      48560
+u_core.u_dp.u_lane                               1761      43463
+u_core.u_fifo                                     433      15696
+u_host                                            476      13549
+u_core.u_nlu                                      516      11944
+u_core.u_seq.u_rf                                 303      11145
+u_core.u_seq.u_loop                               393      10893
+u_core.u_dp                                       392      10752
+u_core.u_arb                                      233       5815
+(unresolved)                                      186       3523
+u_core.u_mem.u_b                                   63       1383
+u_core.u_mem.u_h                                   65       1328
+u_host.u_sync                                      26       1170
+u_csr                                              10        274
+u_core.u_mem                                        6        149
+u_core.m_addr[8],\u_core.m_addr[7],\u_core          2          0
+u_core.m_addr[7],\u_core.m_addr[6],\u_core          9          0

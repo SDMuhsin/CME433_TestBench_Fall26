@@ -1,0 +1,145 @@
+1c1
+< # LibreLane 3.0.14 Classic config -- mq_chip (INT8 Mamba byte-LM), A56 "ACV" block.
+---
+> # LibreLane 3.0.14 Classic config -- mb_chip (Mamba byte-LM), A56 "ACV" block.
+3c3
+< # Derived from the signed-off src_int8/flow/config.yaml (mq_chip, run mq_final): SAME die/core,
+---
+> # Derived from the signed-off librelane/config_fp16.yaml (run fp16_final): SAME die/core,
+6,10c6,11
+< # Deltas vs src_int8/flow/config.yaml:
+< #   - DESIGN_NAME mq_chip, RTL = src_int8/rtl/chip.f (+ include dirs nonlin/ seq/)
+< #   - 11 SRAM macros (9 HMEM u_h.GEN_H[0..8] + 2 BMEM u_b.u_even/u_odd) on a 4+4+3 grid: three
+< #     rows, same column x positions; see "MACROS" below.  Die/core unchanged.
+< # Build: src_int8/flow/build.sh <TAG>    (runs land in src_int8/flow/runs/<TAG>)
+---
+> # Deltas vs config_fp16.yaml:
+> #   - DESIGN_NAME mb_chip, RTL = src/rtl/chip.f (+ include dirs nonlin/ seq/)
+> #   - 10 SRAM macros (u_core.u_mem.GEN_SRAM[0..9]) on a 4+4+2 grid: three rows, same column
+> #     x positions; see "MACROS" below.  Die/core unchanged.
+> #   - SDCs live in sdc/ (pnr.sdc / signoff.sdc wrap the common base.sdc).
+> # Build: src/flow/build.sh <TAG>    (runs land in src/flow/runs/<TAG>)
+15c16
+< DESIGN_NAME: mq_chip
+---
+> DESIGN_NAME: mb_chip
+19c20
+< # --- RTL (order = src_int8/rtl/chip.f, plus the SRAM black box) ---------------------------
+---
+> # --- RTL (order = src/rtl/chip.f, plus the SRAM black box) --------------------------------
+21,46c22,45
+<   - dir::../rtl/int/mq_rsh.v
+<   - dir::../rtl/int/mq_mul24x17.v
+<   - dir::../rtl/int/mq_sat.v
+<   - dir::../rtl/lane/mq_lane.v
+<   - dir::../rtl/lane/mq_wb.v
+<   - dir::../rtl/lane/mq_dp.v
+<   - dir::../rtl/nonlin/mq_nlu_addr.v
+<   - dir::../rtl/nonlin/mq_nlu_rom.v
+<   - dir::../rtl/nonlin/mq_nlu.v
+<   - dir::../rtl/seq/mq_ucode_rom.v
+<   - dir::../rtl/seq/mq_uop_dec.v
+<   - dir::../rtl/seq/mq_loop.v
+<   - dir::../rtl/seq/mq_agu.v
+<   - dir::../rtl/seq/mq_regfile.v
+<   - dir::../rtl/seq/mq_seq.v
+<   - dir::../rtl/mem/mq_sram_256x8.v
+<   - dir::../rtl/mem/mq_hmem.v
+<   - dir::../rtl/mem/mq_bmem.v
+<   - dir::../rtl/mem/mq_mem.v
+<   - dir::../rtl/mem/mq_mem_arb.v
+<   - dir::../rtl/io/mq_pad_sync.v
+<   - dir::../rtl/io/mq_host_qspi.v
+<   - dir::../rtl/io/mq_csr.v
+<   - dir::../rtl/io/mq_stream_fifo.v
+<   - dir::../rtl/top/mq_core.v
+<   - dir::../rtl/top/mq_chip.v
+---
+>   - dir::../rtl/fpu/mb_fp16_mul.v
+>   - dir::../rtl/fpu/mb_fp16_to_fp32.v
+>   - dir::../rtl/fpu/mb_fp32_add.v
+>   - dir::../rtl/fpu/mb_fp32_wb.v
+>   - dir::../rtl/lane/mb_lane.v
+>   - dir::../rtl/nonlin/mb_nlu_addr.v
+>   - dir::../rtl/nonlin/mb_nlu_frac.v
+>   - dir::../rtl/nonlin/mb_nlu_rom.v
+>   - dir::../rtl/nonlin/mb_nlu.v
+>   - dir::../rtl/seq/mb_ucode_rom.v
+>   - dir::../rtl/seq/mb_uop_dec.v
+>   - dir::../rtl/seq/mb_loop.v
+>   - dir::../rtl/seq/mb_agu.v
+>   - dir::../rtl/seq/mb_regfile.v
+>   - dir::../rtl/seq/mb_seq.v
+>   - dir::../rtl/mem/mb_sram_256x8.v
+>   - dir::../rtl/mem/mb_mem.v
+>   - dir::../rtl/mem/mb_mem_arb.v
+>   - dir::../rtl/io/mb_pad_sync.v
+>   - dir::../rtl/io/mb_host_qspi.v
+>   - dir::../rtl/io/mb_csr.v
+>   - dir::../rtl/io/mb_stream_fifo.v
+>   - dir::../rtl/top/mb_core.v
+>   - dir::../rtl/top/mb_chip.v
+59,66c58,66
+< # 11 x gf180mcu_ocd_ip_sram__sram256x8m8wm1, 301.30 x 224.93 um, pins on the macro's south edge.
+< # Grid = the FP16 mq_chip grid (columns x = 244.90 / 601.20 / 957.50 / 1313.80, 55 um channels;
+< # rows y = 157.57 / 437.50 / 717.43, 279.93 um pitch) with one more macro in row 2:
+< #   row 0 y = 157.57 : HMEM GEN_H[0..3]   (triple 0 + GEN_H[3])
+< #   row 1 y = 437.50 : HMEM GEN_H[4..7]
+< #   row 2 y = 717.43 : HMEM GEN_H[8] + BMEM u_even, u_odd in the three EAST columns (top y 942.36)
+< # The NW pocket (x 40..~590, y 717..1070) plus the ~205 um west channel hold the standard cells
+< # next to the pins; 117 um below row 0 for the row-0 pin escape, 128 um above row 2.
+---
+> # 10 x gf180mcu_ocd_ip_sram__sram256x8m8wm1, 301.30 x 224.93 um, pins on the macro's south edge.
+> # Grid: the FP16 columns (x = 244.90 / 601.20 / 957.50 / 1313.80, 55 um channels, ~205 um west
+> # channel next to the west-edge pins) and three rows at the FP16 row pitch (279.93 um, 55 um
+> # channels) shifted down 140 um so that three rows fit in the unchanged core (y 40..1070):
+> #   row 0 y = 157.57 : GEN_SRAM[0..3]   (pairs 0,1)
+> #   row 1 y = 437.50 : GEN_SRAM[4..7]   (pairs 2,3)
+> #   row 2 y = 717.43 : GEN_SRAM[8..9]   (pair 4) in the two EAST columns (top at y 942.36)
+> # The NW pocket (x 40..947, y 717..1070) plus the west channel hold the standard cells, next to
+> # the pins.  117 um below row 0 for the row-0 pin escape, 128 um above row 2.
+81,91c81,90
+<       "u_core.u_mem.u_h.GEN_H[0].u_sram.u_sram": {location: [244.90, 157.57], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[1].u_sram.u_sram": {location: [601.20, 157.57], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[2].u_sram.u_sram": {location: [957.50, 157.57], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[3].u_sram.u_sram": {location: [1313.80, 157.57], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[4].u_sram.u_sram": {location: [244.90, 437.50], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[5].u_sram.u_sram": {location: [601.20, 437.50], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[6].u_sram.u_sram": {location: [957.50, 437.50], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[7].u_sram.u_sram": {location: [1313.80, 437.50], orientation: N}
+<       "u_core.u_mem.u_h.GEN_H[8].u_sram.u_sram": {location: [601.20, 717.43], orientation: N}
+<       "u_core.u_mem.u_b.u_even.u_sram": {location: [957.50, 717.43], orientation: N}
+<       "u_core.u_mem.u_b.u_odd.u_sram": {location: [1313.80, 717.43], orientation: N}
+---
+>       "u_core.u_mem.GEN_SRAM[0].u_sram.u_sram": {location: [244.90, 157.57], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[1].u_sram.u_sram": {location: [601.20, 157.57], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[2].u_sram.u_sram": {location: [957.50, 157.57], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[3].u_sram.u_sram": {location: [1313.80, 157.57], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[4].u_sram.u_sram": {location: [244.90, 437.50], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[5].u_sram.u_sram": {location: [601.20, 437.50], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[6].u_sram.u_sram": {location: [957.50, 437.50], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[7].u_sram.u_sram": {location: [1313.80, 437.50], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[8].u_sram.u_sram": {location: [957.50, 717.43], orientation: N}
+>       "u_core.u_mem.GEN_SRAM[9].u_sram.u_sram": {location: [1313.80, 717.43], orientation: N}
+93c92
+< # --- Floorplan (A56 ACV template; identical to src_int8/flow/config.yaml) ------------------------------
+---
+> # --- Floorplan (A56 ACV template; identical to config_fp16.yaml) ------------------------------
+120c119
+< # SRAM power pins top out at Metal3: connect them up to the Metal4 straps (shared with FP16 / mq_chip).
+---
+> # SRAM power pins top out at Metal3: connect them up to the Metal4 straps (shared with FP16).
+142,144d140
+< # mq_chip delta: the post-GRT repair margin is 40 % (FP16: 30 %).  Run mq_r0 (30 %) left one
+< # fanout-1 aoi211_2 net at 1.52 ns slew at max_ss (limit 1.5 ns); the repair sizes with
+< # tt / GRT parasitics, so the margin must cover the ss + max-RC spread.
+150c146
+< GRT_DESIGN_REPAIR_MAX_SLEW_PCT: 40
+---
+> GRT_DESIGN_REPAIR_MAX_SLEW_PCT: 30
+157,158c153,154
+< # --- Hold (SRAM CEN: 2.94 ns macro hold vs -1.78 ns pre-CTS with an ideal clock, syn/) ---------
+< # Same mechanism as FP16 / mq_chip: post-CTS resizer hold repair (propagated clock, all corners) inserts
+---
+> # --- Hold (SRAM CEN: 2.96 ns macro hold vs -1.81 ns pre-CTS with an ideal clock) --------------
+> # Same mechanism as FP16: post-CTS resizer hold repair (propagated clock, all corners) inserts

@@ -1,0 +1,26 @@
+# ['src/flow/build/power/nom_tt_025C_3v30.power.saif', 'src/flow/build/power/nom_tt_025C_3v30.power_zd.saif']: 806152 cycles
+bus                                            bits tog/bit/cyc      zd  T1duty
+u_core.l_a                                       16       0.030   0.030   0.487
+u_core.l_b                                       16       0.030   0.030   0.502
+u_core.l_issue                                    1       0.138   0.138   0.069
+u_core.u_lane.p_r                                30       0.028   0.028   0.508
+u_core.u_lane.acc                                32       0.025   0.025   0.527
+u_core.s_wdata                                   16       0.039   0.038   0.475
+u_core.m_addr                                     8       0.025   0.021   0.551
+# per hierarchy: cells, mean output toggles/cycle (sdf), (zero-delay), glitch ratio
+u_core.u_lane                                   2361    0.095    0.076   1.26
+u_core.u_fifo                                    574    0.150    0.139   1.08
+u_core.u_seq                                    2090    0.035    0.032   1.08
+u_core.u_seq.u_rf                                356    0.143    0.143   1.00
+u_core.u_nlu                                     903    0.054    0.050   1.09
+u_host                                           538    0.077    0.073   1.05
+u_core.u_seq.u_loop                              579    0.045    0.042   1.05
+u_core.u_mem.GEN_SRAM[0]                          28    0.290    0.289   1.00
+(unresolved)                                     257    0.020    0.017   1.18
+u_host.u_sync                                     51    0.088    0.088   1.00
+u_core.u_arb                                     304    0.006    0.005   1.27
+u_core.u_mem                                      62    0.019    0.016   1.19
+u_core.u_mem.GEN_SRAM[8]                          33    0.012    0.011   1.14
+u_core.u_mem.GEN_SRAM[6]                           9    0.040    0.039   1.01
+u_core.u_mem.GEN_SRAM[2]                           6    0.031    0.030   1.04
+u_csr                                             32    0.004    0.003   1.42

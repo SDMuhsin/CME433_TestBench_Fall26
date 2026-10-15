@@ -1,0 +1,9 @@
+#!/bin/bash
+# Adds --pdk-root $PDK_ROOT --manual-pdk so ciel never re-enables a different PDK rev
+# (which would drop the merged gf180mcu_as_sc_mcu7t3v3 lib). Real binary: next librelane on PATH.
+self=$(cd "$(dirname "$0")" && pwd)
+real=$(type -ap librelane | grep -v "^$self/" | head -1)
+extra=()
+[[ " $* " == *" --manual-pdk "* ]] || extra+=(--manual-pdk)
+[[ " $* " == *" --pdk-root "* ]] || extra+=(--pdk-root "${PDK_ROOT:?PDK_ROOT unset}")
+exec "$real" "${extra[@]}" "$@"

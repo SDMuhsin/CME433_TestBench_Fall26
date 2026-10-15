@@ -1,0 +1,161 @@
+# LibreLane 3.0.14 Classic config -- mq_chip (INT8 Mamba byte-LM), A56 "ACV" block.
+#
+# Derived from the signed-off src_int8/flow/config.yaml (mq_chip, run mq_final): SAME die/core,
+# A56_ACV.def west-edge pin template, PDN (core ring + M4/M5 straps + SRAM M3->M4 connect),
+# routing obstruction, antenna settings, 40 ns clock, slew/cap recipe and SDC split.
+# Deltas vs src_int8/flow/config.yaml:
+#   - DESIGN_NAME mq_chip, RTL = src_int8/rtl/chip.f (+ include dirs nonlin/ seq/)
+#   - 11 SRAM macros (9 HMEM u_h.GEN_H[0..8] + 2 BMEM u_b.u_even/u_odd) on a 4+4+3 grid: three
+#     rows, same column x positions; see "MACROS" below.  Die/core unchanged.
+# Build: src_int8/flow/build.sh <TAG>    (runs land in src_int8/flow/runs/<TAG>)
+meta:
+  version: 3
+  flow: Classic
+
+DESIGN_NAME: mq_chip
+PDK: gf180mcuD
+STD_CELL_LIBRARY: gf180mcu_as_sc_mcu7t3v3
+
+# --- RTL (order = src_int8/rtl/chip.f, plus the SRAM black box) ---------------------------
+VERILOG_FILES:
+  - dir::../rtl/int/mq_rsh.v
+  - dir::../rtl/int/mq_mul24x17.v
+  - dir::../rtl/int/mq_sat.v
+  - dir::../rtl/lane/mq_lane.v
+  - dir::../rtl/lane/mq_wb.v
+  - dir::../rtl/lane/mq_dp.v
+  - dir::../rtl/nonlin/mq_nlu_addr.v
+  - dir::../rtl/nonlin/mq_nlu_rom.v
+  - dir::../rtl/nonlin/mq_nlu.v
+  - dir::../rtl/seq/mq_ucode_rom.v
+  - dir::../rtl/seq/mq_uop_dec.v
+  - dir::../rtl/seq/mq_loop.v
+  - dir::../rtl/seq/mq_agu.v
+  - dir::../rtl/seq/mq_regfile.v
+  - dir::../rtl/seq/mq_seq.v
+  - dir::../rtl/mem/mq_sram_256x8.v
+  - dir::../rtl/mem/mq_hmem.v
+  - dir::../rtl/mem/mq_bmem.v
+  - dir::../rtl/mem/mq_mem.v
+  - dir::../rtl/mem/mq_mem_arb.v
+  - dir::../rtl/io/mq_pad_sync.v
+  - dir::../rtl/io/mq_host_qspi.v
+  - dir::../rtl/io/mq_csr.v
+  - dir::../rtl/io/mq_stream_fifo.v
+  - dir::../rtl/top/mq_core.v
+  - dir::../rtl/top/mq_chip.v
+  - dir::../rtl/mem/gf180_sram_macro.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../rtl/nonlin
+  - dir::../rtl/seq
+# `ifdef SYNTHESIS -> the SRAM elaborates as a (* blackbox *) macro.
+VERILOG_DEFINES:
+  - SYNTHESIS
+
+CLOCK_PORT: clk
+CLOCK_PERIOD: 40
+
+# --- SRAM macros -----------------------------------------------------------------------------
+# 11 x gf180mcu_ocd_ip_sram__sram256x8m8wm1, 301.30 x 224.93 um, pins on the macro's south edge.
+# Grid = the FP16 mq_chip grid (columns x = 244.90 / 601.20 / 957.50 / 1313.80, 55 um channels;
+# rows y = 157.57 / 437.50 / 717.43, 279.93 um pitch) with one more macro in row 2:
+#   row 0 y = 157.57 : HMEM GEN_H[0..3]   (triple 0 + GEN_H[3])
+#   row 1 y = 437.50 : HMEM GEN_H[4..7]
+#   row 2 y = 717.43 : HMEM GEN_H[8] + BMEM u_even, u_odd in the three EAST columns (top y 942.36)
+# The NW pocket (x 40..~590, y 717..1070) plus the ~205 um west channel hold the standard cells
+# next to the pins; 117 um below row 0 for the row-0 pin escape, 128 um above row 2.
+MACROS:
+  gf180mcu_ocd_ip_sram__sram256x8m8wm1:
+    gds:
+      - dir::../../gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1.gds
+    lef:
+      - dir::../../gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1.lef
+    lib:
+      "*_tt_025C_3v30":
+        - dir::../../gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1__tt_025C_3v30.lib
+      "*_ss_125C_3v00":
+        - dir::../../gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1__ss_125C_3v00.lib
+      "*_ff_n40C_3v60":
+        - dir::../../gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1__ff_n40C_3v60.lib
+    instances:
+      "u_core.u_mem.u_h.GEN_H[0].u_sram.u_sram": {location: [244.90, 157.57], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[1].u_sram.u_sram": {location: [601.20, 157.57], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[2].u_sram.u_sram": {location: [957.50, 157.57], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[3].u_sram.u_sram": {location: [1313.80, 157.57], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[4].u_sram.u_sram": {location: [244.90, 437.50], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[5].u_sram.u_sram": {location: [601.20, 437.50], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[6].u_sram.u_sram": {location: [957.50, 437.50], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[7].u_sram.u_sram": {location: [1313.80, 437.50], orientation: N}
+      "u_core.u_mem.u_h.GEN_H[8].u_sram.u_sram": {location: [601.20, 717.43], orientation: N}
+      "u_core.u_mem.u_b.u_even.u_sram": {location: [957.50, 717.43], orientation: N}
+      "u_core.u_mem.u_b.u_odd.u_sram": {location: [1313.80, 717.43], orientation: N}
+
+# --- Floorplan (A56 ACV template; identical to src_int8/flow/config.yaml) ------------------------------
+FP_SIZING: absolute
+DIE_AREA: [0, 0, 1675, 1110]
+# ~40 um die-to-core margin holds the DVDD/DVSS core ring next to the template's power pins.
+CORE_AREA: [40, 40, 1635, 1070]
+FP_DEF_TEMPLATE: dir::../../librelane/A56_ACV.def
+# permissive: PDN-created DVDD/DVSS terminals are not in the template's signal-pin set.
+FP_TEMPLATE_MATCH_MODE: permissive
+FP_TEMPLATE_COPY_POWER_PINS: true
+PL_TARGET_DENSITY_PCT: 50
+GPL_CELL_PADDING: 1
+DPL_CELL_PADDING: 2
+
+# --- Power (single 3.3 V domain named after the ACV pads) ------------------------------------
+VDD_NETS: [DVDD]
+GND_NETS: [DVSS]
+PDN_MACRO_CONNECTIONS:
+  - ".*u_sram.* DVDD DVSS VDD VSS"
+PDN_MULTILAYER: true
+PDN_CORE_RING: true
+PDN_VWIDTH: 5
+PDN_HWIDTH: 5
+PDN_VSPACING: 1
+PDN_HSPACING: 1
+PDN_VPITCH: 75
+PDN_HPITCH: 75
+PDN_EXTEND_TO: core_ring
+# SRAM power pins top out at Metal3: connect them up to the Metal4 straps (shared with FP16 / mq_chip).
+PDN_CFG: dir::../../librelane/pdn_cfg.tcl
+
+# --- Routing / signoff -----------------------------------------------------------------------
+RT_MAX_LAYER: Metal5
+# Block-level PSM aborts on the template power pins before the power weld (see config_fp16.yaml).
+RUN_IRDROP_REPORT: false
+PRIMARY_GDSII_STREAMOUT_TOOL: klayout
+# Auditor Metal2 keep-out in the NE die corner (A56_ACV.def 2026-09-01 revision).
+ROUTING_OBSTRUCTIONS:
+  - ["Metal2", 1610.0, 1108.0, 1675.0, 1110.0]
+
+# --- Antenna (FP16 recipe) -------------------------------------------------------------------
+# No heuristic diodes (they push ss slews past 1.5 ns); GRT repair + full post-DRT repair.
+RUN_HEURISTIC_DIODE_INSERTION: false
+GRT_ANTENNA_REPAIR_MARGIN: 75
+DRT_ANTENNA_REPAIR_ITERS: 3
+DRT_ANTENNA_REPAIR_JUMPER_ONLY: false
+DIODE_ON_PORTS: in
+
+# --- Slew / cap closure + SDC split (FP16 recipe) --------------------------------------------
+# PnR over-constrains 0.9 ns / 0.12 pF; signoff = 1.5 ns + liberty per-pin max_capacitance.
+# mq_chip delta: the post-GRT repair margin is 40 % (FP16: 30 %).  Run mq_r0 (30 %) left one
+# fanout-1 aoi211_2 net at 1.52 ns slew at max_ss (limit 1.5 ns); the repair sizes with
+# tt / GRT parasitics, so the margin must cover the ss + max-RC spread.
+PNR_SDC_FILE: dir::sdc/pnr.sdc
+SIGNOFF_SDC_FILE: dir::sdc/signoff.sdc
+RUN_POST_GRT_DESIGN_REPAIR: true
+DESIGN_REPAIR_MAX_SLEW_PCT: 40
+DESIGN_REPAIR_MAX_CAP_PCT: 40
+GRT_DESIGN_REPAIR_MAX_SLEW_PCT: 40
+GRT_DESIGN_REPAIR_MAX_CAP_PCT: 30
+DESIGN_REPAIR_MAX_WIRE_LENGTH: 500
+GRT_DESIGN_REPAIR_MAX_WIRE_LENGTH: 500
+CTS_SINK_CLUSTERING_SIZE: 12
+CTS_SINK_CLUSTERING_MAX_DIAMETER: 50
+
+# --- Hold (SRAM CEN: 2.94 ns macro hold vs -1.78 ns pre-CTS with an ideal clock, syn/) ---------
+# Same mechanism as FP16 / mq_chip: post-CTS resizer hold repair (propagated clock, all corners) inserts
+# delay on the CEN/GWEN/WEN/A/D nets.
+RUN_POST_CTS_RESIZER_TIMING: true
+PL_RESIZER_HOLD_SLACK_MARGIN: 0.1

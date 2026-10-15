@@ -1,0 +1,20 @@
+src_int8/flow/runs/mq_final
+step                                        total    logic  buf/inv       ff      tap    diode      tie     sram
+06-yosys-synthesis                           8953     7514      387      803        0        0      238       11
+19-openroad-tapendcapinsertion              15792     7514      387      803     6839        0      238       11
+32-openroad-repairdesignpostgpl             17687     7514     2282      803     6839        0      238       11
+35-openroad-cts                             18061     7514     2656      803     6839        0      238       11
+37-openroad-resizertimingpostcts            18305     7514     2900      803     6839        0      238       11
+41-openroad-repairdesignpostgrt             18397     7514     2992      803     6839        0      238       11
+45-openroad-detailedrouting                 20636     7514     2992      803     6839     2239      238       11
+
+src/flow/runs/mb_final
+step                                        total    logic  buf/inv       ff      tap    diode      tie     sram
+06-yosys-synthesis                           6383     5183      283      672        0        0      235       10
+19-openroad-tapendcapinsertion              13632     5183      283      672     7249        0      235       10
+32-openroad-repairdesignpostgpl             14947     5183     1598      672     7249        0      235       10
+35-openroad-cts                             15241     5183     1892      672     7249        0      235       10
+37-openroad-resizertimingpostcts            15521     5183     2172      672     7249        0      235       10
+41-openroad-repairdesignpostgrt             15582     5183     2233      672     7249        0      235       10
+45-openroad-detailedrouting                 16977     5183     2233      672     7249     1395      235       10
+

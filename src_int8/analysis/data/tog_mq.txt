@@ -1,0 +1,26 @@
+# ['src_int8/flow/build/power/nom_tt_025C_3v30.power.saif', 'src_int8/flow/build/power/nom_tt_025C_3v30.power_zd.saif']: 455508 cycles
+bus                                            bits tog/bit/cyc      zd  T1duty
+u_core.l_a                                       24       0.060   0.060   0.462
+u_core.l_b                                       16       0.062   0.062   0.456
+u_core.l_issue                                    1       0.247   0.247   0.123
+u_core.u_dp.u_lane.p_r                           40       0.060   0.060   0.455
+u_core.s_wdata                                   24       0.089   0.077   0.448
+u_core.m_addr                                     9       0.045   0.036   0.336
+# top named buses (>=4 bits) by toggles/bit/cycle:
+# per hierarchy: cells, mean output toggles/cycle (sdf), (zero-delay), glitch ratio
+u_core.u_dp.u_lane                              1912    0.198    0.092   2.16
+u_core.u_dp.u_wb                                2151    0.112    0.067   1.68
+u_core.u_seq                                    2777    0.066    0.058   1.13
+u_core.u_fifo                                    552    0.199    0.185   1.07
+u_core.u_seq.u_rf                                470    0.147    0.145   1.01
+u_host                                           577    0.118    0.110   1.07
+(unresolved)                                     568    0.078    0.055   1.41
+u_core.u_dp                                      443    0.097    0.082   1.18
+u_core.u_nlu                                     594    0.058    0.039   1.51
+u_core.u_seq.u_loop                              626    0.052    0.049   1.07
+u_host.u_sync                                     64    0.420    0.420   1.00
+u_core.u_mem.u_h                                 122    0.107    0.104   1.03
+u_core.u_mem.u_b                                  74    0.099    0.094   1.05
+u_core.u_arb                                     423    0.012    0.009   1.28
+u_core.u_mem                                      31    0.054    0.043   1.25
+u_csr                                             18    0.008    0.007   1.15
