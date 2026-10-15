@@ -40,7 +40,15 @@ foreach line [split [read $fs] "\n"] {
 close $fs
 puts $fh "unmatched (after match, before verify):"
 set fu [open $out/rpt/unmatched.rpt r]
-foreach line [split [read $fu] "\n"] { if {[regexp {^\s*[0-9]+ Unmatched} $line]} { puts $fh "  $line" } }
+set types {}
+foreach line [split [read $fu] "\n"] {
+    if {[regexp {^\s*[0-9]+ Unmatched} $line]} { puts $fh "  $line" }
+    if {[regexp {^\s+(Ref|Impl)\s+(\S+)\s} $line -> side ty]} { dict incr types "$side $ty" }
+}
 close $fu
+dict for {k n} $types { puts $fh "    $k: $n" }
+set fg [open $out/rpt/guidance.rpt r]
+foreach line [split [read $fg] "\n"] { if {[regexp {^Total\s} $line]} { puts $fh "guidance (accepted rejected unsupported unprocessed total) $line" } }
+close $fg
 close $fh
 exit
