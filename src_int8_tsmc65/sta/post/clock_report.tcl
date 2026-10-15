@@ -12,10 +12,11 @@ proc mq65_put_clock_tree {fh} {
     }
     puts $fh [format "clock sinks %d (timed %d)  latency_ns min %.3f max %.3f  global_skew_ns %.3f" \
         [sizeof_collection $sinks] $n $lmin $lmax [expr {$lmax - $lmin}]]
-    set cn [get_clock_network_objects -quiet -type cell [get_clocks clk]]
-    set icg 0
-    catch { set icg [sizeof_collection [filter_collection $cn "is_integrated_clock_gating_cell==true"]] }
-    set buf [sizeof_collection [filter_collection $cn "is_combinational==true && number_of_pins==2"]]
-    puts $fh [format "clock network cells %d (buffers/inverters %d, clock gates %d)" \
-        [sizeof_collection $cn] $buf $icg]
+    if {[catch {
+        set cn [get_clock_network_objects -type cell [get_clocks clk]]
+        set icg [sizeof_collection [filter_collection $cn "is_integrated_clock_gating_cell==true"]]
+        set buf [sizeof_collection [filter_collection $cn "is_combinational==true && number_of_pins==2"]]
+        puts $fh [format "clock network cells %d (buffers/inverters %d, clock gates %d)" \
+            [sizeof_collection $cn] $buf $icg]
+    } err]} { puts $fh "clock network cells: n/a ($err)" }
 }

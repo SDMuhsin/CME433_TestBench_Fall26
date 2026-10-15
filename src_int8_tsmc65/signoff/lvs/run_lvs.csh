@@ -13,7 +13,9 @@ cd $out
 set deck = `tclsh $MQ65/syn/common/site_get.tcl MQ65_LVS_DECK`
 set cdl  = `tclsh $MQ65/syn/common/site_get.tcl MQ65_CDL`
 set pg   = (`tclsh $MQ65/syn/common/site_get.tcl MQ65_PG`)
-v2lvs -v $pnr/mq_chip.lvs.v -o source.sp -s $cdl -s1 $pg[1] -s0 $pg[2] >& v2lvs.log
+# filler cells have no devices and no subcircuit in the cell netlist: empty stubs
+tclsh $MQ65/signoff/lvs/filler_stubs.tcl > fillers.sp
+v2lvs -v $pnr/mq_chip.lvs.v -o source.sp -s $cdl -s fillers.sp -s1 $pg[1] -s0 $pg[2] >& v2lvs.log
 $MQ65/signoff/lvs/runset.sh $deck $pnr/mq_chip.gds $out/source.sp mq_chip $pg[1] $pg[2] > runset.svrf
 calibre -lvs -hier -turbo 8 runset.svrf >& lvs.log
 $MQ65/signoff/lvs/digest.sh lvs.rep > summary.txt

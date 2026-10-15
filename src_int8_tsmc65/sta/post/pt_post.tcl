@@ -26,7 +26,8 @@ puts $fh "netlist routed  corner $::env(MQ65_CORNER)  parasitics $::env(MQ65_RCL
 mq65_put_timing $fh
 mq65_put_latch $fh
 mq65_put_clock_tree $fh
-puts $fh "drv violations: [llength [regexp -all -inline -line {VIOLATED} [exec cat $out/rpt/violators.rpt]]] (see rpt/violators.rpt)"
+set fc [open $out/rpt/violators.rpt r]; set nviol [regexp -all {VIOLATED} [read $fc]]; close $fc
+puts $fh "report_constraint VIOLATED groups: $nviol (rpt/violators.rpt)"
 puts $fh "check_timing:"
 set fc [open $out/rpt/check_timing.rpt r]
 foreach line [split [read $fc] "\n"] { if {[regexp {^(Warning|Error|Information)} $line]} { puts $fh "  $line" } }
