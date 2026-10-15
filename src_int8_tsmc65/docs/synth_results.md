@@ -98,10 +98,10 @@ At 250 MHz, 450,412 clk/token is 1.80 ms/token, against 18.0 ms on the GF180 chi
 Artefacts: `results/syn_ss_p*.txt`, server `build/syn/ss_p*/`. The 5.0 ns run used an
 earlier summary format, which lacks the cell-class breakdown.
 
-## 3. Open items (phase 2)
+## 3. Phase 2
 
-- PrimeTime per corner on the ss netlist, with check_timing and latch borrowing reports.
-- Formality RTL vs netlist, using the svf and clock-gate handling.
-- Gate-level simulation with SDF, SAIF-based power, energy per token.
-- Placement and CTS are needed before the hold and Fmax figures mean anything beyond
-  pre-layout.
+Formality, PrimeTime, gate-level simulation and SAIF power are in `signoff_pre_layout.md`
+and `power_pre_layout.md`. PrimeTime with the DC estimated SPEF is about 40-60 ps more
+pessimistic than DC at ss. The sign-off netlist is therefore synthesised at 3.9 ns
+(`results/syn_ss_p3.9.txt`, 208,697 um^2) and signed off at 4.0 ns. PrimeTime puts the
+ss pre-layout Fmax at about 2.62 ns (381 MHz), against DC's 2.6 ns.

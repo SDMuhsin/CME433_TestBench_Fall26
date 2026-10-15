@@ -1,0 +1,37 @@
+mq_chip 65 nm PrimeTime summary (sta_ss_p4_ss_max)
+netlist ss_p4  corner ss  parasitics max  period_ns 4  clocks ideal (pre-layout)
+setup  WNS  -0.0413 ns  TNS    -1.316 ns  violating_endpoints 103
+       worst path: u_core/u_seq/u_loop/pc_reg_7_/CP -> u_core/u_dp/u_wb/y_reg_4_/D (arrival 3.806 ns)
+hold   WNS   0.0713 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_core/u_seq/lane_ps_reg_2_/CP -> u_core/u_dp/u_lane/ps_r_reg_2_/D (arrival 0.174 ns)
+setup_to_flops WNS  -0.0413 ns  worst path: u_core/u_seq/u_loop/pc_reg_7_/CP -> u_core/u_dp/u_wb/y_reg_4_/D (arrival 3.806 ns)
+latch_in  slack   0.0000 ns  borrowed 0.9400 ns  latch endpoints at slack 0 (borrowing) 22528 of 22528
+       worst path: u_core/u_mem/u_h/GEN_H_2__u_sram/u_rf/wd_r_reg_2_/CP -> u_core/u_mem/u_h/GEN_H_2__u_sram/u_rf/GEN_W_159__lat_reg_2_/D (arrival 0.685 ns)
+latch_out slack   1.9694 ns  (RF read path, through latch Q)
+       worst path: u_core/u_mem/u_h/GEN_H_6__u_sram/u_rf/GEN_W_39__lat_reg_5_/D -> u_core/u_mem/u_h/GEN_H_6__u_sram/u_rf/q_r_reg_5_/D (arrival 1.771 ns)
+latch_in  hold slack   2.1151 ns
+check_timing:
+  Information: Checking 'no_input_delay'.
+  Information: Checking 'no_driving_cell'.
+  Information: Checking 'unconstrained_endpoints'.
+  Information: Checking 'unexpandable_clocks'.
+  Information: Checking 'latch_fanout'.
+  Information: Checking 'no_clock'.
+  Information: Checking 'partial_input_delay'.
+  Information: Checking 'generic'.
+  Information: Checking 'loops'.
+  Information: Checking 'generated_clocks'.
+  Information: Checking 'pulse_clock_non_pulse_clock_merge'.
+  Information: Checking 'pll_configuration'.
+parasitics annotation:
+                      |         |         |         |   RC    |   Not   |
+  Net Type            |  Total  | Lumped  |  RC pi  | network |Annotated|
+  Internal nets       |         |         |         |         |         |
+    - Pin to pin nets |   59073 |       0 |   59073 |       0 |       0 |
+    - Driverless nets |      85 |       0 |       0 |       0 |      85 |
+    - Loadless nets   |       0 |       0 |       0 |       0 |       0 |
+  Boundary/port nets  |         |         |         |         |         |
+    - Pin to pin nets |      17 |       0 |      16 |       0 |       1 |
+    - Driverless nets |       0 |       0 |       0 |       0 |       0 |
+    - Loadless nets   |       1 |       0 |       0 |       0 |       1 |
+                      |   59176 |       0 |   59089 |       0 |      87 |

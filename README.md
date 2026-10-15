@@ -9,7 +9,7 @@ GF180MCU 3.3 V PDK:
 | `rtl/`, `tb/`, `scripts/`, `librelane/`, `sim/`, `formal/`, `constraints/`, `signoff/`, `weights_vh/`, `docs/` | **Legacy DLA accelerator** (`dla_engine_chip`, INT8 GAN MLP; FP16 and end-to-end `dla_e2e_chip` variants) for the Chipathon 2026 A56 / ACV block | signed off (INT8 `dla_engine_chip`); FP16 / E2E variants documented in `docs/` | this README (sections below), `docs/dla_fp16_chip.md`, `docs/dla_e2e_chip.md`, `signoff/A56/README.md` |
 | `src/` | **`mb_chip`** — FP16 byte-level Mamba language model (TinyStories) accelerator | signed off | [`src/docs/results.md`](src/docs/results.md) |
 | `src_int8/` | **`mq_chip`** — INT8 (QAT) version of the Mamba accelerator | signed off | [`src_int8/docs/results.md`](src_int8/docs/results.md) |
-| `src_int8_tsmc65/` | Port of `mq_chip` to a commercial 65 nm flow (DC / PT / FM / power) | in progress (scaffolding only: memory wrappers, synthesis scripts, sims) | — |
+| `src_int8_tsmc65/` | Port of `mq_chip` to a commercial 65 nm flow (DC / PT / FM / power) | pre-layout signoff done (RTL + 31-token GLS bit-exact, Formality, PrimeTime ss/tt/ff at 250 MHz, SAIF power); layout not started | [`synth_results.md`](src_int8_tsmc65/docs/synth_results.md), [`signoff_pre_layout.md`](src_int8_tsmc65/docs/signoff_pre_layout.md), [`power_pre_layout.md`](src_int8_tsmc65/docs/power_pre_layout.md) |
 
 Each `src*/README.md` explains its own layout, commands and docs (`docs/spec.md`, `arch.md`,
 `verification.md`, `signoff.md`, `long_context.md`, `results.md`).

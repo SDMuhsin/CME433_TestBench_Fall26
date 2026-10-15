@@ -1,0 +1,14 @@
+mq_chip 65 nm Formality summary (fm_tt_p4)
+netlist tt_p4  library corner tt  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+                Verification results may disagree with a logic simulator.
+   26389 Passing compare points
+  Matched Compare Points     BBPin    Loop   BBNet     Cut    Port     DFF     LAT   TOTAL
+  Passing (equivalent)           0       0       0       0      53     992   25344   26389
+  Failing (not equivalent)       0       0       0       0       0       0       0       0
+unmatched (after match, before verify):
+  74 Unmatched points (0 reference, 74 implementation):
+    Impl LATCG: 74
+guidance (accepted rejected unsupported unprocessed total) Total               :        332          0          0          0        332
