@@ -1,0 +1,30 @@
+// mq_chip on 65 nm: src_int8/rtl (prefix core/) with the SRAM wrapper replaced by the latch RF
+// (prefix mem/ = src_int8_tsmc65/rtl_mem).  Include dirs: core/nonlin core/seq.  Synthesis / LEC swap mem/mq65_icg.v for the site ICG wrapper (site/site.tcl).
+mem/mq65_icg.v
+mem/mq65_latch_rf.v
+mem/mq_sram_256x8.v
+core/int/mq_rsh.v
+core/int/mq_mul24x17.v
+core/int/mq_sat.v
+core/lane/mq_lane.v
+core/lane/mq_wb.v
+core/lane/mq_dp.v
+core/nonlin/mq_nlu_addr.v
+core/nonlin/mq_nlu_rom.v
+core/nonlin/mq_nlu.v
+core/seq/mq_ucode_rom.v
+core/seq/mq_uop_dec.v
+core/seq/mq_loop.v
+core/seq/mq_agu.v
+core/seq/mq_regfile.v
+core/seq/mq_seq.v
+core/mem/mq_hmem.v
+core/mem/mq_bmem.v
+core/mem/mq_mem.v
+core/mem/mq_mem_arb.v
+core/io/mq_pad_sync.v
+core/io/mq_host_qspi.v
+core/io/mq_csr.v
+core/io/mq_stream_fifo.v
+core/top/mq_core.v
+core/top/mq_chip.v
