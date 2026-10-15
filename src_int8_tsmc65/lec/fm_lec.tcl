@@ -24,6 +24,9 @@ if {$post} {
         if {[file exists $f]} { lappend svfs $f }
     }
     if {[llength $svfs]} { set_svf -ordered {*}$svfs }
+    # placement merges equivalent clock gates (same clock and enable, e.g. the word gates of
+    # the three byte-RFs of an HMEM triple): let Formality merge duplicate registers too
+    set_app_var verification_merge_duplicated_registers true
 }
 
 read_db -technology_library [mq65_db $::env(MQ65_CORNER)]
