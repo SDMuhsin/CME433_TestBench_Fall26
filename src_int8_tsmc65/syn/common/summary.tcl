@@ -55,7 +55,7 @@ proc mq65_put_timing {fh} {
 }
 
 proc mq65_put_area {fh} {
-    set nand2 [get_attribute [get_lib_cells */$::MQ65_NAND2] area]
+    set nand2 [lindex [get_attribute [get_lib_cells */$::MQ65_NAND2] area] 0]
     set all   [mq65_leaf *]
     set seq_f [get_cells -quiet -hierarchical -filter "is_hierarchical==false && is_sequential==true && is_positive_level_sensitive!=true && is_negative_level_sensitive!=true && is_integrated_clock_gating_cell!=true"]
     set lat   [all_registers -level_sensitive]

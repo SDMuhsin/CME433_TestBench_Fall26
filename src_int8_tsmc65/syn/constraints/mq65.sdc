@@ -6,9 +6,10 @@
 #   ::mq_lib     library name for driving cell / load lookup (mq65_lib ss)
 # Latch RF: data is launched by the posedge write-data register (wd_r) and must pass the
 # word latches (open while the gated clock is high) before they close at the falling edge
-# of the SAME cycle, so the default next-edge capture is replaced by a zero-cycle setup
-# multicycle (time borrowing up to the closing edge; latch-to-read-register paths are then
-# timed from the borrowed arrival).
+# of the SAME cycle.  This is the tool default for a flop -> positive latch path (capture
+# window = the next closing edge after launch, i.e. the same high phase, with time borrowing
+# up to the closing edge), so no multicycle exception is needed: a zero-cycle setup
+# multicycle would move the window one full cycle earlier (seen in the first DC run).
 
 set mq_io_pct      20.0
 set mq_unc_setup   0.25
@@ -34,10 +35,3 @@ set_load [expr {4.0 * [load_of $::mq_lib/$::MQ65_LOAD_PIN]}] [all_outputs]
 
 set_max_transition $mq_max_tran [current_design]
 set_max_fanout $mq_max_fanout [current_design]
-
-# latch RF write path (see header); hold stays on the default edge pair
-set mq_wd_regs [get_cells -hierarchical -filter "full_name=~*u_rf/wd_r_reg*"]
-set mq_rf_lat [all_registers -level_sensitive]
-if {[sizeof_collection $mq_rf_lat] > 0 && [sizeof_collection $mq_wd_regs] > 0} {
-    set_multicycle_path 0 -setup -from $mq_wd_regs -to $mq_rf_lat
-}
