@@ -41,12 +41,14 @@ set_top i:/WORK/mq_chip
 
 match
 report_unmatched_points                  > $out/rpt/unmatched.rpt
+set_app_var verification_failing_point_limit 0
 set ok [verify]
 report_status                            > $out/rpt/status.rpt
 report_failing_points                    > $out/rpt/failing.rpt
 report_aborted_points                    > $out/rpt/aborted.rpt
 report_unverified_points                 > $out/rpt/unverified.rpt
 report_guidance -summary                 > $out/rpt/guidance.rpt
+if {!$ok} { analyze_points -failing      > $out/rpt/analyze.rpt }
 
 set fh [open $out/summary.txt w]
 puts $fh "mq_chip 65 nm Formality summary ($::env(MQ65_TAG))"
