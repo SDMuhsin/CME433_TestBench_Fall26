@@ -16,6 +16,8 @@ set_app_var synopsys_auto_setup true
 set_app_var verification_clock_gate_hold_mode any
 set post [info exists ::env(MQ65_FM_IMPL)]
 if {!$post} { set_svf $syn/mq_chip.svf }
+# the routed netlist ties constant inputs to VDD / VSS ports (supply nets) through the hierarchy
+if {$post} { set_app_var hdlin_error_on_supply_type_port false }
 
 read_db -technology_library [mq65_db $::env(MQ65_CORNER)]
 set_app_var search_path [concat . [mq65_rtl_incdirs]]

@@ -20,6 +20,7 @@ proc mq65_open_stage {from} {
     copy_block -from_block mq_chip_$from -to_block mq_chip -force
     current_block mq_chip
     link_block
+    mq65_pnr_margins
 }
 
 # save the working block and its snapshot mq_chip_<stage>
@@ -80,8 +81,8 @@ proc mq65_scenarios {} {
         set ::mq_period $::env(MQ65_PERIOD)
         set ::mq_lib mq65_std
         source $::env(MQ65)/syn/constraints/mq65.sdc
-        mq65_pnr_margins $mq_unc_setup
     }
+    mq65_pnr_margins
     set_scenario_status func_ss -active true -setup true  -hold false -leakage_power true  -dynamic_power true  -max_transition true -max_capacitance true
     set_scenario_status func_tt -active true -setup true  -hold false -leakage_power false -dynamic_power false -max_transition false -max_capacitance false
     set_scenario_status func_ff -active true -setup false -hold true  -leakage_power false -dynamic_power false -max_transition true -max_capacitance true
@@ -89,20 +90,27 @@ proc mq65_scenarios {} {
 }
 
 # Implementation margins on top of the sign-off SDC (ICC2 only; PrimeTime signs off with
-# the plain SDC). ICC2's delay calculation reads the routed paths 0.1-0.2 ns faster than
-# PrimeTime and allows slower edges, so the block is optimised with extra setup uncertainty
-# and tighter transition limits on data and clock nets:
-#   MQ65_PNR_SETUP_MARGIN (ns, default 0.15)  MQ65_PNR_MAX_TRAN (ns, default 0.30)
-#   MQ65_PNR_CLK_TRAN (ns, default 0.20)
+# the plain SDC 0.25 / 0.05 ns setup / hold uncertainty). ICC2's delay calculation reads the
+# routed paths 0.1-0.2 ns faster than PrimeTime and allows slower edges, so the block is
+# optimised with extra uncertainty and tighter transition limits on data and clock nets.
+# Applied to every scenario when the constraints are created and again at the start of each
+# stage (so a re-run stage picks up changed values):
+#   MQ65_PNR_SETUP_MARGIN (ns, default 0.15)  MQ65_PNR_HOLD_MARGIN (ns, default 0.03)
+#   MQ65_PNR_MAX_TRAN (ns, default 0.30)      MQ65_PNR_CLK_TRAN (ns, default 0.20)
 proc mq65_env {name default} {
     if {[info exists ::env($name)]} { return $::env($name) }
     return $default
 }
-proc mq65_pnr_margins {unc_setup} {
-    set m [mq65_env MQ65_PNR_SETUP_MARGIN 0.15]
-    set_clock_uncertainty -setup [expr {$unc_setup + $m}] [get_clocks clk]
-    set_max_transition [mq65_env MQ65_PNR_MAX_TRAN 0.30] [current_design]
-    set_max_transition [mq65_env MQ65_PNR_CLK_TRAN 0.20] -clock_path [get_clocks clk]
+proc mq65_pnr_margins {} {
+    set cur [current_scenario]
+    foreach_in_collection sc [get_scenarios] {
+        current_scenario $sc
+        set_clock_uncertainty -setup [expr {0.25 + [mq65_env MQ65_PNR_SETUP_MARGIN 0.15]}] [get_clocks clk]
+        set_clock_uncertainty -hold  [expr {0.05 + [mq65_env MQ65_PNR_HOLD_MARGIN 0.03]}] [get_clocks clk]
+        set_max_transition [mq65_env MQ65_PNR_MAX_TRAN 0.30] [current_design]
+        set_max_transition [mq65_env MQ65_PNR_CLK_TRAN 0.20] -clock_path [get_clocks clk]
+    }
+    current_scenario $cur
 }
 
 # per-stage report set (QoR, timing per scenario, utilisation, congestion)
