@@ -25,7 +25,7 @@ for s in $steps; do
     sta)   for j in ss:icc2_ss tt:star ff:icc2_ff tt:icc2_tt ss:star ff:star; do
                "$M/sta/post/run_pt_post.csh" "$T" "${j%%:*}" "${j#*:}"
            done ;;
-    fmax)  MQ65_PERIODS="${MQ65_PERIODS:-4.0 3.8 3.6 3.4 3.2 3.0 2.9 2.8 2.7 2.6}" MQ65_PT_SCRIPT=pt_fmax \
+    fmax)  MQ65_PERIODS="${MQ65_PERIODS:-4.2 4.1 4.0 3.95 3.9 3.85 3.8 3.7}" MQ65_PT_SCRIPT=pt_fmax \
                "$M/sta/post/run_pt_post.csh" "$T" ss icc2_ss ;;
     gls)   MQ65_GLS_PNR=1 "$M/sim/gls/run_gls.csh" "$T" tok31
            MQ65_GLS_PNR=1 "$M/sim/gls/run_gls.csh" "$T" tok2 1ns ;;

@@ -100,6 +100,9 @@ proc mq65_scenarios {} {
 # stage (so a re-run stage picks up changed values):
 #   MQ65_PNR_SETUP_MARGIN (ns, default 0.15)  MQ65_PNR_HOLD_MARGIN (ns, default 0.03)
 #   MQ65_PNR_MAX_TRAN (ns, default 0.30)      MQ65_PNR_CLK_TRAN (ns, default 0.20)
+# The SDC fanout limit (set_max_fanout) is not used by ICC2 buffering; its optimiser and CTS
+# fanout limits are app options, set to the same value:
+#   MQ65_PNR_MAX_FANOUT (default 16, = mq_max_fanout in syn/constraints/mq65.sdc)
 proc mq65_env {name default} {
     if {[info exists ::env($name)]} { return $::env($name) }
     return $default
@@ -114,6 +117,9 @@ proc mq65_pnr_margins {} {
         set_max_transition [mq65_env MQ65_PNR_CLK_TRAN 0.20] -clock_path [get_clocks clk]
     }
     current_scenario $cur
+    set fo [mq65_env MQ65_PNR_MAX_FANOUT 16]
+    set_app_options -name opt.common.max_fanout -value $fo
+    set_app_options -name cts.common.max_fanout -value $fo
 }
 
 # per-stage report set (QoR, timing per scenario, utilisation, congestion)
