@@ -8,7 +8,7 @@ set o $::env(MQ65_PNR)/out
 file mkdir $o
 write_verilog -exclude {physical_only_cells leaf_module_declarations} $o/mq_chip.v
 write_verilog -include {pg_netlist} $o/mq_chip.lvs.v
-write_def -version 5.8 -compress none $o/mq_chip.def
+write_def -version 5.8 -compress none -include_tech_via_definitions $o/mq_chip.def
 # layer map: pin / net text of each metal on the verification deck's text layer
 set f [open $o/gds_text.map w]
 foreach {m t} $::MQ65_GDS_TEXT {
