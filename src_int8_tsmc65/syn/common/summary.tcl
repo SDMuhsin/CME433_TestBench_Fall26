@@ -39,7 +39,7 @@ proc mq65_slack {type} {
     set ep [get_object_name [get_attribute $p endpoint]]
     set tns 0.0; set nv 0
     foreach_in_collection q [get_timing_paths -delay_type $type -max_paths 100000 \
-                               -nworst 1 -slack_lesser_than 0.0] {
+                               -nworst 1 -slack_lesser_than -0.0005] {
         set tns [expr {$tns + [get_attribute $q slack]}]; incr nv
     }
     return [list $wns $tns $nv $sp $ep [get_attribute $p arrival]]
@@ -49,35 +49,40 @@ proc mq65_put_timing {fh} {
     foreach t {max min} {
         lassign [mq65_slack $t] wns tns nv sp ep arr
         set nm [expr {$t eq "max" ? "setup" : "hold"}]
-        puts $fh [format "%-6s WNS %8.3f ns  TNS %9.3f ns  violating_endpoints %d" $nm $wns $tns $nv]
+        puts $fh [format "%-6s WNS %8.4f ns  TNS %9.3f ns  violating_endpoints %d" $nm $wns $tns $nv]
         puts $fh "       worst path: $sp -> $ep (arrival [format %.3f $arr] ns)"
     }
+    # latch endpoints that borrow sit at slack 0; also show the worst path into flops / outputs
+    set ends [add_to_collection [all_registers -edge_triggered -data_pins] [all_outputs]]
+    set p [get_timing_paths -delay_type max -max_paths 1 -to $ends]
+    puts $fh [format "setup_to_flops WNS %8.4f ns  worst path: %s -> %s (arrival %.3f ns)" \
+        [get_attribute $p slack] [get_object_name [get_attribute $p startpoint]] \
+        [get_object_name [get_attribute $p endpoint]] [get_attribute $p arrival]]
 }
 
 proc mq65_put_area {fh} {
     set nand2 [lindex [get_attribute [get_lib_cells */$::MQ65_NAND2] area] 0]
     set all   [mq65_leaf *]
-    set seq_f [get_cells -quiet -hierarchical -filter "is_hierarchical==false && is_sequential==true && is_positive_level_sensitive!=true && is_negative_level_sensitive!=true && is_integrated_clock_gating_cell!=true"]
-    set lat   [all_registers -level_sensitive]
     set icg   [get_cells -quiet -hierarchical -filter "is_hierarchical==false && ref_name=~$::MQ65_ICG_PATTERN"]
-    set icg_rf [get_cells -quiet -hierarchical -filter "is_hierarchical==false && ref_name=~$::MQ65_ICG_PATTERN && full_name=~*u_rf/GEN_W*"]
-    set rf    [mq65_leaf *u_sram/u_rf/*]
+    set flop  [remove_from_collection [all_registers -edge_triggered] $icg]
+    set lat   [remove_from_collection [all_registers -level_sensitive] $icg]
+    set comb  [remove_from_collection [remove_from_collection [remove_from_collection $all $flop] $lat] $icg]
+    set rf     [mq65_leaf *u_sram/u_rf/*]
+    set rf_lat [filter_collection $lat  "full_name=~*u_rf/*"]
+    set rf_flp [filter_collection $flop "full_name=~*u_rf/*"]
+    set rf_icg [filter_collection $icg  "full_name=~*u_rf/*"]
+    set rf_cmb [filter_collection $comb "full_name=~*u_rf/*"]
     set a_all [mq65_area $all]
     puts $fh [format "total_cell_area_um2 %.1f" $a_all]
     puts $fh [format "nand2_area_um2 %.3f" $nand2]
     puts $fh [format "gate_equivalents %.0f" [expr {$a_all / $nand2}]]
     puts $fh [format "leaf_cells %d" [mq65_count $all]]
-    puts $fh [format "flops %d area %.1f" [mq65_count $seq_f] [mq65_area $seq_f]]
-    puts $fh [format "latches %d area %.1f" [mq65_count $lat] [mq65_area $lat]]
-    puts $fh [format "icg_cells %d (rf_word_gates %d) area %.1f" [mq65_count $icg] [mq65_count $icg_rf] [mq65_area $icg]]
-    set rf_lat [get_cells -quiet -hierarchical -filter "is_hierarchical==false && full_name=~*u_sram/u_rf/* && (is_positive_level_sensitive==true || is_negative_level_sensitive==true)"]
-    set rf_seq [get_cells -quiet -hierarchical -filter "is_hierarchical==false && full_name=~*u_sram/u_rf/* && is_sequential==true"]
-    set a_rf [mq65_area $rf]
-    puts $fh [format "rf_total (11 x 256x8) cells %d area %.1f (%.1f %%)" [mq65_count $rf] $a_rf [expr {100.0*$a_rf/$a_all}]]
-    puts $fh [format "rf_latches area %.1f" [mq65_area $rf_lat]]
-    puts $fh [format "rf_icg area %.1f" [mq65_area $icg_rf]]
-    puts $fh [format "rf_seq_all (latches+flops+icg) area %.1f" [mq65_area $rf_seq]]
-    puts $fh [format "logic_outside_rf area %.1f" [expr {$a_all - $a_rf}]]
+    puts $fh "breakdown (cells, area um2):"
+    foreach {lbl c} [list comb $comb flops $flop latches $lat icg $icg \
+                          rf_total $rf rf_latches $rf_lat rf_icg $rf_icg rf_flops $rf_flp rf_comb $rf_cmb] {
+        set a [mq65_area $c]
+        puts $fh [format "  %-11s %8d %12.1f  %5.1f %%" $lbl [mq65_count $c] $a [expr {100.0*$a/$a_all}]]
+    }
     puts $fh "hierarchy (leaf-cell area um2, cells):"
     foreach {lbl inst} $::MQ65_HIER {
         set c [mq65_leaf $inst/*]
@@ -91,11 +96,12 @@ proc mq65_put_area {fh} {
 proc mq65_put_dc_reports {fh} {
     redirect -variable ra {report_area -nosplit}
     foreach k {Combinational Buf/Inv Noncombinational {Macro/Black Box} {Net Interconnect} {Total cell} Total} {
-        if {[regexp -line "^$k area:\\s+(\\S+)" $ra -> v]} { puts $fh [format "dc_area %-18s %s" $k $v] }
+        if {[regexp -line "^$k area:\\s+(\[0-9.\]+)" $ra -> v]} { puts $fh [format "dc_area %-18s %s" $k $v] }
     }
+    # power-group table "Total" row: internal, switching, leakage, total (default activity)
     redirect -variable rp {report_power -nosplit}
-    foreach k {{Cell Internal Power} {Net Switching Power} {Total Dynamic Power} {Cell Leakage Power}} {
-        if {[regexp -line "^\\s*$k\\s+=\\s+(\\S+\\s+\\S+)" $rp -> v]} { puts $fh [format "dc_power %-20s %s" $k $v] }
+    if {[regexp -line {^Total\s+(\S+ \S+)\s+(\S+ \S+)\s+(\S+ \S+)\s+(\S+ \S+)} $rp -> pi ps pl pt]} {
+        puts $fh "dc_power internal $pi  switching $ps  leakage $pl  total $pt  (default activity)"
     }
 }
 
