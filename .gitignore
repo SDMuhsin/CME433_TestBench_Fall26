@@ -1,0 +1,134 @@
+# =====================================================================
+# GanAccelAsic root .gitignore
+# Only hand-written sources, configs, scripts, small golden data and
+# human-facing docs are tracked. Everything regenerable, third-party or
+# personal stays on disk untracked. See README.md "Not in this repository".
+# =====================================================================
+
+# ---- Agent hand-over notes (local only, see llmdocs/README.md) ------
+llmdocs/
+C[L]AUDE.md
+.c[l]aude/
+
+# ---- Local data / build outputs (repo-relative, regenerable) --------
+/data/
+/build/
+build/
+**/runs/
+**/runs_archive/
+**/logs/
+obj_dir/
+sim_build/
+result
+result-*
+
+# ---- Python / tool caches & environments -----------------------------
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+.cvc/
+
+# ---- Simulation dumps & compiled sims --------------------------------
+*.vcd
+*.fst
+*.vpd
+*.saif
+*.fsdb
+*.vvp
+sim/results/
+results.xml
+
+# ---- Logs ------------------------------------------------------------
+*.log
+verilog.log
+
+# ---- Physical-design outputs (regenerable from the flows) ------------
+*.gds
+*.gds.gz
+*.oas
+*.def
+*.odb
+*.spef
+*.sdf
+*.nl.v
+*.pnl.v
+*.lef
+*.lib
+*.mag
+/gds/
+/verilog/
+librelane/_patched/
+librelane/acv_render*/
+librelane/sweep_reports/
+
+# ---- Checkpoints, archives, large binaries ---------------------------
+*.pt
+*.ckpt
+*.pth
+*.bin
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.xz
+
+# ---- Third-party bulk copies (external dependencies, see README) ----
+/3V3lib/
+/References_and_example/
+/SRAM_MACRO/
+/gf180mcu_ocd_ip_sram__sram256x8m8wm1/
+stage2_padring/gf180mcu/
+layout_announcement/caravel-gf180mcu-main/
+
+# ---- Papers, personal and presentation material ----------------------
+/Papers/
+/Documents/
+/Export_control/
+layout_announcement/Layout_presentation/
+*.pdf
+*.pptx
+*.docx
+*.xlsx
+answers.txt
+Application_Plan_and_Questions.md
+
+# ---- Formal work dirs (regenerate with formal/run_formal.sh) ---------
+formal/dla_controller/
+formal/dla_serial_bridge/
+
+# ---- LaTeX intermediates ---------------------------------------------
+*.aux
+*.out
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+
+# ---- OS / editor junk --------------------------------------------------
+.DS_Store
+._*
+*.swp
+*~
+
+# ---- Exceptions: small hand-written / organiser-supplied inputs -------
+!librelane/*.def
+!librelane/acv_ref/*.def
+!**/model_selftest/*.sdf
+!layout_announcement/A56.def/
+!layout_announcement/A56.def/**
+# Final INT8 QAT checkpoint (209 KB): source of the shipped INT8 params, used by the golden tests
+!src_int8/model/checkpoints/mamba_e96_qat.pt
+
+# Generated INT8 chip/unit vectors (9 MB; regenerate: python3 -m src_int8.golden.vectors src_int8/tb/golden)
+src_int8/tb/golden/
+
+# ---- 65 nm site config (kit / server specific; templates are tracked) --
+src_int8_tsmc65/site/*
+!src_int8_tsmc65/site/README.md
+!src_int8_tsmc65/site/*.example.*
+
+# ---- Personal planning notes -------------------------------------------
+PROJECT_skill_gaps_TODO.md
