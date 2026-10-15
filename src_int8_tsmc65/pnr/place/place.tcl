@@ -1,6 +1,6 @@
 # Stage 2: timing-driven placement and pre-CTS optimisation (ideal clocks).
 source $::env(MQ65)/syn/common/pnr_common.tcl
-mq65_open_stage floorplan
+mq65_open_stage floorplan place
 set_app_options -name place.coarse.continue_on_missing_scandef -value true
 set_app_options -name opt.tie_cell.max_fanout -value 8
 place_opt

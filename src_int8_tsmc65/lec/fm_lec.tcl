@@ -16,8 +16,15 @@ set_app_var synopsys_auto_setup true
 set_app_var verification_clock_gate_hold_mode any
 set post [info exists ::env(MQ65_FM_IMPL)]
 if {!$post} { set_svf $syn/mq_chip.svf }
-# the routed netlist ties constant inputs to VDD / VSS ports (supply nets) through the hierarchy
-if {$post} { set_app_var hdlin_error_on_supply_type_port false }
+# routed netlist: guidance recorded by the place-and-route stages (pnr_common.tcl), in order
+if {$post} {
+    set svfs {}
+    foreach s {place cts route finish} {
+        set f [file dirname [file dirname $::env(MQ65_FM_IMPL)]]/svf/$s.svf
+        if {[file exists $f]} { lappend svfs $f }
+    }
+    if {[llength $svfs]} { set_svf -ordered {*}$svfs }
+}
 
 read_db -technology_library [mq65_db $::env(MQ65_CORNER)]
 set_app_var search_path [concat . [mq65_rtl_incdirs]]
@@ -31,11 +38,6 @@ if {$post} {
 set_top r:/WORK/mq_chip
 read_verilog -container i -libname WORK -05 $impl_net
 set_top i:/WORK/mq_chip
-# routed netlist: the block PG ports carry the constant tie-offs
-if {$post} {
-    set_constant -type port i:/WORK/mq_chip/[lindex $::MQ65_PG 0] 1
-    set_constant -type port i:/WORK/mq_chip/[lindex $::MQ65_PG 1] 0
-}
 
 match
 report_unmatched_points                  > $out/rpt/unmatched.rpt

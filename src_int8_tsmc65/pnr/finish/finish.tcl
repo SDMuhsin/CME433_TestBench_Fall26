@@ -2,7 +2,7 @@
 #   checks : check_routes, check_lvs (ICC2 connectivity vs netlist), check_pg_connectivity
 #   outputs: pnr/finish/write_out.tcl
 source $::env(MQ65)/syn/common/pnr_common.tcl
-mq65_open_stage route
+mq65_open_stage route finish
 set fill {}
 foreach p $::MQ65_FILLERS { append_to_collection fill [get_lib_cells */$p] }
 create_stdcell_fillers -lib_cells $fill

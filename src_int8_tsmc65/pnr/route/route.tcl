@@ -1,7 +1,7 @@
 # Stage 4: timing-driven global / track / detail routing with antenna repair (diode
 # insertion), then post-route optimisation incl. hold fixing at ff (up to two passes).
 source $::env(MQ65)/syn/common/pnr_common.tcl
-mq65_open_stage cts
+mq65_open_stage cts route
 source $::env(MQ65)/pnr/route/antenna.tcl
 set_app_options -name route.global.timing_driven -value true
 set_app_options -name route.track.timing_driven  -value true

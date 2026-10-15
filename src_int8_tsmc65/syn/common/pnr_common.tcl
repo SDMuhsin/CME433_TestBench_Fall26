@@ -13,9 +13,12 @@ proc mq65_rpt {name} { file mkdir $::env(MQ65_PNR)/rpt; return $::env(MQ65_PNR)/
 
 proc mq65_host {} { set_host_options -max_cores 8 }
 
-# restore the previous stage's snapshot into the working block mq_chip
-proc mq65_open_stage {from} {
+# restore the previous stage's snapshot into the working block mq_chip; netlist changes of
+# the stage are recorded as Formality guidance in $MQ65_PNR/svf/<stage>.svf
+proc mq65_open_stage {from stage} {
     mq65_host
+    file mkdir $::env(MQ65_PNR)/svf
+    set_svf $::env(MQ65_PNR)/svf/$stage.svf
     open_lib [mq65_lib_path]
     copy_block -from_block mq_chip_$from -to_block mq_chip -force
     current_block mq_chip
