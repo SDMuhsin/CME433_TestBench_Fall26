@@ -29,6 +29,16 @@ proc mq65_save_stage {stage} {
     save_lib -all
 }
 
+# routing layers: preferred directions (missing in the techfile; M1 horizontal, alternating)
+# and the signal routing range from the site config (the top metals carry the power grid)
+proc mq65_layers {} {
+    set_ignored_layers -min_routing_layer $::MQ65_LAYER_MIN -max_routing_layer $::MQ65_LAYER_MAX
+    foreach l [get_object_name [get_layers -filter "layer_type==interconnect"]] {
+        if {![regexp {^M([0-9]+)$} $l -> n]} { continue }
+        set_attribute [get_layers $l] routing_direction [expr {$n % 2 ? "horizontal" : "vertical"}]
+    }
+}
+
 # library cell restrictions: physical-only / special cells excluded from optimisation,
 # clock buffers / inverters reserved for CTS
 proc mq65_cell_usage {} {

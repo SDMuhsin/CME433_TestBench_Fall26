@@ -1,5 +1,7 @@
 # Formality: RTL (reference) vs DC netlist (implementation) with the DC guidance file.
 # Environment (set by lec/run_fm.csh): MQ65 MQ65_SYN (DC output dir) MQ65_CORNER MQ65_OUT MQ65_TAG
+# Post-layout check (MQ65_FM_IMPL set): DC netlist (reference) vs the routed netlist
+# MQ65_FM_IMPL, no guidance file.
 # Reference = the RTL DC read (rtl_mem/chip65.f, site ICG wrapper); both containers link the
 # DC target library of that run.
 source $::env(MQ65)/syn/common/libs.tcl
@@ -12,13 +14,20 @@ set_host_options -max_cores 8
 set_app_var synopsys_auto_setup true
 # DC -gate_clock inserted latch-based integrated clock gates that are not in the RTL
 set_app_var verification_clock_gate_hold_mode any
-set_svf $syn/mq_chip.svf
+set post [info exists ::env(MQ65_FM_IMPL)]
+if {!$post} { set_svf $syn/mq_chip.svf }
 
 read_db -technology_library [mq65_db $::env(MQ65_CORNER)]
 set_app_var search_path [concat . [mq65_rtl_incdirs]]
-read_verilog -container r -libname WORK -05 [mq65_rtl_files]
+if {$post} {
+    read_verilog -container r -libname WORK -05 $syn/mq_chip.v
+    set impl $::env(MQ65_FM_IMPL)
+} else {
+    read_verilog -container r -libname WORK -05 [mq65_rtl_files]
+    set impl $syn/mq_chip.v
+}
 set_top r:/WORK/mq_chip
-read_verilog -container i -libname WORK -05 $syn/mq_chip.v
+read_verilog -container i -libname WORK -05 $impl
 set_top i:/WORK/mq_chip
 
 match
@@ -32,7 +41,7 @@ report_guidance -summary                 > $out/rpt/guidance.rpt
 
 set fh [open $out/summary.txt w]
 puts $fh "mq_chip 65 nm Formality summary ($::env(MQ65_TAG))"
-puts $fh "netlist [file tail $syn]  library corner $::env(MQ65_CORNER)  verify_return $ok"
+puts $fh "netlist [file tail $syn][expr {$post ? { vs routed netlist} : {}}]  library corner $::env(MQ65_CORNER)  verify_return $ok"
 set fs [open $out/rpt/status.rpt r]
 foreach line [split [read $fs] "\n"] {
     if {[regexp {(Verification|Passing|Failing|Aborted|Unverified|Not Compared|Unread|Unmatched|Matched|Compare Points|BBPin)} $line]} { puts $fh "  $line" }

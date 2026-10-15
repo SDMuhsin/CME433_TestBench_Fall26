@@ -22,3 +22,20 @@ proc mq65_pt_load {syn_dir corner rc period} {
         read_parasitics -format spef $syn_dir/mq_chip.$rc.spef
     }
 }
+
+# Post-layout variant: routed netlist + extracted SPEF, clocks propagated through the
+# clock tree (the SDC's ideal clock transition no longer applies).
+#   mq65_pt_load_post <netlist> <corner> <spef> <period>
+proc mq65_pt_load_post {netlist corner spef period} {
+    set_app_var search_path [list . $::MQ65_LIBDIR]
+    set_app_var link_path [list * [mq65_db $corner]]
+    read_verilog $netlist
+    current_design mq_chip
+    link_design mq_chip
+    set ::mq_period $period
+    set ::mq_lib [mq65_lib $corner]
+    set_operating_conditions [mq65_oc $corner] -library [mq65_lib $corner]
+    source $::env(MQ65)/syn/constraints/mq65.sdc
+    read_parasitics -format spef $spef
+    set_propagated_clock [all_clocks]
+}

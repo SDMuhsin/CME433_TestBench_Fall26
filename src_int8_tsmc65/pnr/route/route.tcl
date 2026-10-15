@@ -2,7 +2,7 @@
 # insertion), then post-route optimisation incl. hold fixing at ff.
 source $::env(MQ65)/syn/common/pnr_common.tcl
 mq65_open_stage cts
-source $::MQ65_ANT_RULES
+source $::env(MQ65)/pnr/route/antenna.tcl
 set_app_options -name route.global.timing_driven -value true
 set_app_options -name route.track.timing_driven  -value true
 set_app_options -name route.detail.timing_driven -value true

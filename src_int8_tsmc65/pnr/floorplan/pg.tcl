@@ -6,6 +6,10 @@
 lassign $::MQ65_PG vdd vss
 create_net -power $vdd
 create_net -ground $vss
+create_port -direction in -port_type power  $vdd
+create_port -direction in -port_type ground $vss
+connect_pg_net -net $vdd [get_ports $vdd]
+connect_pg_net -net $vss [get_ports $vss]
 connect_pg_net -automatic
 lassign $::MQ65_PG_LAYERS rail_l v_l h_l
 create_pg_ring_pattern mq_ring -horizontal_layer $h_l -horizontal_width 3 -horizontal_spacing 1.5 \
@@ -18,3 +22,7 @@ set_pg_strategy mq_mesh -core -pattern {{name: mq_mesh} {nets: {VDD VSS}}} -exte
 create_pg_std_cell_conn_pattern mq_rails -layers [list $rail_l]
 set_pg_strategy mq_rails -core -pattern {{name: mq_rails} {nets: {VDD VSS}}}
 compile_pg -strategies {mq_ring mq_mesh mq_rails}
+# block PG pins: the core ring segments become terminals of the VDD / VSS ports
+foreach n $::MQ65_PG {
+    create_terminal -of_objects [get_shapes -of_objects [get_nets $n] -filter "shape_use==ring"] -port [get_ports $n]
+}

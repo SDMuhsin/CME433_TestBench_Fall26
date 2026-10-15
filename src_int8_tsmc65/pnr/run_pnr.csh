@@ -27,4 +27,6 @@ foreach s ($stages)
         exit 1
     endif
 end
+mkdir -p $MQ65/build/summary
+if (-f summary.txt) cp -f summary.txt $MQ65/build/summary/pnr_$1.txt
 echo "PNR_DONE $1 `date +%H:%M:%S`"

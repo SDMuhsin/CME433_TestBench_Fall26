@@ -8,6 +8,7 @@ create_lib [mq65_lib_path] -technology $::MQ65_TF -ref_libs [list [mq65_ndm]]
 read_verilog -top mq_chip $::env(MQ65_SYN)/mq_chip.v
 current_block mq_chip
 link_block
+mq65_layers
 mq65_scenarios
 mq65_cell_usage
 initialize_floorplan -core_utilization $::env(MQ65_UTIL) -side_ratio {1 1} \
