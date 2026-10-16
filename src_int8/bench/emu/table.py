@@ -21,12 +21,13 @@ def variant_sources(variant):
     raise SystemExit(f'unknown variant {variant}')
 
 
-def mul8_table(variant, work):
-    """-> int64 [256, 256], T[a + 128, b + 128] = mq_mul8(a, b) as a signed 16-bit value."""
+def mul8_table(variant, work, defines=()):
+    """-> int64 [256, 256], T[a + 128, b + 128] = mq_mul8(a, b) as a signed 16-bit value.
+    defines: iverilog macro definitions ('NAME=VALUE') for configurable variants."""
     work = Path(work)
     work.mkdir(parents=True, exist_ok=True)
     img = work / 'tb_mul8_table.vvp'
-    subprocess.run(['iverilog', '-g2012', '-o', str(img), str(HERE / 'tb_mul8_table.v'),
+    subprocess.run(['iverilog', '-g2012', *(f'-D{d}' for d in defines), '-o', str(img), str(HERE / 'tb_mul8_table.v'),
                     *map(str, variant_sources(variant))], check=True)
     out = subprocess.run(['vvp', '-n', str(img)], check=True, capture_output=True, text=True).stdout
     words = [int(w, 16) for w in out.split() if len(w) == 4]

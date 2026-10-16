@@ -64,5 +64,8 @@ GEMV / conv / logit layers, which is also what approximate-multiplier papers app
    is a template.
 3. Run `src_int8/bench/run_bench.sh <name>` (`docs/bench.md`). The build replaces only the
    `int/mq_mul8.v` entry of `chip.f`; everything else is the signed-off RTL.
-4. For a chip built with the variant (synthesis / flow), replace `src_int8/rtl/int/mq_mul8.v`
+4. Error metrics, quality screen and standalone synthesis of a variant: `src_int8/approx/`
+   (`docs/approx_cssm.md`, which also reproduces the signed C-SSM of Strollo et al. 2022 as
+   `variants/cssm.v`).
+5. For a chip built with the variant (synthesis / flow), replace `src_int8/rtl/int/mq_mul8.v`
    (or its filelist entry) by the variant file. `syn/synth_units.sh` reports `mq_mul8` alone.
