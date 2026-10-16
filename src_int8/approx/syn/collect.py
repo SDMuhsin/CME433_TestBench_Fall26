@@ -1,10 +1,11 @@
 """Tables of the standalone mq_mul8 runs from the summary files (after syn/sync.sh pull).
 
-python3 src_int8/approx/syn/collect.py [--corner tt] [--delay 4.0] [--base exact]
+python3 src_int8/approx/syn/collect.py [--corner tt] [--delay 4.0 ...] [--base exact] [--dir DIR]
   sweep : area / achieved critical delay per variant and max-delay target, every corner found
   point : one DC point (corner, target): area, delay, power with chip and random vectors,
           energy per op, PDP (power x critical delay) and changes vs the baseline variant
-Reads build/approx/summary/syn_<tag>.txt and pwr_<tag>_<vec>.txt; prints Markdown.
+Reads DIR/syn_<tag>.txt and pwr_<tag>_<vec>.txt (default build/approx/summary; the committed
+run is in src_int8/approx/results/); prints Markdown.
 """
 import argparse
 import re
@@ -27,6 +28,7 @@ def fields(path):
 
 def load():
     syn = {}
+
     for f in SUM.glob('syn_*.txt'):
         m = TAG.match(f.stem)
         if m:
@@ -85,7 +87,10 @@ def main():
     ap.add_argument('--corner', default='tt')
     ap.add_argument('--delay', action='append', help='DC target(s) of the point table (default 4.0)')
     ap.add_argument('--base', default='exact')
+    ap.add_argument('--dir', type=Path)
     a = ap.parse_args()
+    global SUM
+    SUM = a.dir or SUM
     syn = load()
     for c in sorted({k[1] for k in syn}):
         sweep(syn, c)

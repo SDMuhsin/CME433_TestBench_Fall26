@@ -1,0 +1,9 @@
+mq_mul8 standalone DC summary
+sources mq_mul8.v  defines {}
+corner ss  max_delay_target_ns 4.0
+cell_area_um2 482.04
+gate_equivalents 334.7
+leaf_cells 143
+critical_delay_ns 2.8889
+slack_ns 1.1111
+dc_power internal 0.1220 mW  switching 0.1157 mW  leakage 3.9132e+03 nW  total 0.2416 mW  (default activity)

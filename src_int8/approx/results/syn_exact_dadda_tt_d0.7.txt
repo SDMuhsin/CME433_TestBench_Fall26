@@ -1,0 +1,9 @@
+mq_mul8 standalone DC summary
+sources exact_dadda.v  defines {}
+corner tt  max_delay_target_ns 0.7
+cell_area_um2 705.24
+gate_equivalents 489.8
+leaf_cells 249
+critical_delay_ns 0.6968
+slack_ns 0.0032
+dc_power internal 0.2032 mW  switching 0.2166 mW  leakage 4.4238e+03 nW  total 0.4241 mW  (default activity)

@@ -39,7 +39,7 @@ their own exact baselines.
 |---|---|---|---|---|---:|
 | **Du et al., "A Low-Power DNN Accelerator With Mean-Error-Minimized Approximate Signed Multiplier", IEEE OJCAS 5:57-68, 2024** (Baugh-Wooley, trunc_num=7, compensation 192, probability-optimised compressor) | yes (BW) | ER 0.99, ME 20.24, NMED 5.56e-3 | 28 nm: area -46.4 %, power -49.8 %, delay -24.6 % | 92.1 / -0.25 (model without the compressor; NMED 5.62e-3 matches) | **+8.67** (trunc_num=4: +0.058) |
 | **Strollo et al., "Comparison and Extension of Approximate 4-2 Compressors for Low-Power Approximate Multipliers", IEEE TCAS-I 67(9):3021-3034, 2020**, signed C-N | yes (BW) | Yang1: ER 0.05, NMED 3.26e-4, MRED 3.13e-2. Proposed: ER 0.09, NMED 5.43e-4 | 28 nm, signed Prop-CN about -9 % power (read off Fig. 10 of the 2022 paper) | 9.0 / -9.0 (simplified Yang1 tree) | **+3.98** |
-| **Ansari, Cockburn, Han, "An Improved Logarithmic Multiplier for Energy-Efficient Neural Computing", IEEE TC 70(4):614-625, 2021** (ILM) | sign-magnitude | not checked (paper not open access) | not checked | 113.7 / 0.00, MRED 2.82 % | **+0.066** |
+| **Ansari, Cockburn, Han, "An Improved Logarithmic Multiplier for Energy-Efficient Neural Computing", IEEE TC 70(4):614-625, 2021** (ILM) | sign-magnitude | unsigned uniform (thesis Table 5.4): AE 0.25, MRED 2.75 %, NMED 6.8e-3 | 28 nm, vs Mitchell only: +2 % area, -19 % power (no exact baseline) | 113.7 / 0.00, MRED 2.82 % (RTL `bench/variants/ilm.v`, see `approx_hw.md`) | **+0.066** |
 | **Strollo et al., "Approximate Multipliers Using Static Segmentation: Error Analysis and Improvements", IEEE TCAS-I 69(6):2449-2462, 2022** (signed C-SSM) | **yes, native** | Table III, n=8: m=4 and m=6 (see Sec. 4) | 28 nm signed power (Fig. 10): C-SSM m=4 about -64 %, m=5 about -41 %, m=6 about -4 % | m=6: 91.2 / +0.52; m=7: 26.7 / 0.00 | m=4 +3.80, m=5 +0.78, **m=6 +0.072**, m=7 +0.010 |
 | Mitchell (1962), reference point only | sign-magnitude | | | 151.3 / 0.00 | +0.168 |
 
@@ -119,17 +119,17 @@ Functional checks:
 
 ### TSMC 65 nm (DC + PrimePower)
 
-This is **pending**: the server became unreachable during this phase. The scripts are ready
-(Sec. 6):
+Measured in phase B2: see `docs/approx_hw.md`. Summary at the chip's 4 ns point (tt, real
+chip operand stream, glitches included), against DC `a*b`:
 
-- same library and corners as the chip (tt for power, ss for timing);
-- the chip's input driver and 4x output load, wire-load model, `compile_ultra`;
-- a `set_max_delay` sweep for the area-delay curve;
-- exact baselines: DC `a*b` (`exact`) and a structural Baugh-Wooley + Dadda multiplier
-  (`bench/variants/exact_dadda.v`, generated, 35 FA + 7 HA, the paper's baseline type);
-- power from an SDF-annotated VCS simulation, so glitches are included, with a SAIF window of
-  65,536 operations into PrimePower;
-- two vector sets: uniform random, and the real `mq_mul8` input stream of the chip TB.
+| Variant | Area | Power | PDP |
+|---|---:|---:|---:|
+| C-SSM m=5 | -39 % | -31 % | -34 % |
+| C-SSM m=6 | -20 % | +33 % | +60 % |
+| C-SSM m=7 | +10 % | +19 % | +27 % |
+
+Without glitches (zero-delay activity), the power changes are -37 / -12 / +8 %, close to the
+paper's -41 % (m=5) and -4 % (m=6).
 
 ### Open-source proxy (not 65 nm)
 
@@ -148,7 +148,7 @@ power.
 The area trend in m matches the paper's power trend. At m = 7 the input muxes and output
 shifter cost more than the smaller inner multiplier saves.
 
-## 6. Commands (any variant name; `exact`, `exact_dadda` and `cssm` exist)
+## 6. Commands (any variant name; `exact`, `exact_dadda`, `cssm` and `ilm` exist)
 
 ```
 python3 -m src_int8.approx.err.run cssm -D CSSM_M=6 --ref cssm --hist build/approx/act/hist.npy
@@ -161,5 +161,6 @@ src_int8/approx/syn/oss_proxy.sh <variant> "5000" [CSSM_M=6]                   #
 # server (65 nm; vectors up with syn/sync.sh vec, summaries down with syn/sync.sh pull):
 src_int8/approx/syn/run_dc.csh <variant> tt <max_delay_ns> [CSSM_M=6]
 src_int8/approx/syn/sweep_dc.sh <variant> tt "0.6 0.8 1.0 1.5 2.0 3.0" [CSSM_M=6]
-src_int8/approx/syn/run_power.csh <syn_tag> random|chip [period_ns=10]
+src_int8/approx/syn/run_power.csh <syn_tag> random|chip [period_ns=10] [sdf|zd]
+# batch over syn/variants.txt: syn/sweep_all.sh, syn/power_all.sh; tables: syn/collect.py (docs/approx_hw.md)
 ```

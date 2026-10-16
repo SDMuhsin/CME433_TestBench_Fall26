@@ -1,0 +1,9 @@
+mq_mul8 standalone DC summary
+sources cssm.v  defines { CSSM_M=6}
+corner tt  max_delay_target_ns 0.5
+cell_area_um2 1289.16
+gate_equivalents 895.3
+leaf_cells 335
+critical_delay_ns 0.6130
+slack_ns -0.1130
+dc_power internal 0.3513 mW  switching 0.4029 mW  leakage 1.0176e+04 nW  total 0.7643 mW  (default activity)

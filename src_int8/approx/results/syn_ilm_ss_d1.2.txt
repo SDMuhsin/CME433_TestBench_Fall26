@@ -1,0 +1,9 @@
+mq_mul8 standalone DC summary
+sources ilm.v  defines {}
+corner ss  max_delay_target_ns 1.2
+cell_area_um2 3262.68
+gate_equivalents 2265.7
+leaf_cells 910
+critical_delay_ns 1.4144
+slack_ns -0.2144
+dc_power internal 0.5886 mW  switching 0.5795 mW  leakage 4.0052e+04 nW  total 1.2082 mW  (default activity)

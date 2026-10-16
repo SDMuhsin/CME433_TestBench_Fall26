@@ -1,0 +1,13 @@
+mq_mul8 standalone power summary (exact_dadda_tt_d0.3_random)
+corner tt  period_ns 4  activity SAIF from SDF timing simulation (averaged)
+saif: Total number of nets = 365
+saif: Number of annotated nets = 365 (100.00%)
+saif: Total number of leaf cells = 335
+saif: Number of fully annotated leaf cells = 335 (100.00%)
+activity: Nets 365(100.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 365  (last two: not annotated, total)
+internal_power   1.348322e-04 W
+switching_power  1.302823e-04 W
+leakage_power    8.927594e-06 W
+total_power      2.740421e-04 W
+energy_per_op_pJ 1.096168
+CHECKSUM 8f38a9ea  vectors 65536  period 4.000 ns

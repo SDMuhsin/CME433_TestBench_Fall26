@@ -1,8 +1,8 @@
 """Screening models (256 x 256 product tables T[a + 128, b + 128]) of the shortlisted designs.
 
 These are behavioural models used only to screen the language-model impact with the emulator
-before any RTL is written (src_int8/docs/approx_cssm.md, shortlist). Only cssm has a full RTL
-reproduction (bench/variants/cssm.v, bit-exact to ref/cssm.py); `du24` and `cn_yang1` are
+before any RTL is written (src_int8/docs/approx_cssm.md, shortlist). cssm and ilm have full RTL
+reproductions (bench/variants/{cssm,ilm}.v, bit-exact to ref/{cssm,ilm}.py); `du24` and `cn_yang1` are
 simplified models of the published structures (see the notes on each).
 """
 import numpy as np

@@ -1,0 +1,13 @@
+mq_mul8 standalone power summary (cssm_CSSM_M7_tt_d0.3_chip)
+corner tt  period_ns 4  activity SAIF from SDF timing simulation (averaged)
+saif: Total number of nets = 409
+saif: Number of annotated nets = 409 (100.00%)
+saif: Total number of leaf cells = 381
+saif: Number of fully annotated leaf cells = 381 (100.00%)
+activity: Nets 409(100.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 0(0.00%) 409  (last two: not annotated, total)
+internal_power   2.418625e-04 W
+switching_power  2.643935e-04 W
+leakage_power    1.158354e-05 W
+total_power      5.178396e-04 W
+energy_per_op_pJ 2.071359
+CHECKSUM c2321401  vectors 65536  period 4.000 ns
