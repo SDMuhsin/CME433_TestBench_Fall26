@@ -51,7 +51,7 @@ module mq_core (
     wire [11:0] s_addr;
     wire [1:0]  s_mw;
     wire [23:0] s_wdata, m_rdata;
-    wire        l_issue, l_first, l_clear, l_idle;
+    wire        l_issue, l_first, l_w8, l_clear, l_idle;
     wire [23:0] l_a;
     wire [15:0] l_b;
     wire [31:0] l_init, l_acc, w_y;
@@ -71,7 +71,7 @@ module mq_core (
         .s_word(s_word), .s_cnt(s_cnt), .s_pop(s_pop), .s_pop_n(s_pop_n),
         .m_en(s_en), .m_we(s_we), .m_addr(s_addr), .m_mw(s_mw), .m_wdata(s_wdata),
         .m_rdata(m_rdata),
-        .lane_issue(l_issue), .lane_first(l_first), .lane_a(l_a), .lane_b(l_b),
+        .lane_issue(l_issue), .lane_first(l_first), .lane_w8(l_w8), .lane_a(l_a), .lane_b(l_b),
         .lane_init(l_init), .lane_ps(l_ps), .lane_clear(l_clear), .lane_idle(l_idle),
         .wb_mode(w_mode), .wb_sh(w_sh), .wb_rq_m(w_rq_m), .wb_rq_s(w_rq_s),
         .wb_addend(w_addend), .wb_ww(w_ww), .wb_ph(w_ph), .wb_y(w_y),
@@ -80,7 +80,7 @@ module mq_core (
 
     // ---------------------------------------------------------------- datapath
     mq_dp u_dp (
-        .clk(clk), .rst_n(rst_n), .clear(l_clear), .issue(l_issue), .first(l_first),
+        .clk(clk), .rst_n(rst_n), .clear(l_clear), .issue(l_issue), .first(l_first), .w8(l_w8),
         .a(l_a), .b(l_b), .init(l_init), .ps(l_ps), .idle(l_idle), .done(), .acc(l_acc),
         .wb_mode(w_mode), .wb_sh(w_sh), .wb_rq_m(w_rq_m), .wb_rq_s(w_rq_s),
         .wb_addend(w_addend), .wb_ww(w_ww), .wb_ph(w_ph), .y(w_y));

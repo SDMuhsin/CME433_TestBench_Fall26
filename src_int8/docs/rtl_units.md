@@ -23,6 +23,7 @@ microcode, unit TBs, chip TB, abort TB, long runs, demo and pre-layout synthesis
 |---|---|---|---|---|
 | `int/mq_rsh.v` | `mq_rsh` | comb | `rsh(v, k) = (v >>> k) + v[k-1]`: truncating shift of `{v, 0}` whose LSB is the round bit, added by the caller as a carry-in (no rounding adder); parametrised widths | new |
 | `int/mq_mul24x17.v` | `mq_mul24x17` | comb | signed 24 x 17 -> 41 b exact product, the chip's only multiplier (lane 24 x 16; writeback acc halves x unsigned M) | new |
+| `int/mq_mul8.v` | `mq_mul8` | comb | signed 8 x 8 -> 16 b product for the INT8 weight x activation MACs (added 2026-10-16 as the approximate-multiplier swap point, `mul8_swap.md`; the tables below predate it) | new |
 | `int/mq_sat.v` | `mq_sat` | comb | `sat_w`, w by `ww` (8 / 16 / 24 / raw 32), result sign-extended to 32 b | new |
 | `lane/mq_lane.v` | `mq_lane` | 2-stage pipe | `acc <- base + rsh(a * b, ps)` (4.1); S1 product (from `mq_dp`), S2 shift + add with the round bit as carry | replaces `mb_lane` |
 | `lane/mq_wb.v` | `mq_wb` | 3-stage pipe | `wb_sh` / `wb_rq` as one `rsh(acc * Me, k)` (Me = M or 1) + addend + `sat_w` (4.2); acc x M in two passes of the shared multiplier, phased by the sequencer's `ycnt` | replaces `mb_fp32_wb` |

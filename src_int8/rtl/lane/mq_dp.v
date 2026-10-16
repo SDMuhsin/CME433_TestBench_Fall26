@@ -10,6 +10,11 @@
 // idle and issues nothing meanwhile).  Y latency from the last MAC's issue:
 // lane 2 stages + writeback 3 stages = y valid in cycle 5, as with the
 // original 3 + 2 arrangement, so the microcode timing is unchanged.
+//
+// `w8` (with issue) marks a MAC whose side a is a streamed INT8 weight and
+// side b an INT8 activation: its product comes from mq_mul8, the swappable
+// INT8 multiplier (docs/mul8_swap.md), sign-extended to the lane's 40 bits.
+// With the exact mq_mul8 the product is the same as the 24 x 17 one.
 // ============================================================================
 module mq_dp (
     input  wire        clk,
@@ -18,6 +23,7 @@ module mq_dp (
     input  wire        clear,
     input  wire        issue,
     input  wire        first,
+    input  wire        w8,
     input  wire [23:0] a,
     input  wire [15:0] b,
     input  wire [31:0] init,
@@ -38,15 +44,26 @@ module mq_dp (
     wire [23:0] ma;
     wire [16:0] mb;
     wire signed [40:0] p;
+    wire signed [15:0] p8;
 
     mq_mul24x17 u_mul (
         .a(issue ? a : ma),
         .b(issue ? {b[15], b} : mb),
         .p(p));
 
+    mq_mul8 u_mul8 (.a(a[7:0]), .b(b[7:0]), .p(p8));
+
+    wire [39:0] p_lane = (issue && w8) ? {{24{p8[15]}}, p8} : p[39:0];
+
+`ifndef SYNTHESIS
+    always @(posedge clk)
+        if (issue && w8 && ($signed(a) != $signed(a[7:0]) || $signed(b) != $signed(b[7:0])))
+            $display("ERROR mq_dp: w8 MAC operand outside INT8: a=%0d b=%0d", $signed(a), $signed(b));
+`endif
+
     mq_lane u_lane (
         .clk(clk), .rst_n(rst_n), .clear(clear), .issue(issue), .first(first),
-        .p(p[39:0]), .init(init), .ps(ps), .idle(idle), .done(done), .acc(acc));
+        .p(p_lane), .init(init), .ps(ps), .idle(idle), .done(done), .acc(acc));
 
     mq_wb u_wb (
         .clk(clk), .acc(acc), .mode(wb_mode), .sh(wb_sh), .rq_m(wb_rq_m), .rq_s(wb_rq_s),

@@ -1,0 +1,62 @@
+{
+ "variant": "example_trunc4",
+ "source": "RTL (Verilator, tb_mq_demo)",
+ "crops": 88,
+ "bytes": 90112,
+ "bpb": 1.8333060542288295,
+ "bpb_se": 0.01742197176556152,
+ "bpb_ci95": [
+  1.8002518852464633,
+  1.8675373892307803
+ ],
+ "ppl": 3.5635274911986103,
+ "ppl_ci95": [
+  3.4828102763090767,
+  3.6490916584893687
+ ],
+ "done_clk": [
+  450412
+ ],
+ "tb_errors": 0,
+ "wall_s": 937,
+ "jobs": 44,
+ "golden": {
+  "crops": 88,
+  "bytes": 90112,
+  "bpb": 1.3925520429503875,
+  "bpb_se": 0.016533524342483577,
+  "bpb_ci95": [
+   1.3608847810646703,
+   1.4248941143097906
+  ],
+  "ppl": 2.6254269287789582,
+  "ppl_ci95": [
+   2.5684264857962504,
+   2.6849479382727512
+  ],
+  "tokens_with_logit_mismatch": 90112,
+  "logit_mismatch_frac": 0.999024131081321,
+  "bit_exact": false,
+  "delta_bpb": 0.4407540112784422,
+  "delta_se": 0.004659812345108344,
+  "delta_ci95": [
+   0.4315212440167895,
+   0.44997207227930414
+  ]
+ },
+ "emulator": {
+  "dir": "build/bench/emu/example_trunc4_c88x1024",
+  "bpb": 1.8333060542288295,
+  "bit_exact": true,
+  "tokens_with_logit_mismatch": 0
+ },
+ "vs_baseline": {
+  "baseline": "build/bench/runs/exact_c88x1024",
+  "delta_bpb": 0.4407540112784422,
+  "delta_se": 0.004659812345108344,
+  "delta_ci95": [
+   0.4315212440167895,
+   0.44997207227930414
+  ]
+ }
+}

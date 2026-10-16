@@ -3,6 +3,7 @@
 // nonlin/mq_nlu_rom.v + mq_nlu_defs.vh and seq/mq_ucode_rom.v + mq_ucode_defs.vh are generated.
 int/mq_rsh.v
 int/mq_mul24x17.v
+int/mq_mul8.v
 int/mq_sat.v
 lane/mq_lane.v
 lane/mq_wb.v

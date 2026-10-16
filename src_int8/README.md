@@ -28,6 +28,8 @@ INT8-vs-FP16 comparison, the remaining caveats and the regression re-run after t
 | `docs/rtl_units.md` | RTL units, microcode, unit / chip TB coverage, synthesis area and timing, cycles per token |
 | `docs/verification.md` | The verification set: golden, vectors, units, chip, abort / reset paths (coverage and findings), long runs, demo |
 | `docs/signoff.md` | Physical signoff of run `flow/runs/mq_final`: metrics table, GLS, timing-annotated GLS, power, metal fill |
+| `docs/mul8_swap.md` | The INT8 multiplier swap point `rtl/int/mq_mul8.v`: interface, which multiplies use it, how to plug in a variant |
+| `docs/bench.md` | RTL-run BPB / PPL benchmark per multiplier variant: design, statistics, baseline |
 | `docs/vectors.md` | Format of the chip and unit vector files for the RTL team |
 | `model/` | PyTorch side: `config.py`; `data/` (corpus, batches); `float/` (model, chunked scan); `qat/` (fake-quant STE, QAT forward); `train/` (float pre-training, QAT fine-tuning); `evaluate.py`; `checkpoints/` |
 | `golden/ops/` | `formats.py` (the one copy of spec table 3, `rsh`, `sat`), `lane.py` (MAC, `dot`, `wb_sh`, `wb_rq`), `nlu.py` (340-word ROM, address arithmetic, LUT functions) |
@@ -45,6 +47,7 @@ INT8-vs-FP16 comparison, the remaining caveats and the regression re-run after t
 | `flow/` | Physical design and signoff (LibreLane config / build, SDC, KLayout DRC, fill, GLS, SDF GLS, power, report): `flow/README.md` |
 | `tb/` | `unit/` (+ `run_unit.sh`), `chip/` (+ `run_chip.sh`, `build_verilator.sh`), `abort/` (+ `run_abort.sh`), `common/` includes, `ref/` spec-formula references |
 | `demo/` | Closed-loop stories and long runs on the simulated chip: `host/`, `tb/`, `run_demo.sh`, `run_long.sh`, results in `demo/README.md` |
+| `bench/` | RTL-run benchmark: `run_bench.sh <variant>`, `build.sh`, `prep` / `ref` / `worker` / `score` / `stats` modules, `variants/` (student `mq_mul8` designs), `results/` |
 | `syn/` | Pre-layout synthesis (`synth_chip.sh`, `synth_units.sh`: yosys `-booth` + OpenSTA, results in `docs/rtl_units.md`) |
 | `analysis/` | Area / power investigation vs `mb_chip` (`area/`, `power/` scripts, `data/` tables, report `area_power.md`); analysis only, not acted on |
 
@@ -71,6 +74,7 @@ src_int8/tb/build_verilator.sh && src_int8/tb/run_chip.sh --vl                  
 src_int8/tb/run_abort.sh [verilator|iverilog|all] [-- +SEED=2 +NRAND=80]         # abort / reset paths (~25 min build + 1 min; iverilog ~45 min)
 src_int8/demo/run_demo.sh                                                        # closed-loop stories on the RTL chip, Verilator (~1 min)
 src_int8/demo/run_long.sh val.bin [--full]                                       # 2,048 forced + 1,200 closed-loop [+ 8,192 forced] tokens, no reset
+src_int8/bench/run_bench.sh <variant> [--n 512]                               # RTL BPB / PPL of an mq_mul8 variant on held-out text (~1.5 h, 44 sims)
 ```
 
 Verification results: `docs/verification.md`; demo text and throughput: `demo/README.md`; all numbers with their

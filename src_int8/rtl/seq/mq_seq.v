@@ -46,6 +46,7 @@ module mq_seq (
     // MAC lane
     output reg         lane_issue,
     output reg         lane_first,
+    output reg         lane_w8,        // MAC is INT8 weight (S8) x INT8: product from mq_mul8
     output reg  [23:0] lane_a,
     output reg  [15:0] lane_b,
     output reg  [31:0] lane_init,
@@ -216,6 +217,7 @@ module mq_seq (
         end
         if (go1 && op == OP_MAC) begin
             lane_a <= a1[23:0]; lane_b <= b1; lane_ps <= ps; lane_first <= first_pend;
+            lane_w8 <= sw == 2'd1 && (sa == SRC_S || sb == SRC_S);
         end
         if (go1 && op == OP_INIT) lane_init <= a1;
         if (rq_ld) begin

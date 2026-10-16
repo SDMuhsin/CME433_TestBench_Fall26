@@ -21,7 +21,7 @@ module tb_nlu;
     wire [31:0] acc, y;
 
     mq_nlu  u_nlu  (.clk(clk), .ld(ld), .fn(fn), .x(x), .step(step), .a(a), .b(b), .sh(sh), .zero(zero));
-    mq_dp   u_dp   (.clk(clk), .rst_n(rst_n), .clear(1'b0), .issue(issue), .first(!step),
+    mq_dp   u_dp   (.clk(clk), .rst_n(rst_n), .clear(1'b0), .issue(issue), .first(!step), .w8(1'b0),
                     .a({8'd0, a}), .b({4'd0, b}), .init(32'd0), .ps(4'd0), .idle(idle), .done(done),
                     .acc(acc), .wb_mode(2'd0), .wb_sh(sh), .wb_rq_m(16'h4000), .wb_rq_s(6'd1),
                     .wb_addend(16'd0), .wb_ww(2'd1), .wb_ph(ph), .y(y));

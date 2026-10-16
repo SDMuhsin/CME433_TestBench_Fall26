@@ -5,6 +5,7 @@ mem/mq65_latch_rf.v
 mem/mq_sram_256x8.v
 core/int/mq_rsh.v
 core/int/mq_mul24x17.v
+core/int/mq_mul8.v
 core/int/mq_sat.v
 core/lane/mq_lane.v
 core/lane/mq_wb.v

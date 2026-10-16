@@ -11,7 +11,7 @@ mkdir -p "$BUILD"
 RTL=$(sed -e '/^\/\//d' -e "s|^|$SRC/rtl/|" "$SRC/rtl/units.f" | tr '\n' ' ')
 fail=0
 printf '%-14s %8s %8s %12s  %s\n' unit cells flops 'area_um2' status
-for top in mq_rsh mq_mul24x17 mq_sat mq_lane mq_wb mq_dp mq_nlu_addr mq_nlu_rom mq_nlu; do
+for top in mq_rsh mq_mul24x17 mq_mul8 mq_sat mq_lane mq_wb mq_dp mq_nlu_addr mq_nlu_rom mq_nlu; do
     log="$BUILD/$top.log"
     yosys -q -l "$log" -p "
         read_verilog -I $SRC/rtl/nonlin $RTL

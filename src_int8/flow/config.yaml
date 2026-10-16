@@ -20,6 +20,7 @@ STD_CELL_LIBRARY: gf180mcu_as_sc_mcu7t3v3
 VERILOG_FILES:
   - dir::../rtl/int/mq_rsh.v
   - dir::../rtl/int/mq_mul24x17.v
+  - dir::../rtl/int/mq_mul8.v
   - dir::../rtl/int/mq_sat.v
   - dir::../rtl/lane/mq_lane.v
   - dir::../rtl/lane/mq_wb.v

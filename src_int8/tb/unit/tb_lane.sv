@@ -23,7 +23,7 @@ module tb_lane;
     integer     wr = 0, rd = 0;
 
     wire [31:0] y;
-    mq_dp dut (.clk(clk), .rst_n(rst_n), .clear(1'b0), .issue(issue), .first(first),
+    mq_dp dut (.clk(clk), .rst_n(rst_n), .clear(1'b0), .issue(issue), .first(first), .w8(1'b0),
                .a(a), .b(b), .init(init), .ps(ps), .idle(idle), .done(done), .acc(acc),
                .wb_mode(2'd0), .wb_sh(5'd0), .wb_rq_m(16'd0), .wb_rq_s(6'd0), .wb_addend(16'd0),
                .wb_ww(2'd0), .wb_ph(2'd0), .y(y));

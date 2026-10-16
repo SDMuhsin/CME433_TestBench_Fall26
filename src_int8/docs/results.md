@@ -311,3 +311,16 @@ Re-run results on the current RTL:
 | `flow/fill/checks/{check_fill,density,die_model,dummy_drc}` on the existing filled GDS (`flow/runs/mq_final/fill/audit/`) | check_fill ALL PASS; block density table identical to the signoff `fill/density.txt` (M2.4 26.40, M4.4 21.67 % LOW, rest pass); die model M1.4 29.86 % (1 item), M2-M5 pass; PDK dummy decks DM1-DM5 0 items; GDS not regenerated, sha256 unchanged |
 | `flow/drc/kdrc.sh` on the filled GDS (`flow/runs/mq_final/kdrc_filled_audit/`) | main 0, antenna 0, density 2 (M2.4, M4.4), Vn.2b 0: identical to `kdrc_filled/` |
 | LibreLane `--to Yosys.Synthesis` of the current RTL (`flow/runs/audit_syn`) | netlist byte-identical to `mq_final` (section 7) |
+
+## 12. INT8 multiplier swap point and RTL-run benchmark (2026-10-16)
+
+The weight x activation products (48,512 of the 56,198 lane steps per token) now go through one
+module, `rtl/int/mq_mul8.v` (signed 8 x 8 -> 16 b, combinational; `docs/mul8_swap.md`). With
+the exact `mq_mul8` the chip is bit-exact and cycle-identical (chip TB 31 / 31 tokens, 450,412
+clk/token; unit TBs, demo and microcode tests PASS). This RTL change post-dates the signoff: the
+layouts in sections 3 to 6 (and the 65 nm port) were built from the RTL before it and were not
+re-run; pre-layout, the extra 8 x 8 multiplier adds 5,378 um2 to `mq_dp` (yosys, tt).
+`bench/run_bench.sh <variant>` (`docs/bench.md`) measures BPB / PPL from the simulated chip's
+logits on held-out validation crops: exact baseline **1.3843 +- 0.0075 BPB** (PPL 2.610) on
+512 crops x 1,024 bytes, 1.3891 +- 0.0055 on 1,024 crops, and exactly 1.3749 on the 256 crops of
+section 2; RTL logits == Python golden on all 1,048,576 tokens (`bench/results/exact_c*.json`).
