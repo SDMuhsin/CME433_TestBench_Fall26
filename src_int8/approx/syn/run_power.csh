@@ -24,8 +24,7 @@ vcs -full64 -sverilog +lint=none -timescale=1ns/1ps +neg_tchk +notimingcheck -v 
 if (! -x simv) then
     echo "PWR_DONE $1_$2 compile FAILED (compile.log)"; exit 1
 endif
-./simv +VEC=$REPO/build/approx/act/vec_$2.hex +PERIOD=$period \
-    +SAIF=$out/mq_mul8.saif >& sim.log
+./simv +VEC=$REPO/build/approx/act/vec_$2.hex +PERIOD=$period >& sim.log
 setenv MUL8_SYN $syn
 setenv MUL8_SAIF $out/mq_mul8.saif
 setenv MUL8_PERIOD $period

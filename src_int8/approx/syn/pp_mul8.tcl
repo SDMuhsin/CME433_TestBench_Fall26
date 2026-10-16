@@ -14,6 +14,7 @@ current_design mq_mul8
 link_design mq_mul8
 set_operating_conditions [mq65_oc $corner] -library [mq65_lib $corner]
 read_sdc $syn/mq_mul8.sdc
+if {![file exists $::env(MUL8_SAIF)]} { puts "Error: no SAIF $::env(MUL8_SAIF)"; exit 1 }
 read_saif -strip_path tb_mul8_power/dut $::env(MUL8_SAIF) > rpt/read_saif.rpt
 report_switching_activity > rpt/switching.rpt
 update_power
@@ -25,6 +26,10 @@ puts $fh "mq_mul8 standalone power summary ($::env(MUL8_TAG))"
 puts $fh "corner $corner  period_ns $period  activity SAIF from SDF timing simulation (averaged)"
 foreach line [split [read [set f [open rpt/read_saif.rpt r]]] "\n"] {
     if {[regexp {^(Total|Number)} $line]} { puts $fh "saif: $line" }
+}
+close $f
+foreach line [split [read [set f [open rpt/switching.rpt r]]] "\n"] {
+    if {[regexp {^ Nets } $line]} { puts $fh "activity: [regsub -all {\s+} [string trim $line] { }]  (last two: not annotated, total)" }
 }
 close $f
 foreach a {internal_power switching_power leakage_power total_power} {
