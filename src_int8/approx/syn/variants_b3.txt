@@ -1,0 +1,15 @@
+# phase B3 designs (read by sweep_all.sh / power_all.sh with this file as the list argument)
+exact_booth
+evo_1KV8
+evo_1KVA
+evo_1KVB
+evo_1KX2
+evo_1KR8
+evo_1KR6
+evo_1KRC
+evo_1L2H
+evo_1KVL
+evo_1KTY
+evo_1L2D
+evo_1L1G
+evo_1KR3
