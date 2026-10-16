@@ -61,21 +61,22 @@ def point(syn, corner, d, base):
         if c != corner or dd != d:
             continue
         pc, pr = power(v, c, d, 'chip'), power(v, c, d, 'random')
-        rows.append((v, s, pc, pr))
+        rows.append((v, s, pc, pr, power(v, c, d, 'chip_zd')))
     ref = {r[0]: r for r in rows}.get(base)
-    print(f'\n### Point {corner}, max delay {d} ns (power: chip / random vectors, uW; PDP with chip vectors)\n')
+    print(f'\n### Point {corner}, max delay {d} ns (power: chip / random vectors, uW; PDP with chip vectors;'
+          ' zd: zero-delay simulation, no glitches)\n')
     print('| variant | area um2 | delay ns | P chip uW | P random uW | E/op chip pJ | PDP chip fJ |'
-          ' area vs base | P chip vs base | P random vs base | PDP vs base |')
-    print('|---|' + '---:|' * 10)
-    for v, s, pc, pr in rows:
+          ' area vs base | P chip vs base | P random vs base | PDP vs base | P chip zd uW | zd vs base |')
+    print('|---|' + '---:|' * 12)
+    P = lambda p: p['total_power'] * 1e6 if p else float('nan')
+    for v, s, pc, pr, pz in rows:
         a, t = s['cell_area_um2'], s['critical_delay_ns']
-        P = lambda p: p['total_power'] * 1e6 if p else float('nan')
         pdp = P(pc) * t
         line = [v, f'{a:.0f}', f'{t:.3f}', f'{P(pc):.1f}', f'{P(pr):.1f}',
                 f"{pc['energy_per_op_pJ']:.3f}" if pc else '', f'{pdp:.1f}']
         if ref:
             ra, rt, rc, rr = ref[1]['cell_area_um2'], ref[1]['critical_delay_ns'], P(ref[2]), P(ref[3])
-            line += [pct(a, ra), pct(P(pc), rc), pct(P(pr), rr), pct(pdp, rc * rt)]
+            line += [pct(a, ra), pct(P(pc), rc), pct(P(pr), rr), pct(pdp, rc * rt), f'{P(pz):.1f}', pct(P(pz), P(ref[4]))]
         print('| ' + ' | '.join(line) + ' |')
 
 

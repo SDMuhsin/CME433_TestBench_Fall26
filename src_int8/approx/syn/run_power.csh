@@ -1,11 +1,12 @@
 #!/bin/tcsh -f
 # Gate-level power of one standalone mq_mul8 netlist on the server:
-#   src_int8/approx/syn/run_power.csh <syn_tag> <vec> [period_ns=10]
+#   src_int8/approx/syn/run_power.csh <syn_tag> <vec> [period_ns=10] [sdf|zd]
 #     <syn_tag>  a run_dc.csh output (<repo>/build/approx/syn/<syn_tag>/)
 #     <vec>      random | chip: <repo>/build/approx/act/vec_<vec>.hex (src_int8.approx.act.vectors,
 #                copied to the server's clone with rsync)
 #   1. VCS timing simulation of the netlist with the DC SDF (glitches included), one vector per
 #      period, SAIF of the 65,536-operation window and an output checksum (tb_mul8_power.v)
+#      (zd: zero-delay simulation instead, no glitches; output and summary names get _zd)
 #   2. PrimePower (averaged) with that SAIF at the netlist's corner
 #   output: <repo>/build/approx/power/<syn_tag>_<vec>/, summary -> build/approx/summary/pwr_<...>.txt
 set APX = `cd $0:h/.. && pwd`
@@ -15,22 +16,30 @@ source $MQ65/syn/common/env_pt.csh
 set syn = $REPO/build/approx/syn/$1
 set period = 10
 if ($#argv >= 3) set period = $3
-set out = $REPO/build/approx/power/$1_$2
+set mode = sdf
+if ($#argv >= 4) set mode = $4
+set run = $1_$2
+set timing = "-sdf max:tb_mul8_power.dut:$syn/mq_mul8.sdf"
+if ("$mode" == "zd") then
+    set run = $1_$2_zd
+    set timing = "+delay_mode_zero"
+endif
+set out = $REPO/build/approx/power/$run
 mkdir -p $out $REPO/build/approx/summary
 cd $out
 vcs -full64 -sverilog +lint=none -timescale=1ns/1ps +neg_tchk +notimingcheck -v $MQ65_VLOG -top tb_mul8_power \
-    -sdf max:tb_mul8_power.dut:$syn/mq_mul8.sdf \
+    $timing \
     $APX/syn/tb_mul8_power.v $syn/mq_mul8.v -o simv >& compile.log
 if (! -x simv) then
-    echo "PWR_DONE $1_$2 compile FAILED (compile.log)"; exit 1
+    echo "PWR_DONE $run compile FAILED (compile.log)"; exit 1
 endif
 ./simv +VEC=$REPO/build/approx/act/vec_$2.hex +PERIOD=$period >& sim.log
 setenv MUL8_SYN $syn
 setenv MUL8_SAIF $out/mq_mul8.saif
 setenv MUL8_PERIOD $period
 setenv MUL8_CORNER `grep '^corner' $syn/summary.txt | awk '{print $2}'`
-setenv MUL8_TAG $1_$2
+setenv MUL8_TAG $run
 pt_shell -f $APX/syn/pp_mul8.tcl >& pp.log
 grep CHECKSUM sim.log >> summary.txt
-if (-f summary.txt) cp -f summary.txt $REPO/build/approx/summary/pwr_$1_$2.txt
-echo "PWR_DONE $1_$2 `grep CHECKSUM sim.log` errors `grep -c '^Error' pp.log`"
+if (-f summary.txt) cp -f summary.txt $REPO/build/approx/summary/pwr_$run.txt
+echo "PWR_DONE $run `grep CHECKSUM sim.log` errors `grep -c '^Error' pp.log`"
