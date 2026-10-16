@@ -18,8 +18,8 @@ if ($#argv >= 3) set period = $3
 set out = $REPO/build/approx/power/$1_$2
 mkdir -p $out $REPO/build/approx/summary
 cd $out
-vcs -full64 -sverilog +lint=none +neg_tchk +notimingcheck -v $MQ65_VLOG -top tb_mul8_power \
-    $syn/mq_mul8.v $APX/syn/tb_mul8_power.v -o simv >& compile.log
+vcs -full64 -sverilog +lint=none -timescale=1ns/1ps +neg_tchk +notimingcheck -v $MQ65_VLOG -top tb_mul8_power \
+    $APX/syn/tb_mul8_power.v $syn/mq_mul8.v -o simv >& compile.log
 if (! -x simv) then
     echo "PWR_DONE $1_$2 compile FAILED (compile.log)"; exit 1
 endif

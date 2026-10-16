@@ -12,7 +12,7 @@ set delay  $::env(MUL8_DELAY)
 set out    $::env(MUL8_OUT)
 set lib    [mq65_lib $corner]
 file mkdir $out/rpt
-set_host_options -max_cores 4
+set_host_options -max_cores 1
 
 set_app_var search_path [concat . $::MQ65_LIBDIR $search_path]
 set_app_var target_library [list [mq65_db $corner]]
