@@ -29,7 +29,9 @@ foreach line [split [read [set f [open rpt/read_saif.rpt r]]] "\n"] {
 }
 close $f
 foreach line [split [read [set f [open rpt/switching.rpt r]]] "\n"] {
-    if {[regexp {^ Nets } $line]} { puts $fh "activity: [regsub -all {\s+} [string trim $line] { }]  (last two: not annotated, total)" }
+    if {[regexp {^ Nets } $line] && ![info exists seen]} {
+        set seen 1
+        puts $fh "activity: [regsub -all {\s+} [string trim $line] { }]  (last two: not annotated, total)" }
 }
 close $f
 foreach a {internal_power switching_power leakage_power total_power} {
