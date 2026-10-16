@@ -4,7 +4,8 @@
 // prints a checksum of the outputs sampled at the end of each period
 // (sum (i+1) * p_i mod 2^32, see src_int8/approx/act/vectors.py) and, under VCS, records the
 // switching activity of the operation window as SAIF (+SAIF=<file>) for PrimePower.
-// Gate level with timing: +SDF=<file> back-annotates the DC delays (glitches are counted).
+// Gate level with timing: the DC SDF is back-annotated at compile time (vcs -sdf, run_power.csh),
+// so glitches are counted.
 module tb_mul8_power;
     localparam NV = 65536;
     reg  [15:0] vec [0:NV-1];
@@ -13,7 +14,7 @@ module tb_mul8_power;
     reg  [31:0] sum;
     real period;
     integer i;
-    reg [1023:0] fvec, fsaif, fsdf;
+    reg [1023:0] fvec, fsaif;
 
     mq_mul8 dut (.a(a), .b(b), .p(p));
 
@@ -22,7 +23,6 @@ module tb_mul8_power;
         if (!$value$plusargs("PERIOD=%f", period)) period = 10.0;
         $readmemh(fvec, vec);
 `ifdef VCS
-        if ($value$plusargs("SDF=%s", fsdf)) $sdf_annotate(fsdf, dut);
         if (!$value$plusargs("SAIF=%s", fsaif)) fsaif = "mq_mul8.saif";
         $set_gate_level_monitoring("on");
         $set_toggle_region(tb_mul8_power.dut);

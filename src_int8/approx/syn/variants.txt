@@ -1,0 +1,7 @@
+# variant [NAME=VALUE ...]   (one design per line; read by sweep_all.sh / power_all.sh)
+exact
+exact_dadda
+cssm CSSM_M=5
+cssm CSSM_M=6
+cssm CSSM_M=7
+ilm
