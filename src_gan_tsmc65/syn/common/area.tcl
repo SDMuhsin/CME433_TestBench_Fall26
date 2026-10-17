@@ -66,16 +66,15 @@ proc gan65_put_mul_timing {fh} {
 }
 
 # the multiplier's own a/b -> p delay inside the chip: on the 10 worst max paths through
-# each gan_mul8 instance (in pin -> out pin), arrival at its last internal point minus
+# each gan_mul8 instance output, arrival at its last internal point minus
 # arrival at its first internal point; the largest over all 16 instances is reported
 proc gan65_put_mul_delay {fh} {
     set best -1.0; set from ""; set to ""
     foreach_in_collection c [get_cells -quiet -hierarchical \
             -filter "is_hierarchical==true && full_name=~u_dla/u_pe_array/*u_pe/u_mul"] {
         set inst [get_object_name $c]
-        set ps [get_timing_paths -delay_type max -max_paths 10 \
-            -through [get_pins -of_objects $c -filter "direction==in"] \
-            -through [get_pins -of_objects $c -filter "direction==out"]]
+        set ps [get_timing_paths -delay_type max -max_paths 10 -slack_lesser_than 100 \
+            -through [get_pins -of_objects [get_cells $inst] -filter "direction==out"]]
         foreach_in_collection p $ps {
             set t0 ""
             foreach_in_collection pt [get_attribute $p points] {
