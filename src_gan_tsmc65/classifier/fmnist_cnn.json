@@ -1,0 +1,6 @@
+{
+ "test_accuracy": 0.9135,
+ "epochs": 12,
+ "seed": 0,
+ "train_s": 23.4
+}
