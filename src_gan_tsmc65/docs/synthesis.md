@@ -145,6 +145,7 @@ for ff):
   happened with the default cost priority, with hold placed ahead of design rules, and with
   the 30 ps compile margin that the script now keeps.
 - At other periods the residue is between -6.6 ps and +1.7 ps (table in section 2).
+- Phase 3 also tried a hold-only pass; not supported in topographical mode (`docs/results.md` s.2).
 - These are pre-layout numbers with ideal clocks. The hold fix after clock-tree synthesis in
   place and route takes care of them, as it does for any real skew.
 

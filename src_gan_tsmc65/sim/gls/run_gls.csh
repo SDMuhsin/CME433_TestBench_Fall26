@@ -9,6 +9,9 @@
 #            GAN65_GLS_INIT=random starts them at random values instead (output dir suffix _rnd)
 #   period   TB clock (CLK_HALF_NS = period / 2); set the synthesis clock for SAIF
 #   saif=1   also write gan65_chip.saif (first image, START .. STATUS, sim/gls/gls_saif.sv)
+#   GAN65_GLS_SDF=<corner>  timing-annotated run instead of zero delay: SDF of that corner
+#            (sim/gls/run_sdf.csh, written if missing; ideal root clock), output suffix _sdf<corner>;
+#            the SAIF then counts glitch transitions (inertial cell delays, no timing checks)
 #   output: $GAN65/build/gls/<syn_tag>_s<seed>/ (compile.log, tb.log, pix.memh, gan65_chip.saif)
 setenv GAN65 `cd $0:h/../.. && pwd`
 source $GAN65/syn/common/env.csh
@@ -28,9 +31,19 @@ if ($?GAN65_GLS_INIT) then
     set init = $GAN65_GLS_INIT
 endif
 if ($init != 0) set out = ${out}_rnd
+set dly = "+delay_mode_zero +nospecify"
+set act = "SAIF from zero-delay GLS (no glitches)"
+if ($?GAN65_GLS_SDF) then
+    set sdf = $GAN65/build/syn/$1/gan65_chip.$GAN65_GLS_SDF.sdf
+    if (! -s $sdf) $GAN65/sim/gls/run_sdf.csh $1 $GAN65_GLS_SDF $period
+    set dly = "-sdf max:gan65_bench_tb.dut:$sdf"
+    set act = "SAIF from SDF-timed GLS ($GAN65_GLS_SDF corner, glitches counted)"
+    set out = ${out}_sdf$GAN65_GLS_SDF
+endif
 mkdir -p $out
 cd $out
-vcs -full64 -sverilog -timescale=1ns/1ps +delay_mode_zero +nospecify +notimingcheck +lint=none -j8 +vcs+initreg+random \
+echo "$act" > activity
+vcs -full64 -sverilog -timescale=1ns/1ps $dly +notimingcheck +lint=none -j8 +vcs+initreg+random \
     -pvalue+gan65_bench_tb.CLK_HALF_NS=$half -v $MQ65_VLOG -top gan65_bench_tb -top gls_saif \
     $net $GAN65/bench/tb/gan65_bench_tb.sv $GAN65/sim/gls/gls_saif.sv -o simv >& compile.log
 if (! -x simv) then

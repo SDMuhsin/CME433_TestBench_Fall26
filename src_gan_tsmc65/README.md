@@ -14,6 +14,8 @@ A technology-clean copy of the `dla_e2e_chip` RTL (the 64-256-256-784 G300 gener
 | `bench/` | `run_bench.sh`, Verilator build, pad-level host TB, scorer, multiplier variants |
 | `docs/bench.md` | Benchmark method and results |
 | `syn/` `lec/` `sta/` `sim/gls/` | 65 nm flow on the server: DC topographical, Formality, PrimeTime, VCS gate-level sim; `syn/run_syn.sh <variant>` synthesises one multiplier variant. The kit config is shared with `src_int8_tsmc65` (`site/README.md`) |
+| `power/` | PrimePower (averaged, SAIF of one image from zero-delay or SDF-timed GLS); `power/run_power.sh <variant>` gives power and energy per image of one variant |
+| `docs/results.md` | **Camera-ready summary**: bit-exactness, timing at 3 corners, area and power split (PE array, multipliers, latch RF), energy per image, variant comparison |
 | `docs/synthesis.md`, `results/` | Fmax sweep, signoff (DC 1.8 ns, PT 2.0 ns = 500 MHz), area split, FM / PT / GLS results; summary files |
 
 ## Run
@@ -30,6 +32,9 @@ Synthesis (on the server, in the repository clone; docs/synthesis.md):
 ```bash
 src_gan_tsmc65/syn/run_syn.sh exact --signoff             # DC ss 1.8 ns + Formality + PT ss/tt/ff at 2.0 ns
 src_gan_tsmc65/syn/run_syn.sh my_mul --signoff            # same for bench/variants/my_mul.v
+src_gan_tsmc65/power/run_power.sh exact --sdf             # GLS of one image (SDF, tt) + PrimePower tt at 500 MHz
+src_gan_tsmc65/power/run_power.sh my_mul --clock 2.5 --syn-period 2.4 --sdf   # variant at 400 MHz
 ```
+Headline (exact, tt, 500 MHz, pre-layout): 182,751 um^2, 11.2 mW, 52.5 uJ per image, 213 images/s; the latch RF and its clock gating take 83 % of the power, the 16 multipliers 3 % (`docs/results.md`).
 
 Needs Verilator 5 (or set `VERILATOR=`), iverilog, and Python 3 with numpy, torch and Pillow.
