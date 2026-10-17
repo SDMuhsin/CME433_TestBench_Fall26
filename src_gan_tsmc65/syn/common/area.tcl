@@ -62,4 +62,32 @@ proc gan65_put_mul_timing {fh} {
     puts $fh [format "setup_through_mul8 WNS %8.4f ns  worst path: %s -> %s (arrival %.3f ns)" \
         [get_attribute $p slack] [get_object_name [get_attribute $p startpoint]] \
         [get_object_name [get_attribute $p endpoint]] [get_attribute $p arrival]]
+    gan65_put_mul_delay $fh
+}
+
+# the multiplier's own a/b -> p delay inside the chip: on the 10 worst max paths through
+# each gan_mul8 instance (in pin -> out pin), arrival at its last internal point minus
+# arrival at its first internal point; the largest over all 16 instances is reported
+proc gan65_put_mul_delay {fh} {
+    set best -1.0; set from ""; set to ""
+    foreach_in_collection c [get_cells -quiet -hierarchical \
+            -filter "is_hierarchical==true && full_name=~u_dla/u_pe_array/*u_pe/u_mul"] {
+        set inst [get_object_name $c]
+        set ps [get_timing_paths -delay_type max -max_paths 10 \
+            -through [get_pins -of_objects $c -filter "direction==in"] \
+            -through [get_pins -of_objects $c -filter "direction==out"]]
+        foreach_in_collection p $ps {
+            set t0 ""
+            foreach_in_collection pt [get_attribute $p points] {
+                set n [get_object_name [get_attribute $pt object]]
+                if {[string first "$inst/" $n] != 0} { continue }
+                set a [get_attribute $pt arrival]
+                if {$t0 eq ""} { set t0 $a; set f $n }
+                set t1 $a; set l $n
+            }
+            if {$t0 ne "" && $t1 - $t0 > $best} { set best [expr {$t1 - $t0}]; set from $f; set to $l }
+        }
+    }
+    if {$best < 0} { return }
+    puts $fh [format "mul8_a_to_p_delay max %8.4f ns  path inside: %s -> %s" $best $from $to]
 }
