@@ -110,27 +110,48 @@ setup WNS to flops) and the multiplier's own a/b -> p delay inside the chip (lar
 16 `gan_mul8` instances, from the first to the last internal point of the worst paths through
 its outputs; `mul8_a_to_p_delay` in the PT summary).
 
-| Variant | Total area (um^2) | 16 x mul8 (um^2) | PE array (um^2) | Chip power (mW) | PE power (mW) | mul8 power (mW) | Energy/image (uJ) | PSNR (dB) | Label agreement | PT ss setup / ff hold @2.5 | GLS vs emulation | Min period ss (ns) | mul8 a->p delay ss (ns) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| exact | 174,855.2 | 9,890.3 | 18,948.6 | 8.816 | 0.416 | 0.192 | 51.72 | inf (bit-exact) | 100 % | +0.085 / +0.0016 | 784/784 | 1.817 | 0.937 |
-| example_trunc4 | 171,815.8 (**-1.7 %**) | 9,398.5 (-5.0 %) | 16,856.6 | 8.783 (**-0.4 %**) | 0.401 | 0.189 (-1.5 %) | 51.53 (**-0.4 %**) | 24.65 | 94.9 % | +0.080 / +0.0008 | 784/784 | 1.811 | 0.981 |
-| mq:ilm | 211,561.2 (**+21.0 %**) | 42,914.5 (+334 %) | 55,339.6 | 10.229 (**+16.0 %**) | 1.769 | 1.347 (+603 %) | 60.01 (**+16.0 %**) | 33.10 | 97.7 % | +0.077 / +0.0007 | 784/784 | **2.345** | 1.615 |
-| mq:evo_1KV8 | 179,215.2 (**+2.5 %**) | 13,407.8 (+35.6 %) | 22,901.8 | 8.894 (**+0.9 %**) | 0.468 | 0.209 (+9.3 %) | 52.18 (**+0.9 %**) | inf (bit-exact) | 100 % | +0.087 / +0.0003 | 784/784 | **2.065** | 1.412 |
-| mq:evo_1KR8 | 176,084.6 (**+0.7 %**) | 11,270.2 (+14.0 %) | 20,007.4 | 8.803 (**-0.1 %**) | 0.382 | 0.161 (-15.9 %) | 51.65 (**-0.1 %**) | 21.42 | 87.5 % | +0.083 / +0.0009 | 784/784 | **2.005** | 1.317 |
-| mq:evo_1KVL | 171,282.6 (**-2.0 %**) | 8,519.4 (-13.9 %) | 16,118.3 | 8.722 (**-1.1 %**) | 0.304 | 0.115 (-39.8 %) | 51.17 (**-1.1 %**) | 12.19 | 51.2 % | +0.082 / +0.0012 | 784/784 | 1.894 | 1.192 |
-| mq:evo_1KR3 | 163,118.9 (**-6.7 %**) | 2,288.9 (-76.9 %) | 8,261.6 | 8.556 (**-3.0 %**) | 0.182 | 0.032 (-83.1 %) | 50.19 (**-3.0 %**) | 8.60 | 8.2 % | +0.083 / +0.0015 | 784/784 | 1.820 | 0.842 |
+| Variant | Total area (um^2) | 16 x mul8 (um^2) | PE array (um^2) | Chip power (mW) | PE power (mW) | mul8 power (mW) | Energy/image (uJ) | PSNR (dB) | Label agreement | FID-10k | IS | KID x10^3 | Precision | Recall | PT ss setup / ff hold @2.5 | GLS vs emulation | Min period ss (ns) | mul8 a->p delay ss (ns) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| exact | 174,855.2 | 9,890.3 | 18,948.6 | 8.816 | 0.416 | 0.192 | 51.72 | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.085 / +0.0016 | 784/784 | 1.817 | 0.937 |
+| example_trunc4 | 171,815.8 (**-1.7 %**) | 9,398.5 (-5.0 %) | 16,856.6 | 8.783 (**-0.4 %**) | 0.401 | 0.189 (-1.5 %) | 51.53 (**-0.4 %**) | 24.65 | 94.9 % | 87.04 | 3.81 | 75.50 | 0.657 | 0.005 | +0.080 / +0.0008 | 784/784 | 1.811 | 0.981 |
+| mq:ilm | 211,561.2 (**+21.0 %**) | 42,914.5 (+334 %) | 55,339.6 | 10.229 (**+16.0 %**) | 1.769 | 1.347 (+603 %) | 60.01 (**+16.0 %**) | 33.10 | 97.7 % | 79.17 | 3.89 | 65.36 | 0.649 | 0.006 | +0.077 / +0.0007 | 784/784 | **2.345** | 1.615 |
+| mq:evo_1KV8 | 179,215.2 (**+2.5 %**) | 13,407.8 (+35.6 %) | 22,901.8 | 8.894 (**+0.9 %**) | 0.468 | 0.209 (+9.3 %) | 52.18 (**+0.9 %**) | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.087 / +0.0003 | 784/784 | **2.065** | 1.412 |
+| mq:evo_1KR8 | 176,084.6 (**+0.7 %**) | 11,270.2 (+14.0 %) | 20,007.4 | 8.803 (**-0.1 %**) | 0.382 | 0.161 (-15.9 %) | 51.65 (**-0.1 %**) | 21.42 | 87.5 % | 88.70 | 3.79 | 76.37 | 0.619 | 0.004 | +0.083 / +0.0009 | 784/784 | **2.005** | 1.317 |
+| mq:evo_1KVL | 171,282.6 (**-2.0 %**) | 8,519.4 (-13.9 %) | 16,118.3 | 8.722 (**-1.1 %**) | 0.304 | 0.115 (-39.8 %) | 51.17 (**-1.1 %**) | 12.19 | 51.2 % | 131.82 | 3.35 | 111.77 | 0.265 | 0.002 | +0.082 / +0.0012 | 784/784 | 1.894 | 1.192 |
+| mq:evo_1KR3 | 163,118.9 (**-6.7 %**) | 2,288.9 (-76.9 %) | 8,261.6 | 8.556 (**-3.0 %**) | 0.182 | 0.032 (-83.1 %) | 50.19 (**-3.0 %**) | 8.60 | 8.2 % | 304.32 | 1.04 | 347.52 | 0.002 | 0.000 | +0.083 / +0.0015 | 784/784 | 1.820 | 0.842 |
+| bw_exact (structured exact) | 175,303.8 (**+0.3 %**) | 10,730.2 (+8.5 %) | 19,617.5 | 8.791 (**-0.3 %**) | 0.388 | 0.147 (-23.5 %) | 51.57 (**-0.3 %**) | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.081 / +0.0011 | 784/784 | 1.811 | 1.010 |
+| bw_axfa6 | 175,064.4 (**+0.1 %**) | 10,177.9 (+2.9 %) | 19,272.6 | 8.781 (**-0.4 %**) | 0.379 | 0.139 (-27.4 %) | 51.52 (**-0.4 %**) | 21.56 | 92.2 % | 96.90 | 3.73 | 87.23 | 0.655 | 0.005 | +0.088 / **-0.0044** | 784/784 | 1.810 | 1.004 |
+| booth_exact (structured exact) | 176,536.1 (**+1.0 %**) | 11,102.4 (+12.3 %) | 20,352.6 | 8.815 (**-0.0 %**) | 0.407 | 0.154 (-19.4 %) | 51.72 (**-0.0 %**) | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.083 / +0.0017 | 784/784 | 1.814 | 1.000 |
+| booth_axfa5 | 176,062.7 (**+0.7 %**) | 10,886.4 (+10.1 %) | 20,184.8 | 8.793 (**-0.3 %**) | 0.397 | 0.148 (-22.6 %) | 51.59 (**-0.3 %**) | 32.31 | 98.0 % | 78.31 | 3.91 | 64.26 | 0.643 | 0.007 | +0.081 / +0.0015 | 784/784 | 1.813 | 0.985 |
+
+FID-10k / IS / KID / precision / recall: 10,000 RTL images vs the Fashion-MNIST train set
+(`bench/results/real_n10000.md`, `docs/bench.md`). bw_* and booth_* are the structured
+Baugh-Wooley / radix-4 Booth multipliers of `approx/` (`docs/papers/venkatachalam_ko_2017.md`);
+the *_exact rows are their bit-exact baselines with the same dot diagram.
 
 Files: `results/syn_<v>_ss_p2.4.txt`, `results/sta_<v>_ss_p2.4_{ss_max,ff_min}_at2.5.txt`,
 `results/pwr_<v>_ss_p2.4_<v>_ss_p2.4_s0_sdftt_tt.txt` (`<v>` = exact, example_trunc4,
-mq_ilm, mq_evo_1KV8, mq_evo_1KR8, mq_evo_1KVL, mq_evo_1KR3); zero-delay runs are the same
-names without `_sdftt` (exact 8.741, trunc4 8.709, mq:ilm 9.626, evo_1KV8 8.759, evo_1KR8
-8.691, evo_1KVL 8.614, evo_1KR3 8.501 mW). Formality SUCCEEDED for all seven
+mq_ilm, mq_evo_1KV8, mq_evo_1KR8, mq_evo_1KVL, mq_evo_1KR3, bw_exact, bw_axfa6, booth_exact,
+booth_axfa5); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
+mq:ilm 9.626, evo_1KV8 8.759, evo_1KR8 8.691, evo_1KVL 8.614, evo_1KR3 8.501, bw_exact 8.675,
+bw_axfa6 8.662, booth_exact 8.699, booth_axfa5 8.684 mW). Formality SUCCEEDED for all eleven
 (`results/fm_*_ss_p2.4.txt`). GLS: zero-delay and SDF-timed pixels of seed_0 match each
-variant's own integer emulation (`sim/gls/check_pix.py`); exact and evo_1KV8 also match the
-golden pixels. Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
+variant's own integer emulation (`sim/gls/check_pix.py`); exact, evo_1KV8, bw_exact and
+booth_exact also match the golden pixels. The four bw_* / booth_* variants run the whole
+hardware flow with `syn/run_variant_flow.sh <v>`. Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
 `mul8_a_to_p_delay`), netlists `syn_<v>_ss_p1.8.txt`, FM `fm_<v>_ss_p1.8.txt` (all SUCCEEDED).
 
-- All seven meet ss setup and ff hold at 400 MHz.
+- All eleven meet ss setup at 400 MHz, and all but bw_axfa6 meet ff hold. bw_axfa6 misses ff
+  hold by 4.4 ps on 8 endpoints, all `u_seq/u_rq/q_reg_*` -> `u_seq/rq_res_reg_*`: the direct
+  Q -> D residue of section 2, outside the multiplier, left to the P&R hold fix like there.
+- **Structured multipliers (bw_*, booth_*).** Written as gate-level Dadda trees, they are
+  3-12 % larger than DC's `a * b` but use 19-27 % less multiplier power (SDF; zero delay:
+  bw_exact 0.116 vs exact 0.187 mW, with lower leakage too), so they save 0.3-0.4 % chip energy
+  even when exact. The approximate cells then save, against their own exact baseline:
+  bw_axfa6 -5.1 % mul8 area, -5.1 % mul8 power, -0.1 % energy (FID 96.9, PSNR 21.6 dB);
+  booth_axfa5 -1.9 % mul8 area, -4.1 % mul8 power, -0.2 % energy, -1.6 % mul8 delay
+  (FID 78.3 vs 78.65 exact). Both beat DC's exact multiplier on chip power,
+  energy, mul8 power and minimum period, but not on mul8 area or mul8 delay.
 - **500 MHz:** `mq:ilm` (-0.345 ns, 406 endpoints), `mq:evo_1KV8` (-0.065 ns, 183 endpoints)
   and `mq:evo_1KR8` (-0.005 ns, 15 endpoints) miss ss setup at 2.0 ns on their 1.8 ns-target
   netlists; exact, trunc4, evo_1KVL and evo_1KR3 meet it. The minimum period follows the

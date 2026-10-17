@@ -29,6 +29,9 @@
 | `mq:evo_1KR8` | 0/256 | 21.42 / 15.47 / 21.68 | 12.49 / 220 | 224/256 (87.5 %) | 256/256 |
 | `mq:evo_1KVL` | 0/256 | 12.19 / 8.26 / 12.40 | 43.33 / 253 | 131/256 (51.2 %) | 256/256 |
 | `mq:evo_1KR3` | 0/256 | 8.60 / 7.08 / 8.48 | 86.42 / 240 | 21/256 (8.2 %) | 256/256 |
+| `bw_exact`, `booth_exact` (structured exact) | 256/256 | inf / inf / inf | 0 / 0 | 256/256 (100 %) | 256/256 |
+| `booth_axfa5` | 0/256 | 32.31 / 25.96 / 33.24 | 3.28 / 80 | 251/256 (98.0 %) | 256/256 |
+| `bw_axfa6` | 0/256 | 21.56 / 16.09 / 21.96 | 12.27 / 183 | 236/256 (92.2 %) | 256/256 |
 
 The full per-variant tables, including classifier confidence, are in `bench/results/<variant>_n256.md`.
 
@@ -47,6 +50,8 @@ The table below gives each variant's product error over all 65,536 inputs (`benc
 | `mq:evo_1KR8` | 32.0 / +0.25 | 31.8 / -31.8 | 21.42 |
 | `mq:evo_1KVL` | 101.3 / -16.3 | 112.3 / -112.3 | 12.19 |
 | `mq:evo_1KR3` | 2016 / +15.8 | 2000 / -2000 | 8.60 |
+| `booth_axfa5` | 6.6 / +0.25 | 6.6 / +0.25 | 32.31 |
+| `bw_axfa6` | 12.9 / -10.8 | 12.9 / -10.8 | 21.56 |
 
 ILM has the largest MAE of the useful variants but no bias, and it gives the best images. Rank candidates with this benchmark, not with the error statistics of the multiplier alone.
 
@@ -94,8 +99,13 @@ For the floor row, the NN metrics use the first 10k train images, because the te
 | RTL `mq:evo_1KR8` | 88.70 | 3.79 ± 0.07 | 76.37 ± 2.29 | 0.619 | 0.004 | 48.90 | 16.45 / 16.57 | 68.7 % | 5.77 | 0.811 | 3.19 |
 | RTL `mq:evo_1KVL` | 131.82 | 3.35 ± 0.08 | 111.77 ± 2.04 | 0.265 | 0.002 | 171.87 | 16.32 / 16.23 | 45.9 % | 3.98 | 0.736 | 2.93 |
 | RTL `mq:evo_1KR3` | 304.32 | 1.04 ± 0.01 | 347.52 ± 2.36 | 0.002 | 0.000 | 682.12 | 14.60 / 14.49 | 0.1 % | 1.05 | 0.893 | 0.12 |
+| RTL `bw_exact` | 78.65 | 3.90 ± 0.07 | 64.85 ± 2.12 | 0.649 | 0.007 | 31.33 | 16.35 / 16.50 | 71.1 % | 6.04 | 0.828 | 3.19 |
+| RTL `bw_axfa6` | 96.90 | 3.73 ± 0.07 | 87.23 ± 2.50 | 0.655 | 0.005 | 46.58 | 16.33 / 16.41 | 69.1 % | 5.83 | 0.815 | 3.19 |
+| RTL `booth_exact` | 78.65 | 3.90 ± 0.07 | 64.85 ± 2.12 | 0.649 | 0.007 | 31.33 | 16.35 / 16.50 | 71.1 % | 6.04 | 0.828 | 3.19 |
+| RTL `booth_axfa5` | 78.31 | 3.91 ± 0.06 | 64.26 ± 2.15 | 0.643 | 0.007 | 30.39 | 16.25 / 16.39 | 71.0 % | 6.04 | 0.829 | 3.19 |
 
 - **The exact and EvoApprox-exact `mq:evo_1KV8` chips score the same as the int8 golden.** int8 quantisation costs 0.9 FID against the float generator (77.76 to 78.65).
+- **`booth_axfa5` scores like exact** (FID 78.31 vs 78.65; KID 64.26 ± 2.15 vs 64.85 ± 2.12); `bw_axfa6` costs 18 FID, about twice trunc4, because of its -10.8 bias per product. The structured exact `bw_exact` / `booth_exact` reproduce the golden scores.
 - **`mq:ilm` is almost free on real-data metrics** (+0.5 FID). `example_trunc4` and `mq:evo_1KR8` cost about 8-10 FID. `mq:evo_1KVL` is clearly degraded (FID 132, precision 0.27). `mq:evo_1KR3` collapses: the CNN puts 99 % of its images in one class (entropy 0.12 bits), and the near-chance IS of 1.04 says the same.
 - **The ranking is the same as with the golden-referenced PSNR**, but the gaps are on the scale a GAN paper would report. The GAN, not the multiplier, dominates the distance to real data: the floor is 1.49 FID, against 78.65 for the exact chip.
 - **Recall is close to 0 for every generator, including float.** This MLP GAN covers little of the real VGG-16 manifold, because of mode coverage and its speckle texture. A low recall here is a property of the model, not of the hardware.
@@ -107,7 +117,7 @@ For the floor row, the NN metrics use the first 10k train images, because the te
 ```bash
 python3 -m src_gan_tsmc65.golden.check_ref
 src_gan_tsmc65/bench/check_mem.sh
-for v in exact mq:evo_1KV8 mq:ilm example_trunc4 mq:evo_1KR8 mq:evo_1KVL mq:evo_1KR3; do src_gan_tsmc65/bench/run_bench.sh $v; done
+for v in exact mq:evo_1KV8 mq:ilm example_trunc4 mq:evo_1KR8 mq:evo_1KVL mq:evo_1KR3 bw_exact bw_axfa6 booth_exact booth_axfa5; do src_gan_tsmc65/bench/run_bench.sh $v; done
 src_gan_tsmc65/bench/run_bench.sh exact --n 16 --jobs 16 --latch-rf
 pip install torch-fidelity==0.4.0                    # real-data metrics (weights download on first use)
 src_gan_tsmc65/bench/run_real.sh                     # 10k RTL images x 7 variants + scores (~3 h)
