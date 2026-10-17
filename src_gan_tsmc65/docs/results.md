@@ -16,6 +16,7 @@ netlists), the fastest common clock the log-domain `mq:ilm` multiplier meets.
 | Golden integer model vs reference vectors | 8/8 seeds bit-exact | `python3 -m src_gan_tsmc65.golden.check_ref` |
 | RTL (Verilator) vs golden, exact multiplier | 256/256 images bit-exact | `bench/results/exact_n256.md` |
 | RTL vs integer emulation, every variant | 256/256 per variant | `docs/bench.md` |
+| Real-data GAN metrics (FID-10k / IS / KID / P-R vs 60k train), RTL images | exact 78.65 FID (= int8 golden; float 77.76, real floor 1.49); ilm 79.17, trunc4 87.04, 1KR8 88.70, 1KVL 131.82, 1KR3 304.32 | `bench/results/real_n10000.md`, `docs/bench.md` |
 | Formality RTL vs netlist | SUCCEEDED, 20,170 points, 0 failing (exact 1.8 ns) | `results/fm_exact_ss_p1.8.txt` |
 | Formality, all other netlists | SUCCEEDED | `results/fm_*.txt` |
 | Zero-delay GLS, exact, 2.0 ns, seed_0 | 784/784 pixels vs golden | `build/gls/exact_ss_p1.8_s0/tb.log` |

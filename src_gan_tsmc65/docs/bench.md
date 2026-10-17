@@ -56,11 +56,60 @@ ILM has the largest MAE of the useful variants but no bias, and it gives the bes
 ![ilm](img/grid_mq_ilm.png)
 *Same latents with `mq:ilm`.*
 
+## Real-data scores (10,000 RTL images per variant, 2026-10-17)
+The golden-referenced scores above measure the distance to the exact chip. The scores in this section measure the distance to real Fashion-MNIST, using the protocol of GAN papers. A GAN has no pixel-paired real image, so every metric here compares distributions or uses nearest neighbours.
+
+**Images.** Each row holds N = 10,000 images. The latents are z = `torch.randn(10000, 64)`, seed 2000, quantised as before. A longer torch draw with the same seed extends a shorter one, so the first 256 latents are exactly the committed `model/fmnist/latents.memh` (`run_bench.sh --n 10000` writes `build/gan65/latents/latents_n10000.memh`). All variant images come from the Verilator chip runs (`run_bench.sh <v> --n 10000`, in chunks of 3,400 latents via `--from/--to`), never from Python. Every non-exact variant matched its Python emulation on 10000/10000 images. The reference rows are:
+- the real test set (the floor);
+- the float generator `model/fmnist/G300_float.npz` on the unquantised z, with pixels round((tanh + 1) * 127.5);
+- the int8 golden model.
+
+**Primary metrics.** These come from torch-fidelity 0.4.0 (`bench/real/fidelity.py`), measured against the full 60k Fashion-MNIST train set:
+- FID-10k: Inception-v3 pool3 features (2,048-d), with the TF-ported FID Inception weights;
+- IS: Inception-v3 logits, 10 splits, mean ± std;
+- KID x10^3: 100 subsets of 1,000, cubic polynomial kernel, mean ± std;
+- Precision / Recall (Kynkäänniemi et al. 2019, k = 3): VGG-16 fc2 features, measured against a fixed random train subset of the same size (10k, seed 0).
+
+The 28x28 greyscale uint8 images are copied to 3 channels. torch-fidelity's extractors then resize them with TF1-compatible bilinear interpolation, to 299x299 for Inception and 224x224 for VGG-16.
+
+**Secondary metrics.** These use `classifier/fmnist_cnn` (`bench/real/domain.py`):
+- CNN-FID: FID on the CNN's 128-d penultimate features, against the train set;
+- NN-PSNR: for each image, the PSNR to its nearest real test image in pixel space;
+- NN label agree: how often the label of that nearest real image equals the CNN's label for the generated image;
+- CNN-IS: an IS computed with the CNN, maximum 10;
+- Conf: the mean maximum softmax;
+- Label entropy: the entropy of the label histogram, maximum 3.32 bits.
+
+For the floor row, the NN metrics use the first 10k train images, because the test set is the neighbour pool.
+
+| Images (N = 10000) | FID | IS | KID x10^3 | Precision | Recall | CNN-FID | NN-PSNR mean / median (dB) | NN label agree | CNN-IS | Conf | Label entropy (bits) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Real test set (floor) | 1.49 | 4.42 ± 0.08 | -0.02 ± 0.14 | 0.772 | 0.774 | 0.19 | 17.24 / 17.17 | 82.5 % | 7.87 | 0.911 | 3.32 |
+| Float generator | 77.76 | 3.91 ± 0.07 | 63.80 ± 2.12 | 0.645 | 0.008 | 30.79 | 16.37 / 16.50 | 71.7 % | 6.06 | 0.828 | 3.20 |
+| INT8 golden (Python) | 78.65 | 3.90 ± 0.07 | 64.85 ± 2.12 | 0.649 | 0.007 | 31.33 | 16.35 / 16.50 | 71.1 % | 6.04 | 0.828 | 3.19 |
+| RTL `exact` | 78.65 | 3.90 ± 0.07 | 64.85 ± 2.12 | 0.649 | 0.007 | 31.33 | 16.35 / 16.50 | 71.1 % | 6.04 | 0.828 | 3.19 |
+| RTL `mq:evo_1KV8` | 78.65 | 3.90 ± 0.07 | 64.85 ± 2.12 | 0.649 | 0.007 | 31.33 | 16.35 / 16.50 | 71.1 % | 6.04 | 0.828 | 3.19 |
+| RTL `mq:ilm` | 79.17 | 3.89 ± 0.07 | 65.36 ± 2.10 | 0.649 | 0.006 | 31.66 | 16.33 / 16.48 | 71.2 % | 6.03 | 0.827 | 3.19 |
+| RTL `example_trunc4` | 87.04 | 3.81 ± 0.07 | 75.50 ± 2.30 | 0.657 | 0.005 | 39.46 | 16.47 / 16.57 | 70.2 % | 5.96 | 0.821 | 3.20 |
+| RTL `mq:evo_1KR8` | 88.70 | 3.79 ± 0.07 | 76.37 ± 2.29 | 0.619 | 0.004 | 48.90 | 16.45 / 16.57 | 68.7 % | 5.77 | 0.811 | 3.19 |
+| RTL `mq:evo_1KVL` | 131.82 | 3.35 ± 0.08 | 111.77 ± 2.04 | 0.265 | 0.002 | 171.87 | 16.32 / 16.23 | 45.9 % | 3.98 | 0.736 | 2.93 |
+| RTL `mq:evo_1KR3` | 304.32 | 1.04 ± 0.01 | 347.52 ± 2.36 | 0.002 | 0.000 | 682.12 | 14.60 / 14.49 | 0.1 % | 1.05 | 0.893 | 0.12 |
+
+- **The exact and EvoApprox-exact `mq:evo_1KV8` chips score the same as the int8 golden.** int8 quantisation costs 0.9 FID against the float generator (77.76 to 78.65).
+- **`mq:ilm` is almost free on real-data metrics** (+0.5 FID). `example_trunc4` and `mq:evo_1KR8` cost about 8-10 FID. `mq:evo_1KVL` is clearly degraded (FID 132, precision 0.27). `mq:evo_1KR3` collapses: the CNN puts 99 % of its images in one class (entropy 0.12 bits), and the near-chance IS of 1.04 says the same.
+- **The ranking is the same as with the golden-referenced PSNR**, but the gaps are on the scale a GAN paper would report. The GAN, not the multiplier, dominates the distance to real data: the floor is 1.49 FID, against 78.65 for the exact chip.
+- **Recall is close to 0 for every generator, including float.** This MLP GAN covers little of the real VGG-16 manifold, because of mode coverage and its speckle texture. A low recall here is a property of the model, not of the hardware.
+- **NN-PSNR barely separates the useful variants** (16.3-16.5 dB). It does not reward fidelity to the data distribution: `example_trunc4`'s slightly darker images sit marginally closer in pixel space. Treat it as a sanity check only.
+
+**Cost.** On 44 jobs, the RTL runs take 434-479 s per variant for the behavioural multipliers and 814 s for `mq:evo_1KR3`. The EvoApprox gate netlists 1KV8, 1KR8 and 1KVL take 2,296-2,612 s, in three chunks of under 15 min each. Scoring takes about 100 s per row on one A40 (cuda:1). The train-set features are cached in `build/gan65/fidelity_cache`.
+
 ## Reproduce
 ```bash
 python3 -m src_gan_tsmc65.golden.check_ref
 src_gan_tsmc65/bench/check_mem.sh
 for v in exact mq:evo_1KV8 mq:ilm example_trunc4 mq:evo_1KR8 mq:evo_1KVL mq:evo_1KR3; do src_gan_tsmc65/bench/run_bench.sh $v; done
 src_gan_tsmc65/bench/run_bench.sh exact --n 16 --jobs 16 --latch-rf
+pip install torch-fidelity==0.4.0                    # real-data metrics (weights download on first use)
+src_gan_tsmc65/bench/run_real.sh                     # 10k RTL images x 7 variants + scores (~3 h)
 python3 -m src_gan_tsmc65.classifier.train          # retrain the classifier (cuda:1, ~25 s)
 ```

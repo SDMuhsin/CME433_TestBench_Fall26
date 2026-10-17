@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # End-to-end Fashion-MNIST benchmark of gan65_chip for one multiplier variant (docs/bench.md).
-#   src_gan_tsmc65/bench/run_bench.sh [variant] [--n 256] [--jobs nproc-4] [--latch-rf]
+#   src_gan_tsmc65/bench/run_bench.sh [variant] [--n 256] [--from A] [--to B] [--jobs nproc-4] [--latch-rf]
 #   variant  : exact (default) | <name> (bench/variants/<name>.v) | mq:<name> | path  (bench/variant.py)
-#   --n      : number of latents from model/fmnist/latents.memh (max 256 as committed)
+#   --n      : number of latents: model/fmnist/latents.memh (256 committed); N > 256 generates
+#              build/gan65/latents/latents_n<N>.memh with the same seed (first 256 identical)
+#   --from/--to: simulate only latents A..B-1 of N (default 0..N), to split a long run into chunks;
+#              --from 0 clears earlier dumps, scoring runs once the chunk ending at N is done
 #   --jobs   : parallel chip simulations (each takes a contiguous slice of the latents)
 #   --latch-rf: simulate the synthesised latch-RF memories instead of the fast flip-flop model
 # Steps: Verilator build (cached), <jobs> pad-level chip simulations, scoring against the golden
@@ -14,16 +17,20 @@ T65=$(cd "$(dirname "$0")/.." && pwd)
 ROOT=$(dirname "$T65")
 VAR=exact
 [ $# -ge 1 ] && [ "${1#--}" = "$1" ] && { VAR=$1; shift; }
-N=256; JOBS=$(( $(nproc) - 4 )); MEM=
+N=256; JOBS=$(( $(nproc) - 4 )); MEM=; FROM=0; TO=
 while [ $# -gt 0 ]; do
     case "$1" in
         --n) N=$2; shift ;;
         --jobs) JOBS=$2; shift ;;
+        --from) FROM=$2; shift ;;
+        --to) TO=$2; shift ;;
         --latch-rf) MEM=--latch-rf ;;
         *) echo "unknown option $1"; exit 2 ;;
     esac
     shift
 done
+TO=${TO:-$N}
+[ "$FROM" -lt "$TO" ] && [ "$TO" -le "$N" ] || { echo "bad range $FROM..$TO of $N"; exit 2; }
 [ "$VAR" != exact ] && [ -e "$VAR" ] && VAR=$(realpath "$VAR")
 cd "$ROOT"
 PY=${PYTHON:-python3}
@@ -31,31 +38,42 @@ TAG=$($PY -m src_gan_tsmc65.bench.variant --name "$VAR")${MEM:+_rf}
 SIM=$ROOT/build/gan65/sim/$TAG
 RUN=$ROOT/build/gan65/runs/${TAG}_n$N
 MODEL=$T65/model/fmnist
+ZQ=$MODEL/latents.memh
+if [ "$N" -gt 256 ]; then
+    ZQ=$ROOT/build/gan65/latents/latents_n$N.memh
+    [ -s "$ZQ" ] || { mkdir -p "$(dirname "$ZQ")" && $PY -m src_gan_tsmc65.golden.latents --n "$N" --out "$ZQ"; } || exit 1
+fi
 "$T65/bench/build.sh" "$VAR" "$SIM" $MEM || exit 1
 mkdir -p "$RUN/logs" "$RUN/prev"
-# stale dumps of an earlier run must not reach the scorer
-find "$RUN" -maxdepth 1 -name 'pix_*.memh' -exec mv -t "$RUN/prev" {} + 2>/dev/null
-[ "$JOBS" -gt "$N" ] && JOBS=$N
+# stale dumps and logs of an earlier run must not reach the scorer
+[ "$FROM" -eq 0 ] && find "$RUN" "$RUN/logs" -maxdepth 1 \( -name 'pix_*.memh' -o -name 'w*.log' -o -name 'wall_*' \) \
+    -exec mv --backup=numbered -t "$RUN/prev" {} + 2>/dev/null
+M=$(( TO - FROM ))
+[ "$JOBS" -gt "$M" ] && JOBS=$M
 T0=$(date +%s)
-pids=()
+pids=(); logs=()
 for ((w = 0; w < JOBS; w++)); do
-    FIRST=$(( w * N / JOBS )); COUNT=$(( (w + 1) * N / JOBS - FIRST ))
-    "$SIM/gan65_bench_tb" +WDIR="$MODEL" +CSR_MEMH="$MODEL/csr.memh" +ZQ_ALL="$MODEL/latents.memh" \
-        +FIRST=$FIRST +COUNT=$COUNT +OUT="$RUN/pix_$FIRST.memh" > "$RUN/logs/w$w.log" 2>&1 &
+    FIRST=$(( FROM + w * M / JOBS )); COUNT=$(( FROM + (w + 1) * M / JOBS - FIRST ))
+    "$SIM/gan65_bench_tb" +WDIR="$MODEL" +CSR_MEMH="$MODEL/csr.memh" +ZQ_ALL="$ZQ" \
+        +FIRST=$FIRST +COUNT=$COUNT +OUT="$RUN/pix_$FIRST.memh" > "$RUN/logs/w$FIRST.log" 2>&1 &
+    logs+=("$RUN/logs/w$FIRST.log")
     pids+=($!)
 done
-echo "$JOBS simulations on $N latents -> $RUN"
+echo "$JOBS simulations on latents $FROM..$((TO - 1)) of $N -> $RUN"
 rc=0
 for pid in "${pids[@]}"; do wait "$pid" || rc=1; done
 T1=$(date +%s)
-grep -L '^DONE' "$RUN"/logs/w*.log | grep -q . && rc=1
+grep -L '^DONE' "${logs[@]}" | grep -q . && rc=1
 [ $rc -eq 0 ] || { echo "FAIL: a simulation failed (see $RUN/logs)"; exit 1; }
+echo $((T1 - T0)) > "$RUN/wall_$FROM"
+[ "$TO" -eq "$N" ] || { echo "simulations: $((T1 - T0)) s wall for latents $FROM..$((TO - 1)); score after the last chunk"; exit 0; }
+WALL=$(cat "$RUN"/wall_* | awk '{s += $1} END {print s}')
 CLK=$(grep -h '^IMAGE' "$RUN"/logs/w*.log | awk '{s += $3} END {printf "%d", s / NR}')
-echo "simulations: $((T1 - T0)) s wall, $CLK clk per image"
-$PY -m src_gan_tsmc65.bench.score "$VAR" "$RUN" --n "$N" > "$RUN/score.log" 2>&1 ||
+echo "simulations: $WALL s wall, $CLK clk per image"
+$PY -m src_gan_tsmc65.bench.score "$VAR" "$RUN" --n "$N" --zq "$ZQ" > "$RUN/score.log" 2>&1 ||
     { echo "FAIL: scoring (see $RUN/score.log)"; exit 1; }
 printf '\nchip simulation: %s clk per image (START, stream at SCLK = clk/4, readback at clk/8); %s s wall on %s jobs\n' \
-    "$CLK" "$((T1 - T0))" "$JOBS" >> "$RUN/results.md"
+    "$CLK" "$WALL" "$JOBS" >> "$RUN/results.md"
 mkdir -p "$T65/bench/results"
 cp "$RUN/results.md" "$T65/bench/results/${TAG}_n$N.md"
 cat "$RUN/results.md"

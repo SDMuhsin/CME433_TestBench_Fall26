@@ -24,7 +24,7 @@
 module gan65_bench_tb;
     localparam int NPIX     = 784;
     localparam int TOTAL    = 283984;
-    localparam int MAX_IMG  = 4096;
+    localparam int MAX_IMG  = 16384;
     localparam int RD_HALF  = 4;          // reads: SCLK = clk/8
 
     // clk half period in ns: 20 = the 25 MHz reference (cycle counts are what matter); the

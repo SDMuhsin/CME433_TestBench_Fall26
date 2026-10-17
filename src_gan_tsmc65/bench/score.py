@@ -1,8 +1,8 @@
 """Score one benchmark run: RTL pixel dumps vs the bit-exact golden model.
 
-python3 -m src_gan_tsmc65.bench.score <variant> <run_dir> --n N
+python3 -m src_gan_tsmc65.bench.score <variant> <run_dir> --n N [--zq latents.memh]
 Reads <run_dir>/pix_<first>.memh (written by the chip simulations), the latents
-model/fmnist/latents.memh and the int8 model; writes <run_dir>/{results.json,results.md,
+(default model/fmnist/latents.memh) and the int8 model; writes <run_dir>/{results.json,results.md,
 rtl_u8.npy, golden_u8.npy, grid_rtl.png, grid_golden.png} and prints the summary.
 Reported:
   * golden  : exact integer model of the chip (exact multiplier)  -> bit-exact images, PSNR, MAE
@@ -60,9 +60,10 @@ def main():
     ap.add_argument('variant')
     ap.add_argument('run', type=Path)
     ap.add_argument('--n', type=int, required=True)
+    ap.add_argument('--zq', type=Path, default=MODEL / 'latents.memh')
     a = ap.parse_args()
     m = load_model()
-    zq = read_memh(MODEL / 'latents.memh').reshape(-1, 64)[:a.n]
+    zq = read_memh(a.zq).reshape(-1, 64)[:a.n]
     rtl = to_u8(load_rtl(a.run, a.n))
     gold = to_u8(forward(zq, m)['pix'])
     res = dict(variant=a.variant, n=a.n, vs_golden=compare(rtl, gold))

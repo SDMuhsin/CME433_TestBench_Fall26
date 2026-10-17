@@ -1,5 +1,7 @@
 """Benchmark latents: z ~ N(0, I_64) from torch.randn(n, 64, seed), quantised with the model's
 static input scale sZ (zq = clamp(round(z / sZ), -127, 127)), written as n*64 int8 memh lines.
+The draw is a prefix of any longer one with the same seed: the first 256 of --n 10000 are the
+committed model/fmnist/latents.memh (bench/run_bench.sh --n N > 256 builds the longer set).
 
 python3 -m src_gan_tsmc65.golden.latents [--n 256] [--seed 2000] [--out model/fmnist/latents.memh]
 """
