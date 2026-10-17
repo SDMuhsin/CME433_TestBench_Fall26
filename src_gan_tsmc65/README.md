@@ -1,0 +1,27 @@
+# src_gan_tsmc65: the INT8 GAN accelerator for 65 nm
+
+A technology-clean copy of the `dla_e2e_chip` RTL (the 64-256-256-784 G300 generator; see `docs/dla_e2e_chip.md`), plus a bit-exact Fashion-MNIST benchmark for approximate multipliers. Legacy `rtl/` and `scripts/` are not touched.
+
+## Layout
+| Dir | Contents |
+|---|---|
+| `rtl/` | `gan65.f` file list. Top `top/gan65_chip.v`: same logic as `dla_e2e_chip`, but plain `io_in/io_out/io_oe` instead of GF180 pad terminals |
+| `rtl/pe/gan_mul8.v` | **The multiplier swap point**: signed 8x8 to 16 bit, used by all 16 PEs (`a` = weight, `b` = activation) |
+| `rtl/mem/` | `dla_sram_1rw_256x8` as a 256x8 latch register file (`gan65_latch_rf` + `gan65_icg`) in place of the GF180 SRAM macro. `*_sim.v` is a fast flip-flop model, used only for simulation |
+| `model/fmnist/` | int8 Fashion-MNIST generator (`G300_*.memh`), requant CSRs (`csr.memh`), quantisation record (`quant.json`), 256 benchmark latents, reference vectors |
+| `golden/` | Bit-exact integer model of the chip (`model.py`), tanh ROM search, latent generator, self-check |
+| `classifier/` | Small Fashion-MNIST CNN (`fmnist_cnn.npz`, 91.35 % test accuracy), used to label the generated images |
+| `bench/` | `run_bench.sh`, Verilator build, pad-level host TB, scorer, multiplier variants |
+| `docs/bench.md` | Benchmark method and results |
+
+## Run
+```bash
+src_gan_tsmc65/bench/check_mem.sh                         # latch RF == fast memory model (unit)
+python3 -m src_gan_tsmc65.golden.check_ref                # golden model == reference vectors
+src_gan_tsmc65/bench/run_bench.sh                         # exact multiplier, 256 latents (~1 min)
+src_gan_tsmc65/bench/run_bench.sh my_mul                  # bench/variants/my_mul.v (module gan_mul8)
+src_gan_tsmc65/bench/run_bench.sh mq:ilm                  # any src_int8/bench/variants mq_mul8 variant
+```
+To add a multiplier, copy `bench/variants/example_trunc4.v`, keep the module name `gan_mul8` and its ports, and pass the file name (or a path) to `run_bench.sh`. The results are written to `build/gan65/runs/<variant>_n<N>/` and summarised in `bench/results/<variant>_n<N>.md`.
+
+Needs Verilator 5 (or set `VERILATOR=`), iverilog, and Python 3 with numpy, torch and Pillow.
