@@ -22,7 +22,7 @@ netlists), the fastest common clock the log-domain `mq:ilm` multiplier meets.
 | Zero-delay GLS, exact, 2.0 ns, seed_0 | 784/784 pixels vs golden | `build/gls/exact_ss_p1.8_s0/tb.log` |
 | SDF-timed GLS (tt), exact, 2.0 ns | 784/784 pixels vs golden | `build/gls/exact_ss_p1.8_s0_sdftt/tb.log` |
 | SDF-timed GLS (tt), exact, 2.5 ns | 784/784 pixels vs golden | `build/gls/exact_ss_p2.4_s0_sdftt/tb.log` |
-| GLS of trunc4 (2.0 and 2.5 ns) and mq:ilm (2.5 ns), zero-delay and SDF | 784/784 pixels vs the variant's emulation | `python3 -m src_gan_tsmc65.sim.gls.check_pix <variant> pix.memh` |
+| GLS of trunc4 (2.0 and 2.5 ns), mq:ilm and the four mq:evo_* (2.5 ns), zero-delay and SDF | 784/784 pixels vs the variant's emulation | `python3 -m src_gan_tsmc65.sim.gls.check_pix <variant> pix.memh` |
 
 One image takes **2,346,721 clk** in RTL and GLS alike (`docs/bench.md`).
 
@@ -102,22 +102,49 @@ dynamic power and ff the highest.
 
 ## 5. Multiplier variants (student comparison)
 
-All three at the same clock: DC ss 2.4 ns, PT and power at **2.5 ns (400 MHz)**, tt,
+All variants at the same clock: DC ss 2.4 ns, PT and power at **2.5 ns (400 MHz)**, tt,
 SDF-timed activity of seed_0, energy per image at 170.5 images/s. Quality is from the
-256-latent benchmark (`docs/bench.md`).
+256-latent benchmark (`docs/bench.md`). The last two columns are delay, not slack, from the
+1.8 ns-target netlists with PT ss at 2.0 ns: the chip's minimum period (2.0 ns minus the ss
+setup WNS to flops) and the multiplier's own a/b -> p delay inside the chip (largest over the
+16 `gan_mul8` instances, from the first to the last internal point of the worst paths through
+its outputs; `mul8_a_to_p_delay` in the PT summary).
 
-| Variant | Total area (um^2) | 16 x mul8 (um^2) | Chip power (mW) | mul8 power (mW) | Energy/image (uJ) | PSNR (dB) | Label agreement | PT ss setup / ff hold |
-|---|---|---|---|---|---|---|---|---|
-| exact | 174,855.2 | 9,890.3 | 8.816 | 0.192 | 51.72 | inf (bit-exact) | 100 % | +0.085 / +0.0016 |
-| example_trunc4 | 171,815.8 (**-1.7 %**) | 9,398.5 (-5.0 %) | 8.783 (**-0.4 %**) | 0.189 (-1.5 %) | 51.53 (**-0.4 %**) | 24.65 | 94.9 % | +0.080 / +0.0008 |
-| mq:ilm | 211,561.2 (**+21.0 %**) | 42,914.5 (+334 %) | 10.229 (**+16.0 %**) | 1.347 (+603 %) | 60.01 (**+16.0 %**) | 33.10 | 97.7 % | +0.077 / +0.0007 |
+| Variant | Total area (um^2) | 16 x mul8 (um^2) | PE array (um^2) | Chip power (mW) | PE power (mW) | mul8 power (mW) | Energy/image (uJ) | PSNR (dB) | Label agreement | PT ss setup / ff hold @2.5 | GLS vs emulation | Min period ss (ns) | mul8 a->p delay ss (ns) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| exact | 174,855.2 | 9,890.3 | 18,948.6 | 8.816 | 0.416 | 0.192 | 51.72 | inf (bit-exact) | 100 % | +0.085 / +0.0016 | 784/784 | 1.817 | 0.937 |
+| example_trunc4 | 171,815.8 (**-1.7 %**) | 9,398.5 (-5.0 %) | 16,856.6 | 8.783 (**-0.4 %**) | 0.401 | 0.189 (-1.5 %) | 51.53 (**-0.4 %**) | 24.65 | 94.9 % | +0.080 / +0.0008 | 784/784 | 1.811 | 0.981 |
+| mq:ilm | 211,561.2 (**+21.0 %**) | 42,914.5 (+334 %) | 55,339.6 | 10.229 (**+16.0 %**) | 1.769 | 1.347 (+603 %) | 60.01 (**+16.0 %**) | 33.10 | 97.7 % | +0.077 / +0.0007 | 784/784 | **2.345** | 1.615 |
+| mq:evo_1KV8 | 179,215.2 (**+2.5 %**) | 13,407.8 (+35.6 %) | 22,901.8 | 8.894 (**+0.9 %**) | 0.468 | 0.209 (+9.3 %) | 52.18 (**+0.9 %**) | inf (bit-exact) | 100 % | +0.087 / +0.0003 | 784/784 | **2.065** | 1.412 |
+| mq:evo_1KR8 | 176,084.6 (**+0.7 %**) | 11,270.2 (+14.0 %) | 20,007.4 | 8.803 (**-0.1 %**) | 0.382 | 0.161 (-15.9 %) | 51.65 (**-0.1 %**) | 21.42 | 87.5 % | +0.083 / +0.0009 | 784/784 | **2.005** | 1.317 |
+| mq:evo_1KVL | 171,282.6 (**-2.0 %**) | 8,519.4 (-13.9 %) | 16,118.3 | 8.722 (**-1.1 %**) | 0.304 | 0.115 (-39.8 %) | 51.17 (**-1.1 %**) | 12.19 | 51.2 % | +0.082 / +0.0012 | 784/784 | 1.894 | 1.192 |
+| mq:evo_1KR3 | 163,118.9 (**-6.7 %**) | 2,288.9 (-76.9 %) | 8,261.6 | 8.556 (**-3.0 %**) | 0.182 | 0.032 (-83.1 %) | 50.19 (**-3.0 %**) | 8.60 | 8.2 % | +0.083 / +0.0015 | 784/784 | 1.820 | 0.842 |
 
 Files: `results/syn_<v>_ss_p2.4.txt`, `results/sta_<v>_ss_p2.4_{ss_max,ff_min}_at2.5.txt`,
 `results/pwr_<v>_ss_p2.4_<v>_ss_p2.4_s0_sdftt_tt.txt` (`<v>` = exact, example_trunc4,
-mq_ilm); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
-mq:ilm 9.626 mW). Formality SUCCEEDED for all three (`results/fm_*_ss_p2.4.txt`).
+mq_ilm, mq_evo_1KV8, mq_evo_1KR8, mq_evo_1KVL, mq_evo_1KR3); zero-delay runs are the same
+names without `_sdftt` (exact 8.741, trunc4 8.709, mq:ilm 9.626, evo_1KV8 8.759, evo_1KR8
+8.691, evo_1KVL 8.614, evo_1KR3 8.501 mW). Formality SUCCEEDED for all seven
+(`results/fm_*_ss_p2.4.txt`). GLS: zero-delay and SDF-timed pixels of seed_0 match each
+variant's own integer emulation (`sim/gls/check_pix.py`); exact and evo_1KV8 also match the
+golden pixels. Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
+`mul8_a_to_p_delay`), netlists `syn_<v>_ss_p1.8.txt`, FM `fm_<v>_ss_p1.8.txt` (all SUCCEEDED).
 
-- The multipliers are only 5-6 % of the area and 2-3 % of the power; the latch RF and its
+- All seven meet ss setup and ff hold at 400 MHz.
+- **500 MHz:** `mq:ilm` (-0.345 ns, 406 endpoints), `mq:evo_1KV8` (-0.065 ns, 183 endpoints)
+  and `mq:evo_1KR8` (-0.005 ns, 15 endpoints) miss ss setup at 2.0 ns on their 1.8 ns-target
+  netlists; exact, trunc4, evo_1KVL and evo_1KR3 meet it. The minimum period follows the
+  multiplier delay once the multiplier is slower than about 1.0 ns. Below that the chip is
+  limited by other paths: for exact and evo_1KR3 the worst flop path is the RF write enable
+  `u_seq/dla_wr_en_reg` -> A-buffer `q_r` (through-mul8 minimum periods 1.816 and 1.812 ns).
+- The multiplier delay depends on how hard DC sized it: trunc4 (0.981 ns) is a little slower
+  than exact (0.937 ns) inside the chip because it had more slack at 1.8 ns, not because its
+  logic is deeper.
+- evo_1KV8 is bit-exact but 36 % larger and slower than the DC-built exact multiplier, so it
+  only costs. evo_1KR3 saves the most (-6.7 % area, -3.0 % energy) but its images are
+  unusable (8.6 dB, 8.2 % label agreement); evo_1KVL (-1.1 % energy) is also far below trunc4
+  in quality.
+- The exact and trunc4 multipliers are only 5-6 % of the area and 2 % of the power; the latch RF and its
   clock gating dominate. A cheaper multiplier therefore moves the chip totals little
   (trunc4: -0.4 % energy, for 24.65 dB PSNR and 94.9 % label agreement).
 - `mq:ilm` gives better images than trunc4 but costs 4.3x the multiplier area and 7x its
@@ -125,7 +152,6 @@ mq:ilm 9.626 mW). Formality SUCCEEDED for all three (`results/fm_*_ss_p2.4.txt`)
   multiplier power is 42 % higher with SDF than with zero delay.
 - At 500 MHz (1.8 ns netlists) trunc4 vs exact: area -2.0 %, mul8 area -9.4 %, chip power
   -0.4 %, mul8 power -10.7 % (`results/pwr_example_trunc4_ss_p1.8_*_sdftt_tt.txt`).
-  `mq:ilm` does not meet 500 MHz (PT ss -0.345 ns, `results/sta_mq_ilm_ss_p1.8_ss_max_at2.0.txt`).
 
 ## 6. How a student adds and evaluates a multiplier
 

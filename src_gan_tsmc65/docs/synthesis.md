@@ -188,9 +188,15 @@ under the unchanged benchmark TB at a 2.0 ns clock. The input is the latent
 | exact | 182,751.5 | 713.8 | 11,420.3 | PASS | +0.183 | -0.0012 | `*exact_ss_p1.8*` |
 | example_trunc4 | 179,186.8 | 646.4 | 10,342.1 | PASS | +0.189 | +0.0010 | `*example_trunc4_ss_p1.8*` |
 | mq:ilm | 229,767.8 | 3,486.1 | 55,777.3 | PASS | **-0.345** (406 endpoints) | -0.0047 | `*mq_ilm_ss_p1.8*` |
+| mq:evo_1KV8 | 194,649.8 | 1,299.9 | 20,799.0 | PASS | **-0.065** (183 endpoints) | +0.0008 | `*mq_evo_1KV8_ss_p1.8*` |
+| mq:evo_1KR8 | 189,977.8 | 1,073.6 | 17,178.1 | PASS | **-0.005** (15 endpoints) | -0.0057 | `*mq_evo_1KR8_ss_p1.8*` |
+| mq:evo_1KVL | 183,241.1 | 856.3 | 13,700.2 | PASS | +0.106 | +0.0007 | `*mq_evo_1KVL_ss_p1.8*` |
+| mq:evo_1KR3 | 167,867.3 | 181.2 | 2,898.7 | PASS | +0.180 | -0.0005 | `*mq_evo_1KR3_ss_p1.8*` |
 
 - `mq:ilm` is a log-domain multiplier with a much longer path. At this clock DC upsizes it
   heavily and it still fails ss setup at 2.0 ns.
 - Each variant should be compared at a period it actually meets, e.g.
   `run_syn.sh mq:ilm --period 2.5 --signoff --sta-period 2.6`. Area always depends on the
   timing pressure, so a fair comparison uses one common clock that all candidates meet.
+- The PT summaries also give the multiplier's own a/b -> p delay inside the chip
+  (`mul8_a_to_p_delay`); minimum periods and these delays are in `docs/results.md` s.5.
