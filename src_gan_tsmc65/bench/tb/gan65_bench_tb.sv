@@ -27,9 +27,12 @@ module gan65_bench_tb;
     localparam int MAX_IMG  = 4096;
     localparam int RD_HALF  = 4;          // reads: SCLK = clk/8
 
+    // clk half period in ns: 20 = the 25 MHz reference (cycle counts are what matter); the
+    // gate-level run (sim/gls/run_gls.csh) sets the synthesis clock for realistic activity.
+    parameter real CLK_HALF_NS = 20.0;
     reg clk = 1'b0;
     reg rst_n = 1'b0;
-    always #20 clk = ~clk;                // 25 MHz reference (cycle counts are what matter)
+    always #(CLK_HALF_NS) clk = ~clk;
 
     reg        sclk = 1'b0, cs_n = 1'b1;
     reg  [3:0] host_io = 4'h0, host_oe = 4'h0;

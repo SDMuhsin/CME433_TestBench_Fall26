@@ -1,0 +1,5 @@
+# Site files are kit / server specific: only the templates and this README are tracked.
+*
+!.gitignore
+!README.md
+!*.example.*

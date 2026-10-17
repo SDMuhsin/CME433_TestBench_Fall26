@@ -13,6 +13,8 @@ A technology-clean copy of the `dla_e2e_chip` RTL (the 64-256-256-784 G300 gener
 | `classifier/` | Small Fashion-MNIST CNN (`fmnist_cnn.npz`, 91.35 % test accuracy), used to label the generated images |
 | `bench/` | `run_bench.sh`, Verilator build, pad-level host TB, scorer, multiplier variants |
 | `docs/bench.md` | Benchmark method and results |
+| `syn/` `lec/` `sta/` `sim/gls/` | 65 nm flow on the server: DC topographical, Formality, PrimeTime, VCS gate-level sim; `syn/run_syn.sh <variant>` synthesises one multiplier variant. The kit config is shared with `src_int8_tsmc65` (`site/README.md`) |
+| `docs/synthesis.md`, `results/` | Fmax sweep, signoff (DC 1.8 ns, PT 2.0 ns = 500 MHz), area split, FM / PT / GLS results; summary files |
 
 ## Run
 ```bash
@@ -23,5 +25,11 @@ src_gan_tsmc65/bench/run_bench.sh my_mul                  # bench/variants/my_mu
 src_gan_tsmc65/bench/run_bench.sh mq:ilm                  # any src_int8/bench/variants mq_mul8 variant
 ```
 To add a multiplier, copy `bench/variants/example_trunc4.v`, keep the module name `gan_mul8` and its ports, and pass the file name (or a path) to `run_bench.sh`. The results are written to `build/gan65/runs/<variant>_n<N>/` and summarised in `bench/results/<variant>_n<N>.md`.
+
+Synthesis (on the server, in the repository clone; docs/synthesis.md):
+```bash
+src_gan_tsmc65/syn/run_syn.sh exact --signoff             # DC ss 1.8 ns + Formality + PT ss/tt/ff at 2.0 ns
+src_gan_tsmc65/syn/run_syn.sh my_mul --signoff            # same for bench/variants/my_mul.v
+```
 
 Needs Verilator 5 (or set `VERILATOR=`), iverilog, and Python 3 with numpy, torch and Pillow.

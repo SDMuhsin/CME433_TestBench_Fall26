@@ -1,0 +1,38 @@
+gan65_chip 65 nm PrimeTime summary (sta_exact_ss_p1.8_ss_max)
+netlist exact_ss_p1.8  corner ss  parasitics max  period_ns 1.8  clocks ideal (pre-layout)
+setup  WNS  -0.0170 ns  TNS    -1.353 ns  violating_endpoints 219
+       worst path: u_seq/dla_wr_en_reg/CP -> u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_1__u_sram/u_rf/q_r_reg_7_/D (arrival 1.575 ns)
+hold   WNS   0.0684 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_seq/u_rq/q_reg_5_/CP -> u_seq/rq_res_reg_5_/D (arrival 0.185 ns)
+setup_to_flops WNS  -0.0170 ns  worst path: u_seq/dla_wr_en_reg/CP -> u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_1__u_sram/u_rf/q_r_reg_7_/D (arrival 1.575 ns)
+setup_through_mul8 WNS  -0.0159 ns  worst path: u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_3__u_sram/u_rf/q_r_reg_5_/CP -> u_dla/u_pe_array/GEN_PE_ROWS_3__GEN_PE_COLS_3__u_pe/acc_out_reg_18_/D (arrival 1.556 ns)
+latch_in  slack   0.0000 ns  borrowed 0.7900 ns  latch endpoints at slack 0 (borrowing) 16384 of 16384
+       worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_2__u_sram/u_rf/wd_r_reg_1_/CP -> u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_2__u_sram/u_rf/GEN_W_185__lat_reg_1_/D (arrival 0.543 ns)
+latch_out slack   0.3009 ns  (RF read path, through latch Q)
+       worst path: u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_2__u_sram/u_rf/GEN_W_5__lat_reg_2_/D -> u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_2__u_sram/u_rf/q_r_reg_2_/D (arrival 1.235 ns)
+latch_in  hold slack   1.0557 ns
+check_timing:
+  Information: Checking 'no_input_delay'.
+  Information: Checking 'no_driving_cell'.
+  Information: Checking 'unconstrained_endpoints'.
+  Information: Checking 'unexpandable_clocks'.
+  Information: Checking 'latch_fanout'.
+  Information: Checking 'no_clock'.
+  Information: Checking 'partial_input_delay'.
+  Information: Checking 'generic'.
+  Information: Checking 'loops'.
+  Information: Checking 'generated_clocks'.
+  Information: Checking 'pulse_clock_non_pulse_clock_merge'.
+  Information: Checking 'pll_configuration'.
+parasitics annotation:
+                      |         |         |         |   RC    |   Not   |
+  Net Type            |  Total  | Lumped  |  RC pi  | network |Annotated|
+  Internal nets       |         |         |         |         |         |
+    - Pin to pin nets |   51763 |       0 |   51763 |       0 |       0 |
+    - Driverless nets |      33 |       0 |       0 |       0 |      33 |
+    - Loadless nets   |       0 |       0 |       0 |       0 |       0 |
+  Boundary/port nets  |         |         |         |         |         |
+    - Pin to pin nets |      15 |       0 |      14 |       0 |       1 |
+    - Driverless nets |       0 |       0 |       0 |       0 |       0 |
+    - Loadless nets   |       0 |       0 |       0 |       0 |       0 |
+                      |   51811 |       0 |   51777 |       0 |      34 |
