@@ -123,25 +123,30 @@ its outputs; `mul8_a_to_p_delay` in the PT summary).
 | bw_axfa6 | 175,064.4 (**+0.1 %**) | 10,177.9 (+2.9 %) | 19,272.6 | 8.781 (**-0.4 %**) | 0.379 | 0.139 (-27.4 %) | 51.52 (**-0.4 %**) | 21.56 | 92.2 % | 96.90 | 3.73 | 87.23 | 0.655 | 0.005 | +0.088 / **-0.0044** | 784/784 | 1.810 | 1.004 |
 | booth_exact (structured exact) | 176,536.1 (**+1.0 %**) | 11,102.4 (+12.3 %) | 20,352.6 | 8.815 (**-0.0 %**) | 0.407 | 0.154 (-19.4 %) | 51.72 (**-0.0 %**) | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.083 / +0.0017 | 784/784 | 1.814 | 1.000 |
 | booth_axfa5 | 176,062.7 (**+0.7 %**) | 10,886.4 (+10.1 %) | 20,184.8 | 8.793 (**-0.3 %**) | 0.397 | 0.148 (-22.6 %) | 51.59 (**-0.3 %**) | 32.31 | 98.0 % | 78.31 | 3.91 | 64.26 | 0.643 | 0.007 | +0.081 / +0.0015 | 784/784 | 1.813 | 0.985 |
+| booth_trunc5 | 171,282.2 (**-2.0 %**) | 8,683.9 (-12.2 %) | 16,251.1 | 8.795 (**-0.2 %**) | 0.389 | 0.153 (-20.1 %) | 51.60 (**-0.2 %**) | 6.31 | 39.1 % | 183.14 | 3.46 | 179.40 | 0.033 | 0.000 | +0.084 / +0.0013 | 784/784 | 1.812 | 1.045 |
+| booth_akc | 169,077.2 (**-3.3 %**) | 7,621.2 (-22.9 %) | 14,393.9 | 8.673 (**-1.6 %**) | 0.266 | 0.094 (-50.8 %) | 50.88 (**-1.6 %**) | 11.32 | 64.8 % | 133.62 | 3.29 | 118.82 | 0.422 | 0.004 | +0.086 / +0.0016 | 784/784 | 1.816 | 0.996 |
 
 FID-10k / IS / KID / precision / recall: 10,000 RTL images vs the Fashion-MNIST train set
 (`bench/results/real_n10000.md`, `docs/bench.md`). bw_* and booth_* are the structured
 Baugh-Wooley / radix-4 Booth multipliers of `approx/` (`docs/papers/venkatachalam_ko_2017.md`);
-the *_exact rows are their bit-exact baselines with the same dot diagram.
+the *_exact rows are their bit-exact baselines with the same dot diagram. booth_trunc5 and
+booth_akc are truncated Booth multipliers after Aizaz & Khare 2022
+(`docs/papers/aizaz_khare_2022.md`); their exact twin is booth_exact.
 
 Files: `results/syn_<v>_ss_p2.4.txt`, `results/sta_<v>_ss_p2.4_{ss_max,ff_min}_at2.5.txt`,
 `results/pwr_<v>_ss_p2.4_<v>_ss_p2.4_s0_sdftt_tt.txt` (`<v>` = exact, example_trunc4,
 mq_ilm, mq_evo_1KV8, mq_evo_1KR8, mq_evo_1KVL, mq_evo_1KR3, bw_exact, bw_axfa6, booth_exact,
-booth_axfa5); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
+booth_axfa5, booth_trunc5, booth_akc); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
 mq:ilm 9.626, evo_1KV8 8.759, evo_1KR8 8.691, evo_1KVL 8.614, evo_1KR3 8.501, bw_exact 8.675,
-bw_axfa6 8.662, booth_exact 8.699, booth_axfa5 8.684 mW). Formality SUCCEEDED for all eleven
+bw_axfa6 8.662, booth_exact 8.699, booth_axfa5 8.684, booth_trunc5 8.665, booth_akc 8.588 mW).
+Formality SUCCEEDED for all thirteen
 (`results/fm_*_ss_p2.4.txt`). GLS: zero-delay and SDF-timed pixels of seed_0 match each
 variant's own integer emulation (`sim/gls/check_pix.py`); exact, evo_1KV8, bw_exact and
 booth_exact also match the golden pixels. The four bw_* / booth_* variants run the whole
-hardware flow with `syn/run_variant_flow.sh <v>`. Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
+hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5 and booth_akc). Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
 `mul8_a_to_p_delay`), netlists `syn_<v>_ss_p1.8.txt`, FM `fm_<v>_ss_p1.8.txt` (all SUCCEEDED).
 
-- All eleven meet ss setup at 400 MHz, and all but bw_axfa6 meet ff hold. bw_axfa6 misses ff
+- All thirteen meet ss setup at 400 MHz, and all but bw_axfa6 meet ff hold. bw_axfa6 misses ff
   hold by 4.4 ps on 8 endpoints, all `u_seq/u_rq/q_reg_*` -> `u_seq/rq_res_reg_*`: the direct
   Q -> D residue of section 2, outside the multiplier, left to the P&R hold fix like there.
 - **Structured multipliers (bw_*, booth_*).** Written as gate-level Dadda trees, they are
@@ -152,6 +157,16 @@ hardware flow with `syn/run_variant_flow.sh <v>`. Delay columns: `results/sta_<v
   booth_axfa5 -1.9 % mul8 area, -4.1 % mul8 power, -0.2 % energy, -1.6 % mul8 delay
   (FID 78.3 vs 78.65 exact). Both beat DC's exact multiplier on chip power,
   energy, mul8 power and minimum period, but not on mul8 area or mul8 delay.
+- **Truncated Booth (booth_trunc5, booth_akc).** Both are smaller and lower-power than both
+  exact baselines; percentages vs exact / vs booth_exact. booth_akc (TACBM w = 6): mul8 area
+  -22.9 / -31.4 %, mul8 power -50.8 / -39.0 % (zero delay 0.080 mW), chip power and energy
+  -1.6 / -1.6 %, mul8 delay +6.3 / -0.5 %, minimum period -0.0 / +0.1 %. It is the largest chip
+  energy saving of any variant with recognisable images, but FID 133.6 (64.8 % labels), about
+  evo_1KVL, from a -43 bias per product at b >= 0. booth_trunc5: mul8 area -12.2 / -21.8 %,
+  mul8 power -20.1 / -1.0 % (zero delay -7.1 % vs booth_exact), energy -0.2 / -0.2 %, minimum
+  period -0.3 / -0.1 %, mul8 delay +11.6 / +4.5 %; its constant +32 also hits the zero products,
+  so the images are unusable (FID 183, 6.3 dB). Fixed-zero product bits also shrink the
+  accumulators (PE array -4,100 um^2 for booth_trunc5, -6,000 for booth_akc vs booth_exact).
 - **500 MHz:** `mq:ilm` (-0.345 ns, 406 endpoints), `mq:evo_1KV8` (-0.065 ns, 183 endpoints)
   and `mq:evo_1KR8` (-0.005 ns, 15 endpoints) miss ss setup at 2.0 ns on their 1.8 ns-target
   netlists; exact, trunc4, evo_1KVL and evo_1KR3 meet it. The minimum period follows the

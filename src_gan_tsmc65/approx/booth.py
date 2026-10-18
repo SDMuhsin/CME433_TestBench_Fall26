@@ -9,15 +9,19 @@ from .matrix import BitMatrix
 from .netlist import ZERO
 
 
-def encode(net, b):
-    """Booth digits as (one, two, neg) per digit i (|d| = 1, |d| = 2, d < 0)."""
+def encode(net, b, strict_neg=False):
+    """Booth digits as (one, two, neg) per digit i (|d| = 1, |d| = 2, d < 0). By default
+    neg = b_{2i+1}, so the digit 111 is "-0" (row of ones + 1); strict_neg makes neg = 0 for it
+    (one more gate per digit; matters only when the neg bit is approximated)."""
     out = []
     for i in range(len(b) // 2):
         lo = b[2 * i - 1] if i else ZERO
         mid, hi = b[2 * i], b[2 * i + 1]
         one = net.XOR(mid, lo)
         two = net.AND(net.XOR(hi, mid), net.NOT(one))
-        out.append((net.name(one, f'bd{i}_one'), net.name(two, f'bd{i}_two'), hi))
+        neg = net.AND(hi, net.NOT(net.AND(mid, lo))) if strict_neg else hi
+        out.append((net.name(one, f'bd{i}_one'), net.name(two, f'bd{i}_two'),
+                    net.name(neg, f'bd{i}_neg')))
     return out
 
 
