@@ -25,6 +25,12 @@ ABOUT = {
                     'full adders, one carry-propagate adder. Structured exact baseline of booth_axfa5.'],
     'booth_axfa5': ['booth_axfa5: booth_exact with the approximate half / full adders of',
                     'Venkatachalam & Ko (IEEE TVLSI 2017, eqs. 2-3) in the 5 least significant columns.'],
+    'booth_trunc5': ['booth_trunc5: booth_exact with partial-product columns 0..4 not generated and',
+                     'a constant 1 in column 5 (constant carry compensation, product bits 0..4 = 0).'],
+    'booth_akc': ['booth_akc: truncated approximate-carry Booth multiplier (TACBM) of Aizaz & Khare',
+                  '(IEEE TCAS-II 2022) at w = 6: columns 0..5 not generated, compensation carry',
+                  't1_6 = P0,5 | P1,3 & P2,1 (eq. 2) in column 6, neg_i OR-ed with each row\'s first',
+                  'partial product (Fig. 2(b)), exact Dadda tree.'],
 }
 
 
