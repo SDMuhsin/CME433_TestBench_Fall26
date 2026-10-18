@@ -1,0 +1,13 @@
+gan65_chip 65 nm Formality summary (fm_dralm_t6e_ss_p2.4)
+netlist dralm_t6e_ss_p2.4  library corner ss  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+   20170 Passing compare points
+  Matched Compare Points     BBPin    Loop   BBNet     Cut    Port     DFF     LAT   TOTAL
+  Passing (equivalent)           0       0       0       0       9    1729   18432   20170
+  Failing (not equivalent)       0       0       0       0       0       0       0       0
+unmatched (after match, before verify):
+  123 Unmatched points (0 reference, 123 implementation):
+    Impl LATCG: 123
+guidance (accepted rejected unsupported unprocessed total) Total               :        276          0          0          0        276

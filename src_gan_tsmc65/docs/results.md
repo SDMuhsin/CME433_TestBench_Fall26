@@ -115,7 +115,7 @@ its outputs; `mul8_a_to_p_delay` in the PT summary).
 | exact | 174,855.2 | 9,890.3 | 18,948.6 | 8.816 | 0.416 | 0.192 | 51.72 | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.085 / +0.0016 | 784/784 | 1.817 | 0.937 |
 | example_trunc4 | 171,815.8 (**-1.7 %**) | 9,398.5 (-5.0 %) | 16,856.6 | 8.783 (**-0.4 %**) | 0.401 | 0.189 (-1.5 %) | 51.53 (**-0.4 %**) | 24.65 | 94.9 % | 87.04 | 3.81 | 75.50 | 0.657 | 0.005 | +0.080 / +0.0008 | 784/784 | 1.811 | 0.981 |
 | mq:ilm | 211,561.2 (**+21.0 %**) | 42,914.5 (+334 %) | 55,339.6 | 10.229 (**+16.0 %**) | 1.769 | 1.347 (+603 %) | 60.01 (**+16.0 %**) | 33.10 | 97.7 % | 79.17 | 3.89 | 65.36 | 0.649 | 0.006 | +0.077 / +0.0007 | 784/784 | **2.345** | 1.615 |
-| mq:evo_1KV8 | 179,215.2 (**+2.5 %**) | 13,407.8 (+35.6 %) | 22,901.8 | 8.894 (**+0.9 %**) | 0.468 | 0.209 (+9.3 %) | 52.18 (**+0.9 %**) | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.087 / +0.0003 | 784/784 | **2.065** | 1.412 |
+| mq:evo_1KV8 | 179,215.2 (**+2.5 %**) | 13,407.8 (+35.6 %) | 22,901.8 | 8.893 (**+0.9 %**) | 0.468 | 0.209 (+9.3 %) | 52.18 (**+0.9 %**) | inf (bit-exact) | 100 % | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | +0.087 / +0.0003 | 784/784 | **2.065** | 1.412 |
 | mq:evo_1KR8 | 176,084.6 (**+0.7 %**) | 11,270.2 (+14.0 %) | 20,007.4 | 8.803 (**-0.1 %**) | 0.382 | 0.161 (-15.9 %) | 51.65 (**-0.1 %**) | 21.42 | 87.5 % | 88.70 | 3.79 | 76.37 | 0.619 | 0.004 | +0.083 / +0.0009 | 784/784 | **2.005** | 1.317 |
 | mq:evo_1KVL | 171,282.6 (**-2.0 %**) | 8,519.4 (-13.9 %) | 16,118.3 | 8.722 (**-1.1 %**) | 0.304 | 0.115 (-39.8 %) | 51.17 (**-1.1 %**) | 12.19 | 51.2 % | 131.82 | 3.35 | 111.77 | 0.265 | 0.002 | +0.082 / +0.0012 | 784/784 | 1.894 | 1.192 |
 | mq:evo_1KR3 | 163,118.9 (**-6.7 %**) | 2,288.9 (-76.9 %) | 8,261.6 | 8.556 (**-3.0 %**) | 0.182 | 0.032 (-83.1 %) | 50.19 (**-3.0 %**) | 8.60 | 8.2 % | 304.32 | 1.04 | 347.52 | 0.002 | 0.000 | +0.083 / +0.0015 | 784/784 | 1.820 | 0.842 |
@@ -125,28 +125,36 @@ its outputs; `mul8_a_to_p_delay` in the PT summary).
 | booth_axfa5 | 176,062.7 (**+0.7 %**) | 10,886.4 (+10.1 %) | 20,184.8 | 8.793 (**-0.3 %**) | 0.397 | 0.148 (-22.6 %) | 51.59 (**-0.3 %**) | 32.31 | 98.0 % | 78.31 | 3.91 | 64.26 | 0.643 | 0.007 | +0.081 / +0.0015 | 784/784 | 1.813 | 0.985 |
 | booth_trunc5 | 171,282.2 (**-2.0 %**) | 8,683.9 (-12.2 %) | 16,251.1 | 8.795 (**-0.2 %**) | 0.389 | 0.153 (-20.1 %) | 51.60 (**-0.2 %**) | 6.31 | 39.1 % | 183.14 | 3.46 | 179.40 | 0.033 | 0.000 | +0.084 / +0.0013 | 784/784 | 1.812 | 1.045 |
 | booth_akc | 169,077.2 (**-3.3 %**) | 7,621.2 (-22.9 %) | 14,393.9 | 8.673 (**-1.6 %**) | 0.266 | 0.094 (-50.8 %) | 50.88 (**-1.6 %**) | 11.32 | 64.8 % | 133.62 | 3.29 | 118.82 | 0.422 | 0.004 | +0.086 / +0.0016 | 784/784 | 1.816 | 0.996 |
+| dralm_t4 | 171,244.8 (**-2.1 %**) | 5,703.5 (-42.3 %) | 15,448.0 | 8.755 (**-0.7 %**) | 0.351 | 0.111 (-42.0 %) | 51.36 (**-0.7 %**) | 19.97 | 86.3 % | 79.59 | 4.04 | 61.23 | 0.578 | 0.008 | +0.087 / +0.0007 | 784/784 | 1.817 | 0.964 |
+| dralm_t5 | 173,497.0 (**-0.8 %**) | 6,395.8 (-35.3 %) | 17,570.5 | 8.805 (**-0.1 %**) | 0.415 | 0.142 (-25.7 %) | 51.66 (**-0.1 %**) | 23.45 | 90.2 % | 77.12 | 3.98 | 60.92 | 0.618 | 0.008 | +0.082 / +0.0016 | 784/784 | 1.817 | 1.001 |
+| dralm_t6 | 174,334.0 (**-0.3 %**) | 7,399.8 (-25.2 %) | 18,800.3 | 8.836 (**+0.2 %**) | 0.443 | 0.159 (-17.2 %) | 51.84 (**+0.2 %**) | 25.61 | 91.0 % | 75.59 | 3.96 | 60.37 | 0.637 | 0.008 | +0.080 / +0.0009 | 784/784 | 1.742 | 0.946 |
+| dralm_t6e | 182,306.5 (**+4.3 %**) | 15,613.6 (+57.9 %) | 26,364.2 | 9.150 (**+3.8 %**) | 0.696 | 0.416 (+117.3 %) | 53.68 (**+3.8 %**) | 30.90 | 94.5 % | 79.04 | 3.92 | 64.70 | 0.645 | 0.007 | +0.080 / +0.0009 | 784/784 | **2.005** | 1.250 |
 
 FID-10k / IS / KID / precision / recall: 10,000 RTL images vs the Fashion-MNIST train set
 (`bench/results/real_n10000.md`, `docs/bench.md`). bw_* and booth_* are the structured
 Baugh-Wooley / radix-4 Booth multipliers of `approx/` (`docs/papers/venkatachalam_ko_2017.md`);
 the *_exact rows are their bit-exact baselines with the same dot diagram. booth_trunc5 and
 booth_akc are truncated Booth multipliers after Aizaz & Khare 2022
-(`docs/papers/aizaz_khare_2022.md`); their exact twin is booth_exact.
+(`docs/papers/aizaz_khare_2022.md`); their exact twin is booth_exact dralm_* are the dynamic-range
+approximate logarithmic multipliers of Yin et al. 2021 (`docs/papers/yin_2021_dralm.md`);
+dralm_t6e uses exact sign units instead of the paper's one's-complement ones. They have no
+structured exact twin.
 
 Files: `results/syn_<v>_ss_p2.4.txt`, `results/sta_<v>_ss_p2.4_{ss_max,ff_min}_at2.5.txt`,
 `results/pwr_<v>_ss_p2.4_<v>_ss_p2.4_s0_sdftt_tt.txt` (`<v>` = exact, example_trunc4,
 mq_ilm, mq_evo_1KV8, mq_evo_1KR8, mq_evo_1KVL, mq_evo_1KR3, bw_exact, bw_axfa6, booth_exact,
-booth_axfa5, booth_trunc5, booth_akc); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
+booth_axfa5, booth_trunc5, booth_akc, dralm_t4, dralm_t5, dralm_t6, dralm_t6e); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
 mq:ilm 9.626, evo_1KV8 8.759, evo_1KR8 8.691, evo_1KVL 8.614, evo_1KR3 8.501, bw_exact 8.675,
-bw_axfa6 8.662, booth_exact 8.699, booth_axfa5 8.684, booth_trunc5 8.665, booth_akc 8.588 mW).
-Formality SUCCEEDED for all thirteen
+bw_axfa6 8.662, booth_exact 8.699, booth_axfa5 8.684, booth_trunc5 8.665, booth_akc 8.588, dralm_t4 8.658, dralm_t5 8.692,
+dralm_t6 8.718, dralm_t6e 8.938 mW).
+Formality SUCCEEDED for all seventeen
 (`results/fm_*_ss_p2.4.txt`). GLS: zero-delay and SDF-timed pixels of seed_0 match each
 variant's own integer emulation (`sim/gls/check_pix.py`); exact, evo_1KV8, bw_exact and
 booth_exact also match the golden pixels. The four bw_* / booth_* variants run the whole
-hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5 and booth_akc). Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
+hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc and the dralm_*). Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
 `mul8_a_to_p_delay`), netlists `syn_<v>_ss_p1.8.txt`, FM `fm_<v>_ss_p1.8.txt` (all SUCCEEDED).
 
-- All thirteen meet ss setup at 400 MHz, and all but bw_axfa6 meet ff hold. bw_axfa6 misses ff
+- All seventeen meet ss setup at 400 MHz, and all but bw_axfa6 meet ff hold. bw_axfa6 misses ff
   hold by 4.4 ps on 8 endpoints, all `u_seq/u_rq/q_reg_*` -> `u_seq/rq_res_reg_*`: the direct
   Q -> D residue of section 2, outside the multiplier, left to the P&R hold fix like there.
 - **Structured multipliers (bw_*, booth_*).** Written as gate-level Dadda trees, they are
@@ -167,9 +175,9 @@ hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5 and booth_ak
   period -0.3 / -0.1 %, mul8 delay +11.6 / +4.5 %; its constant +32 also hits the zero products,
   so the images are unusable (FID 183, 6.3 dB). Fixed-zero product bits also shrink the
   accumulators (PE array -4,100 um^2 for booth_trunc5, -6,000 for booth_akc vs booth_exact).
-- **500 MHz:** `mq:ilm` (-0.345 ns, 406 endpoints), `mq:evo_1KV8` (-0.065 ns, 183 endpoints)
-  and `mq:evo_1KR8` (-0.005 ns, 15 endpoints) miss ss setup at 2.0 ns on their 1.8 ns-target
-  netlists; exact, trunc4, evo_1KVL and evo_1KR3 meet it. The minimum period follows the
+- **500 MHz:** `mq:ilm` (-0.345 ns, 406 endpoints), `mq:evo_1KV8` (-0.065 ns, 183 endpoints),
+  `mq:evo_1KR8` (-0.005 ns, 15 endpoints) and `dralm_t6e` (-0.005 ns, 16 endpoints) miss ss
+  setup at 2.0 ns on their 1.8 ns-target netlists; all other variants meet it. The minimum period follows the
   multiplier delay once the multiplier is slower than about 1.0 ns. Below that the chip is
   limited by other paths: for exact and evo_1KR3 the worst flop path is the RF write enable
   `u_seq/dla_wr_en_reg` -> A-buffer `q_r` (through-mul8 minimum periods 1.816 and 1.812 ns).
@@ -188,6 +196,59 @@ hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5 and booth_ak
   multiplier power is 42 % higher with SDF than with zero delay.
 - At 500 MHz (1.8 ns netlists) trunc4 vs exact: area -2.0 %, mul8 area -9.4 %, chip power
   -0.4 %, mul8 power -10.7 % (`results/pwr_example_trunc4_ss_p1.8_*_sdftt_tt.txt`).
+
+- **Logarithmic DR-ALM (dralm_*).** Unlike `mq:ilm`, the paper's DR-ALMs are smaller and
+  lower-power multipliers than DC's `a * b`: mul8 area -42 / -35 / -25 % and mul8 power
+  -42 / -26 / -17 % for t = 4 / 5 / 6, at FID 79.6 / 77.1 / 75.6 (exact 78.65). The truncation
+  keeps the shifters and the adder at t bits, and the one's-complement sign units cost one
+  gate per bit. Chip energy follows only for t = 4 (-0.7 %) and t = 5 (-0.1 %); for t = 6 the
+  PE accumulators burn more than the multiplier saves (PE power 0.443 vs 0.416 mW), so chip
+  power is +0.2 %. dralm_t6 has the lowest minimum period of all variants (1.742 ns): its
+  worst path runs through the multiplier and is 0.07 ns shorter than exact's, and the RF
+  write-enable path that limits exact closed better in this netlist; its own mul8 delay is
+  +1.0 %. dralm_t6e (same core, exact two's-complement sign units, not in the paper) beats
+  exact on nothing: +58 % mul8 area, +117 % mul8 power, +3.8 % energy, 2.005 ns. Its two
+  extra negation carry chains are in series with the log datapath; at a relaxed 4.0 ns its
+  mul8 area is +9.6 % over exact's (8,752 vs 7,984 um^2, `results/syn_{exact,dralm_t6e}_ss_p4.txt`),
+  so most of the cost is DC upsizing for 400 MHz. The same exact negations at both ends are part
+  of `mq:ilm`'s cost. Despite their +27..+30 bias per product at b >= 0, the paper-sign
+  DR-ALMs reach FIDs at or below exact (PSNR vs golden 20-26 dB); the error is a magnitude
+  error of both signs, not the one-sided bias of the truncated Booth multipliers.
+
+### 5.1 All variants at a glance
+
+FID-10k / IS / KID / precision (P) / recall (R) from 10,000 RTL images; label agreement from
+the 256-latent benchmark; hardware as in the table above (400 MHz, tt SDF power), minimum period
+and mul8 delay from the 1.8 ns netlists. Percentages vs `exact` (DC's `a * b`). `mq:evo_1KV8`
+is the EvoApprox library's own exact 8-bit multiplier (a bit-exact reference, 36 % larger than
+DC's); `mq:ilm` is the counter-example of a published approximate multiplier that costs more
+than exact on every hardware metric at 8 bits.
+
+| Variant | FID-10k | IS | KID x10^3 | P | R | Labels (256) | Area (um^2) | 16 x mul8 (um^2) | Chip / mul8 power (mW) | Energy (uJ) | Min period (ns) | mul8 delay (ns) | % vs exact: area / mul8 area / chip power / mul8 power / energy / min period / mul8 delay |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| exact | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | 100.0 % | 174,855.2 | 9,890.3 | 8.816 / 0.192 | 51.72 | 1.817 | 0.937 | +0.0 / +0.0 / +0.0 / +0.0 / +0.0 / +0.0 / +0.0 |
+| mq:evo_1KV8 (library exact) | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | 100.0 % | 179,215.2 | 13,407.8 | 8.893 / 0.209 | 52.18 | 2.065 | 1.412 | +2.5 / +35.6 / +0.9 / +9.3 / +0.9 / +13.6 / +50.8 |
+| mq:evo_1KR8 | 88.70 | 3.79 | 76.37 | 0.619 | 0.004 | 87.5 % | 176,084.6 | 11,270.2 | 8.803 / 0.161 | 51.65 | 2.005 | 1.317 | +0.7 / +14.0 / -0.1 / -15.9 / -0.1 / +10.3 / +40.5 |
+| mq:evo_1KVL | 131.82 | 3.35 | 111.77 | 0.265 | 0.002 | 51.2 % | 171,282.6 | 8,519.4 | 8.722 / 0.115 | 51.17 | 1.894 | 1.192 | -2.0 / -13.9 / -1.1 / -39.8 / -1.1 / +4.2 / +27.3 |
+| mq:evo_1KR3 | 304.32 | 1.04 | 347.52 | 0.002 | 0.000 | 8.2 % | 163,118.9 | 2,288.9 | 8.556 / 0.032 | 50.19 | 1.820 | 0.842 | -6.7 / -76.9 / -3.0 / -83.1 / -3.0 / +0.2 / -10.1 |
+| mq:ilm (counter-example) | 79.17 | 3.89 | 65.36 | 0.649 | 0.006 | 97.7 % | 211,561.2 | 42,914.5 | 10.229 / 1.347 | 60.01 | 2.345 | 1.615 | +21.0 / +333.9 / +16.0 / +603.3 / +16.0 / +29.1 / +72.4 |
+| example_trunc4 | 87.04 | 3.81 | 75.50 | 0.657 | 0.005 | 94.9 % | 171,815.8 | 9,398.5 | 8.783 / 0.189 | 51.53 | 1.811 | 0.981 | -1.7 / -5.0 / -0.4 / -1.5 / -0.4 / -0.3 / +4.7 |
+| bw_exact | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | 100.0 % | 175,303.8 | 10,730.2 | 8.791 / 0.147 | 51.57 | 1.811 | 1.010 | +0.3 / +8.5 / -0.3 / -23.5 / -0.3 / -0.3 / +7.8 |
+| bw_axfa6 | 96.90 | 3.73 | 87.23 | 0.655 | 0.005 | 92.2 % | 175,064.4 | 10,177.9 | 8.781 / 0.139 | 51.52 | 1.810 | 1.004 | +0.1 / +2.9 / -0.4 / -27.4 / -0.4 / -0.4 / +7.1 |
+| booth_exact | 78.65 | 3.90 | 64.85 | 0.649 | 0.007 | 100.0 % | 176,536.1 | 11,102.4 | 8.815 / 0.154 | 51.72 | 1.814 | 1.000 | +1.0 / +12.3 / -0.0 / -19.4 / -0.0 / -0.1 / +6.8 |
+| booth_axfa5 | 78.31 | 3.91 | 64.26 | 0.643 | 0.007 | 98.0 % | 176,062.7 | 10,886.4 | 8.793 / 0.148 | 51.59 | 1.813 | 0.985 | +0.7 / +10.1 / -0.3 / -22.6 / -0.3 / -0.2 / +5.1 |
+| booth_trunc5 | 183.14 | 3.46 | 179.40 | 0.033 | 0.000 | 39.1 % | 171,282.2 | 8,683.9 | 8.795 / 0.153 | 51.60 | 1.812 | 1.045 | -2.0 / -12.2 / -0.2 / -20.1 / -0.2 / -0.3 / +11.6 |
+| booth_akc | 133.62 | 3.29 | 118.82 | 0.422 | 0.004 | 64.8 % | 169,077.2 | 7,621.2 | 8.673 / 0.094 | 50.88 | 1.816 | 0.996 | -3.3 / -22.9 / -1.6 / -50.8 / -1.6 / -0.0 / +6.3 |
+| dralm_t4 | 79.59 | 4.04 | 61.23 | 0.578 | 0.008 | 86.3 % | 171,244.8 | 5,703.5 | 8.755 / 0.111 | 51.36 | 1.817 | 0.964 | -2.1 / -42.3 / -0.7 / -42.0 / -0.7 / +0.0 / +2.9 |
+| dralm_t5 | 77.12 | 3.98 | 60.92 | 0.618 | 0.008 | 90.2 % | 173,497.0 | 6,395.8 | 8.805 / 0.142 | 51.66 | 1.817 | 1.001 | -0.8 / -35.3 / -0.1 / -25.7 / -0.1 / +0.0 / +6.8 |
+| dralm_t6 | 75.59 | 3.96 | 60.37 | 0.637 | 0.008 | 91.0 % | 174,334.0 | 7,399.8 | 8.836 / 0.159 | 51.84 | 1.742 | 0.946 | -0.3 / -25.2 / +0.2 / -17.2 / +0.2 / -4.1 / +1.0 |
+| dralm_t6e | 79.04 | 3.92 | 64.70 | 0.645 | 0.007 | 94.5 % | 182,306.5 | 15,613.6 | 9.150 / 0.416 | 53.68 | 2.005 | 1.250 | +4.3 / +57.9 / +3.8 / +117.3 / +3.8 / +10.4 / +33.5 |
+
+Paper sources: `docs/papers/venkatachalam_ko_2017.md` (bw_*, booth_axfa5),
+`docs/papers/aizaz_khare_2022.md` (booth_trunc5, booth_akc), `docs/papers/yin_2021_dralm.md`
+(dralm_*). Best trade-offs so far: booth_axfa5 (FID 78.3, -0.3 % energy), dralm_t4 (FID 79.6,
+-0.7 % energy, -42 % mul8 area) and booth_akc (largest energy saving with recognisable images,
+-1.6 %, at FID 133.6).
 
 ## 6. How a student adds and evaluates a multiplier
 

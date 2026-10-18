@@ -2,7 +2,7 @@
 in parallel chunks.
 
 unsigned_stats(builder, n): a, b in [0, 2^n); 2^32 pairs for n = 16 (a few minutes on many
-cores). signed_stats(builder, n): a, b in [-2^(n-1), 2^(n-1)); `samples` > 0 draws that many
+cores); `samples` > 0 draws uniform random pairs instead. signed_stats(builder, n): a, b in [-2^(n-1), 2^(n-1)); `samples` > 0 draws that many
 uniform random pairs instead (fixed seed). `builder` is a module-level callable returning a
 mult.Multiplier (rebuilt per worker); NMED is normalised by `max_out`.
 """
@@ -48,8 +48,17 @@ def _exhaustive(builder, n, lo, args, jobs, rows, max_out):
     return _run(builder, args, jobs, work, max_out)
 
 
-def unsigned_stats(builder, n, args=(), jobs=32, rows=None):
-    return _exhaustive(builder, n, 0, args, jobs, rows, ((1 << n) - 1) ** 2).result(2 * n)
+def _sampled(builder, n, lo, args, jobs, samples, max_out, chunk):
+    work = [(lo, 0, 0, n, 1000 + k, min(chunk, samples - k * chunk))
+            for k in range(-(-samples // chunk))]
+    return _run(builder, args, jobs, work, max_out)
+
+
+def unsigned_stats(builder, n, args=(), jobs=32, rows=None, samples=0, chunk=1 << 22):
+    max_out = ((1 << n) - 1) ** 2
+    if samples:
+        return _sampled(builder, n, 0, args, jobs, samples, max_out, chunk).result(2 * n)
+    return _exhaustive(builder, n, 0, args, jobs, rows, max_out).result(2 * n)
 
 
 def signed_stats(builder, n, args=(), jobs=32, samples=0, max_out=None, chunk=1 << 22):
@@ -57,6 +66,4 @@ def signed_stats(builder, n, args=(), jobs=32, samples=0, max_out=None, chunk=1 
     max_out = max_out or 1 << (2 * n - 2)
     if not samples:
         return _exhaustive(builder, n, lo, args, jobs, None, max_out).result(2 * n)
-    work = [(lo, 0, 0, n, 1000 + k, min(chunk, samples - k * chunk))
-            for k in range(-(-samples // chunk))]
-    return _run(builder, args, jobs, work, max_out).result(2 * n)
+    return _sampled(builder, n, lo, args, jobs, samples, max_out, chunk).result(2 * n)

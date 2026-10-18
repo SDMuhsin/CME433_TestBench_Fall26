@@ -7,7 +7,7 @@ The files are generated; edit the Python and regenerate.
 """
 from pathlib import Path
 
-from . import vk2017
+from . import dralm, dralm_v, vk2017
 from .emit import verilog
 from .variants import VARIANTS
 
@@ -32,6 +32,16 @@ ABOUT = {
                   't1_6 = P0,5 | P1,3 & P2,1 (eq. 2) in column 6, neg_i OR-ed with each row\'s first',
                   'partial product (Fig. 2(b)), exact Dadda tree.'],
 }
+for _v, _m in VARIANTS.items():
+    if _v.startswith('dralm_'):
+        _m = _m()
+        ABOUT[_v] = [f'{_v}: signed 8 x 8 dynamic-range approximate logarithmic multiplier DR-ALM-{_m.t}',
+                     'of Yin et al. (IEEE TSUSC 6(4) 2021, Algorithm 1, eq. 7, Fig. 2-3): operands',
+                     f'truncated to {_m.t} bits from the leading one with the last bit forced to 1, +1',
+                     'compensation after the log adder, ' + (
+                         "approximate sign units (one's complement OR 1)." if _m.sign == 'paper'
+                         else "exact two's-complement sign units (not in the paper)."),
+                     'A zero operand gives 0. Reference model: approx/dralm.py.']
 
 
 def cells_line(m):
@@ -41,9 +51,12 @@ def cells_line(m):
 def main():
     for v, fn in VARIANTS.items():
         m = fn()
-        head = ABOUT[v] + ['a = weight, b = activation, p = a * b (signed, 16 bit).',
-                           cells_line(m), GEN]
-        (BENCH / f'{v}.v').write_text(verilog(m, 'gan_mul8', head))
+        head = ABOUT[v] + ['a = weight, b = activation, p = a * b (signed, 16 bit).']
+        if isinstance(m, dralm.Dralm):
+            text = dralm_v.verilog(m.t, m.sign, head + [GEN])
+        else:
+            text = verilog(m, 'gan_mul8', head + [cells_line(m), GEN])
+        (BENCH / f'{v}.v').write_text(text)
         print(BENCH / f'{v}.v')
     (HERE / 'rtl').mkdir(exist_ok=True)
     for tag, fn, what in (('m1', vk2017.multiplier1, 'Multiplier1 (approximate in all columns)'),

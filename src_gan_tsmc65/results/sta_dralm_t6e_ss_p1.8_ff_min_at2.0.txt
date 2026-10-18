@@ -1,0 +1,39 @@
+gan65_chip 65 nm PrimeTime summary (sta_dralm_t6e_ss_p1.8_ff_min_at2.0)
+netlist dralm_t6e_ss_p1.8  corner ff  parasitics min  period_ns 2.0  clocks ideal (pre-layout)
+setup  WNS   0.0000 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_0__u_sram/u_rf/wd_r_reg_0_/CP -> u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_0__u_sram/u_rf/GEN_W_88__lat_reg_0_/D (arrival 0.238 ns)
+hold   WNS   0.0007 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_host/sclk_sync_reg_0_/CP -> u_host/sclk_sync_reg_1_/D (arrival 0.075 ns)
+setup_to_flops WNS   1.0165 ns  worst path: u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_3__u_sram/u_rf/q_r_reg_0_/CP -> u_dla/u_pe_array/GEN_PE_ROWS_3__GEN_PE_COLS_0__u_pe/acc_out_reg_23_/D (arrival 0.727 ns)
+setup_through_mul8 WNS   1.0165 ns  worst path: u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_3__u_sram/u_rf/q_r_reg_0_/CP -> u_dla/u_pe_array/GEN_PE_ROWS_3__GEN_PE_COLS_0__u_pe/acc_out_reg_23_/D (arrival 0.727 ns)
+mul8_a_to_p_delay max   0.5248 ns  path inside: u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_0__u_pe/u_mul/U374/I -> u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_0__u_pe/u_mul/p[15]
+latch_in  slack   0.0000 ns  borrowed 0.4900 ns  latch endpoints at slack 0 (borrowing) 16384 of 16384
+       worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_0__u_sram/u_rf/wd_r_reg_0_/CP -> u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_0__u_sram/u_rf/GEN_W_88__lat_reg_0_/D (arrival 0.238 ns)
+latch_out slack   1.2153 ns  (RF read path, through latch Q)
+       worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_0__u_sram/u_rf/GEN_W_95__lat_reg_0_/D -> u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_0__u_sram/u_rf/q_r_reg_0_/SN (arrival 0.481 ns)
+latch_in  hold slack   1.0072 ns
+check_timing:
+  Information: Checking 'no_input_delay'.
+  Information: Checking 'no_driving_cell'.
+  Information: Checking 'unconstrained_endpoints'.
+  Information: Checking 'unexpandable_clocks'.
+  Information: Checking 'latch_fanout'.
+  Information: Checking 'no_clock'.
+  Information: Checking 'partial_input_delay'.
+  Information: Checking 'generic'.
+  Information: Checking 'loops'.
+  Information: Checking 'generated_clocks'.
+  Information: Checking 'pulse_clock_non_pulse_clock_merge'.
+  Information: Checking 'pll_configuration'.
+parasitics annotation:
+                      |         |         |         |   RC    |   Not   |
+  Net Type            |  Total  | Lumped  |  RC pi  | network |Annotated|
+  Internal nets       |         |         |         |         |         |
+    - Pin to pin nets |   59310 |       0 |   59310 |       0 |       0 |
+    - Driverless nets |     110 |       0 |       0 |       0 |     110 |
+    - Loadless nets   |       0 |       0 |       0 |       0 |       0 |
+  Boundary/port nets  |         |         |         |         |         |
+    - Pin to pin nets |      15 |       0 |      14 |       0 |       1 |
+    - Driverless nets |       0 |       0 |       0 |       0 |       0 |
+    - Loadless nets   |       0 |       0 |       0 |       0 |       0 |
+                      |   59435 |       0 |   59324 |       0 |     111 |

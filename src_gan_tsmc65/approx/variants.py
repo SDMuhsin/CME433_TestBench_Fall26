@@ -12,8 +12,14 @@ diagram with exact cells, so the pair isolates the effect of the approximation.
   booth_akc     Aizaz & Khare 2022 TACBM at the paper's 8-bit point w = 6: columns 0..5
                 truncated, compensation carry t^1_6 = P05 + P13 P21 in column 6, neg_i OR-ed
                 with each row's first bit (strict-neg Booth encoder), exact Dadda tree
+  dralm_t<k>    Yin et al. 2021 signed DR-ALM-k (logarithmic, operands truncated to k bits
+                from the leading one, compensation), the paper's approximate sign units
+  dralm_t6e     DR-ALM-6 core with exact two's-complement sign units (not in the paper)
+The dralm_* entries are behavioural models (dralm.Dralm), not dot diagrams.
 """
-from . import booth, pp, tacbm
+from functools import partial
+
+from . import booth, dralm, pp, tacbm
 from .cells import EXACT, VK_HA_FA
 from .mult import build
 from .netlist import Net
@@ -39,3 +45,7 @@ VARIANTS = {
         lambda net, a, b: tacbm.matrix(net, a, b, 5, (), neg_or=False, const=1 << 5), 0),
     'booth_akc': lambda: _signed(lambda net, a, b: tacbm.matrix(net, a, b, 6), 0),
 }
+
+for _t in (4, 5, 6):
+    VARIANTS[f'dralm_t{_t}'] = partial(dralm.Dralm, N, _t, 'paper')
+VARIANTS['dralm_t6e'] = partial(dralm.Dralm, N, 6, 'exact')
