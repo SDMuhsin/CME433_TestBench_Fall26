@@ -1,0 +1,49 @@
+gan65_chip 65 nm DC summary
+period_ns 1.8  mode topographical  corner ss  multiplier ham_c
+total_cell_area_um2 210037.0
+nand2_area_um2 1.440
+gate_equivalents 145859
+leaf_cells 59445
+breakdown (cells, area um2):
+  comb           39161     100069.2   47.6 %
+  flops           1729      13324.3    6.3 %
+  latches        16384      82575.4   39.3 %
+  icg             2171      14068.1    6.7 %
+  rf_total       37618     140111.3   66.7 %
+  rf_latches     16384      82575.4   39.3 %
+  rf_icg          2056      13322.9    6.3 %
+  rf_flops         128       1184.4    0.6 %
+  rf_comb        19050      43028.6   20.5 %
+hierarchy (leaf-cell area um2, cells):
+  host       u_host                         1447.9      314
+  csr        u_csr                          2403.0      534
+  seq        u_seq                          8723.9     2886
+  requant    u_seq/u_rq                     4463.3     1873
+  tanh_rom   u_seq/u_rq/u_rom               1051.2      552
+  dla        u_dla                        197231.4    55626
+  controller u_dla/u_controller              164.2       47
+  a_buffer   u_dla/u_a_buffer              70226.3    18857
+  b_buffer   u_dla/u_b_buffer              70466.8    18877
+  pe_array   u_dla/u_pe_array              51367.3    16703
+  c_buffer   u_dla/u_c_buffer               3709.1      762
+  top_glue   (top)                           230.8       85
+area_split (cells, area um2, % of total):
+  pe_array          16703      51367.3   24.5 %
+  mul8_all          10923      34910.3   16.6 %
+  pe_other           5780      16457.0    7.8 %
+  latch_rf          37618     140111.3   66.7 %
+  rest               5124      18558.4    8.8 %
+pe_instances 16  mul8_instances 16  mul8_area_per_instance_um2 2181.9  pe_area_per_instance_um2 3210.5
+dc_area Combinational      100069.200875
+dc_area Buf/Inv            14074.920413
+dc_area Noncombinational   109967.759520
+dc_area Macro/Black Box    0.000000
+dc_area Total cell         210036.960395
+dc_power internal 8.0068 mW  switching 7.1152e-02 mW  leakage 1.4894e+06 nW  total 9.5673 mW  (default activity)
+setup  WNS  -0.6630 ns  TNS  -273.179 ns  violating_endpoints 489
+       worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_3__u_sram/u_rf/q_r_reg_0_/CP -> u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_3__u_pe/acc_out_reg_17_/D (arrival 2.207 ns)
+hold   WNS   0.0010 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_host/cs_n_sync_reg_0_/CP -> u_host/cs_n_sync_reg_1_/D (arrival 0.072 ns)
+setup_to_flops WNS  -0.6630 ns  worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_3__u_sram/u_rf/q_r_reg_0_/CP -> u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_3__u_pe/acc_out_reg_17_/D (arrival 2.207 ns)
+setup_through_mul8 WNS  -0.6630 ns  worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_3__u_sram/u_rf/q_r_reg_0_/CP -> u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_3__u_pe/acc_out_reg_17_/D (arrival 2.207 ns)
+mul8_a_to_p_delay max   1.6615 ns  path inside: u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_0__u_pe/u_mul/U294/I -> u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_0__u_pe/u_mul/U263/ZN

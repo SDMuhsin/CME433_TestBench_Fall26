@@ -7,7 +7,7 @@ The files are generated; edit the Python and regenerate.
 """
 from pathlib import Path
 
-from . import dralm, dralm_v, vk2017
+from . import dralm, dralm_v, ham, ham_v, vk2017
 from .emit import verilog
 from .variants import VARIANTS
 
@@ -55,6 +55,19 @@ for _v in VARIANTS:
              'exact correction rows, product sign XOR-ed into the bit matrix.']) + [
             'Exact Dadda tree, one carry-propagate adder. Reference model: approx/cdm.py.']
 
+for _v in VARIANTS:
+    if _v.startswith('ham_'):
+        _h = VARIANTS[_v]()
+        ABOUT[_v] = [f'{_v}: signed 8 x 8 hybrid approximate multiplier HAM-{_v[4].upper()} (H7C0) of Shi et al.',
+                     '(IEEE TVLSI 33(10) 2025, Fig. 3, eq. 6): leading-one exponent and 5-bit mantissa,',
+                     f'mixed piecewise-linear fit of the mantissa product in five zones (X2 {_h.x2b} bits, X4',
+                     f'{_h.x4b} bits, biases {"/".join(map(str, _h.biases))} / 32), shift by the exponent sum,',
+                     'sign compensation of the result (exact negation of p1_PWL), ' + (
+                         'partial-complement (PACC) operand magnitudes.' if _h.me == 'pacc'
+                         else "exact two's-complement operand magnitudes (not in the paper)."),
+                     'A zero magnitude gives 0. Reference model: approx/ham.py.']
+
+
 def cells_line(m):
     return 'Reduction cells: ' + ', '.join(f'{k} x{v}' for k, v in sorted(m.cell_count().items()))
 
@@ -63,7 +76,9 @@ def main():
     for v, fn in VARIANTS.items():
         m = fn()
         head = ABOUT[v] + ['a = weight, b = activation, p = a * b (signed, 16 bit).']
-        if isinstance(m, dralm.Dralm):
+        if isinstance(m, ham.Ham):
+            text = ham_v.verilog(m, v, head + [GEN])
+        elif isinstance(m, dralm.Dralm):
             text = dralm_v.verilog(m.t, m.sign, head + [GEN])
         else:
             text = verilog(m, 'gan_mul8', head + [cells_line(m), GEN])

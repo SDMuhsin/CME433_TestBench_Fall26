@@ -133,6 +133,9 @@ its outputs; `mul8_a_to_p_delay` in the PT summary).
 | cdm_73 | 179,000.3 (**+2.4 %**) | 13,105.1 (+32.5 %) | 22,731.1 | 8.950 (**+1.5 %**) | 0.525 | 0.255 (+33.4 %) | 52.51 (**+1.5 %**) | 23.96 | 87.5 % | 82.51 | 3.82 | 69.97 | 0.636 | 0.007 | +0.086 / **-0.0053** | 784/784 | 1.815 | 1.054 |
 | cdm_95 | 177,823.1 (**+1.7 %**) | 12,285.4 (+24.2 %) | 21,689.6 | 8.911 (**+1.1 %**) | 0.506 | 0.239 (+24.7 %) | 52.28 (**+1.1 %**) | 20.44 | 80.1 % | 83.92 | 3.76 | 71.71 | 0.621 | 0.004 | +0.082 / +0.0012 | 784/784 | 1.815 | 1.016 |
 | cdm_51b (ablation) | 174,445.9 (**-0.2 %**) | 9,469.4 (-4.3 %) | 18,527.4 | 8.783 (**-0.4 %**) | 0.368 | 0.131 (-31.8 %) | 51.53 (**-0.4 %**) | 18.81 | 87.9 % | 102.20 | 3.68 | 93.63 | 0.647 | 0.005 | +0.082 / +0.0008 | 784/784 | 1.813 | 0.998 |
+| ham_a | 210,841.9 (**+20.6 %**) | 38,716.6 (+291.5 %) | 54,418.7 | 10.184 (**+15.5 %**) | 1.749 | 1.281 (+568.7 %) | 59.75 (**+15.5 %**) | 21.68 | 84.8 % | 84.67 | 3.95 | 70.36 | 0.618 | 0.004 | +0.058 / +0.0007 | 784/784 | **2.470** | 1.678 |
+| ham_c | 209,419.6 (**+19.8 %**) | 36,639.4 (+270.5 %) | 53,196.1 | 10.115 (**+14.7 %**) | 1.682 | 1.197 (+524.8 %) | 59.34 (**+14.7 %**) | 21.59 | 84.8 % | 84.79 | 3.94 | 70.36 | 0.612 | 0.005 | +0.048 / **-0.0007** | 784/784 | **2.481** | 1.690 |
+| ham_ae (ablation) | 214,425.7 (**+22.6 %**) | 42,338.5 (+328.1 %) | 58,335.1 | 10.122 (**+14.8 %**) | 1.694 | 1.227 (+540.7 %) | 59.38 (**+14.8 %**) | 38.24 | 97.3 % | 78.90 | 3.91 | 64.90 | 0.648 | 0.007 | +0.056 / +0.0006 | 784/784 | **2.475** | 1.682 |
 
 FID-10k / IS / KID / precision / recall: 10,000 RTL images vs the Fashion-MNIST train set
 (`bench/results/real_n10000.md`, `docs/bench.md`). bw_* and booth_* are the structured
@@ -145,24 +148,29 @@ dralm_t6e uses exact sign units instead of the paper's one's-complement ones. Th
 structured exact twin. cdm_* are the carry-disregard multipliers of Amirafshar et al. 2023
 (`docs/papers/amirafshar_2023_cdm.md`): CDM8_51 / 73 / 95 with a sign-magnitude extension
 (the paper is unsigned); cdm_51b is CDM8_51 on the plain Baugh-Wooley array (ablation), whose
-exact twin is bw_exact.
+exact twin is bw_exact. ham_* are the hybrid logarithmic / piecewise-linear multipliers of Shi
+et al. 2025 (`docs/papers/shi_2025_ham.md`): the 8-bit HAM-A and HAM-C with the paper's sign
+scheme (partial-complement magnitudes, sign compensation); ham_ae is HAM-A with exact magnitudes
+(ablation). They have no structured exact twin.
 
 Files: `results/syn_<v>_ss_p2.4.txt`, `results/sta_<v>_ss_p2.4_{ss_max,ff_min}_at2.5.txt`,
 `results/pwr_<v>_ss_p2.4_<v>_ss_p2.4_s0_sdftt_tt.txt` (`<v>` = exact, example_trunc4,
 mq_ilm, mq_evo_1KV8, mq_evo_1KR8, mq_evo_1KVL, mq_evo_1KR3, bw_exact, bw_axfa6, booth_exact,
-booth_axfa5, booth_trunc5, booth_akc, dralm_t4, dralm_t5, dralm_t6, dralm_t6e, cdm_51, cdm_73, cdm_95, cdm_51b); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
+booth_axfa5, booth_trunc5, booth_akc, dralm_t4, dralm_t5, dralm_t6, dralm_t6e, cdm_51, cdm_73, cdm_95, cdm_51b, ham_a,
+ham_c, ham_ae); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
 mq:ilm 9.626, evo_1KV8 8.759, evo_1KR8 8.691, evo_1KVL 8.614, evo_1KR3 8.501, bw_exact 8.675,
 bw_axfa6 8.662, booth_exact 8.699, booth_axfa5 8.684, booth_trunc5 8.665, booth_akc 8.588, dralm_t4 8.658, dralm_t5 8.692,
-dralm_t6 8.718, dralm_t6e 8.938, cdm_51 8.846, cdm_73 8.815, cdm_95 8.786, cdm_51b 8.661 mW).
-Formality SUCCEEDED for all twenty-one
+dralm_t6 8.718, dralm_t6e 8.938, cdm_51 8.846, cdm_73 8.815, cdm_95 8.786, cdm_51b 8.661, ham_a 9.669,
+ham_c 9.614, ham_ae 9.694 mW).
+Formality SUCCEEDED for all twenty-four
 (`results/fm_*_ss_p2.4.txt`). GLS: zero-delay and SDF-timed pixels of seed_0 match each
 variant's own integer emulation (`sim/gls/check_pix.py`); exact, evo_1KV8, bw_exact and
 booth_exact also match the golden pixels. The four bw_* / booth_* variants run the whole
-hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc, the dralm_* and the cdm_*). Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
+hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc, the dralm_*, the cdm_* and the ham_*). Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
 `mul8_a_to_p_delay`), netlists `syn_<v>_ss_p1.8.txt`, FM `fm_<v>_ss_p1.8.txt` (all SUCCEEDED).
 
-- All twenty-one meet ss setup at 400 MHz, and all but bw_axfa6, cdm_51 and cdm_73 meet ff hold.
-  These miss ff hold by 4.4 / 6.1 / 5.3 ps on 7-8 endpoints, all `u_seq/u_rq/q_reg_*` ->
+- All twenty-four meet ss setup at 400 MHz, and all but bw_axfa6, cdm_51, cdm_73 and ham_c meet ff
+  hold. These miss ff hold by 4.4 / 6.1 / 5.3 / 0.7 ps on 1-8 endpoints, all `u_seq/u_rq/q_reg_*` ->
   `u_seq/rq_res_reg_*`: the direct Q -> D residue of section 2, outside the multiplier, left to
   the P&R hold fix like there.
 - **Structured multipliers (bw_*, booth_*).** Written as gate-level Dadda trees, they are
@@ -184,7 +192,8 @@ hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc, 
   so the images are unusable (FID 183, 6.3 dB). Fixed-zero product bits also shrink the
   accumulators (PE array -4,100 um^2 for booth_trunc5, -6,000 for booth_akc vs booth_exact).
 - **500 MHz:** `mq:ilm` (-0.345 ns, 406 endpoints), `mq:evo_1KV8` (-0.065 ns, 183 endpoints),
-  `mq:evo_1KR8` (-0.005 ns, 15 endpoints) and `dralm_t6e` (-0.005 ns, 16 endpoints) miss ss
+  `mq:evo_1KR8` (-0.005 ns, 15 endpoints), `dralm_t6e` (-0.005 ns, 16 endpoints) and the three
+  ham_* (-0.47..-0.48 ns, about 450 endpoints) miss ss
   setup at 2.0 ns on their 1.8 ns-target netlists; all other variants meet it. The minimum period follows the
   multiplier delay once the multiplier is slower than about 1.0 ns. Below that the chip is
   limited by other paths: for exact and evo_1KR3 the worst flop path is the RF write enable
@@ -237,6 +246,23 @@ hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc, 
   the unsigned core), and not because of timing (cdm_73 at 4.0 ns: +33.7 % mul8 area vs exact,
   `results/syn_{exact,cdm_73}_ss_p4.txt`). At 8 bits the paper's savings do not survive an
   unbiased signed extension.
+- **Hybrid log / PWL multipliers (ham_*).** The paper's 8-bit HAM-A / HAM-C beat exact on no
+  hardware metric: mul8 area +292 / +271 %, mul8 power +569 / +525 %, chip power and energy
+  +15.5 / +14.7 %, minimum period 2.470 / 2.481 ns and mul8 delay 1.68 / 1.69 ns (+79 / +80 %),
+  in the range of `mq:ilm`. Sign handling is not the cause: PACC is a 4-bit incrementer per
+  operand and SC an inverter row plus a carry-in; exact magnitudes (ham_ae) add only +3,600 um^2.
+  The cause is the datapath. LOD, normalising shift, the PWL fit (X1..X4, zone decode, a
+  three-term adder), the one's-complement MTS and the output shift are all in series with the
+  RF read and the accumulation in one cycle, so DC upsizes everything for 400 MHz: at a relaxed
+  4.0 ns the HAM-A / HAM-C multipliers are 13,409 / 12,690 um^2, still +68 / +59 % over exact's
+  7,984 (`results/syn_{exact,ham_a,ham_c}_ss_p4.txt`), and 2.9x smaller than at 2.4 ns. The
+  paper's own 8-bit numbers point the same way: HAM-A/B/C are 1.7-2.2x the area of DR-ALM-4/5
+  (Table V, no exact 8-bit multiplier printed), and the DR-ALMs save only 25-42 % on exact here;
+  its 16-bit savings (-49 % area vs a radix-4 exact multiplier) come from the quadratic growth of
+  the exact array, which 8 bits do not have. Quality: the paper's PACC loses 16 on every negative
+  operand ending in 0000 (-16 becomes 0), a +31.75 bias at b >= 0, FID 84.7 / 84.8 and 21.7 dB;
+  with exact magnitudes the same core gives FID 78.9 at 38.2 dB, the most faithful images of any
+  approximate variant.
 
 ### 5.1 All variants at a glance
 
@@ -270,13 +296,45 @@ than exact on every hardware metric at 8 bits.
 | cdm_73 | 82.51 | 3.82 | 69.97 | 0.636 | 0.007 | 87.5 % | 179,000.3 | 13,105.1 | 8.950 / 0.255 | 52.51 | 1.815 | 1.054 | +2.4 / +32.5 / +1.5 / +33.4 / +1.5 / -0.1 / +12.5 |
 | cdm_95 | 83.92 | 3.76 | 71.71 | 0.621 | 0.004 | 80.1 % | 177,823.1 | 12,285.4 | 8.911 / 0.239 | 52.28 | 1.815 | 1.016 | +1.7 / +24.2 / +1.1 / +24.7 / +1.1 / -0.1 / +8.5 |
 | cdm_51b (ablation) | 102.20 | 3.68 | 93.63 | 0.647 | 0.005 | 87.9 % | 174,445.9 | 9,469.4 | 8.783 / 0.131 | 51.53 | 1.813 | 0.998 | -0.2 / -4.3 / -0.4 / -31.8 / -0.4 / -0.2 / +6.5 |
+| ham_a | 84.67 | 3.95 | 70.36 | 0.618 | 0.004 | 84.8 % | 210,841.9 | 38,716.6 | 10.184 / 1.281 | 59.75 | 2.470 | 1.678 | +20.6 / +291.5 / +15.5 / +568.7 / +15.5 / +35.9 / +79.1 |
+| ham_c | 84.79 | 3.94 | 70.36 | 0.612 | 0.005 | 84.8 % | 209,419.6 | 36,639.4 | 10.115 / 1.197 | 59.34 | 2.481 | 1.690 | +19.8 / +270.5 / +14.7 / +524.8 / +14.7 / +36.5 / +80.4 |
+| ham_ae (ablation) | 78.90 | 3.91 | 64.90 | 0.648 | 0.007 | 97.3 % | 214,425.7 | 42,338.5 | 10.122 / 1.227 | 59.38 | 2.475 | 1.682 | +22.6 / +328.1 / +14.8 / +540.7 / +14.8 / +36.2 / +79.5 |
 
 Paper sources: `docs/papers/venkatachalam_ko_2017.md` (bw_*, booth_axfa5),
 `docs/papers/aizaz_khare_2022.md` (booth_trunc5, booth_akc), `docs/papers/yin_2021_dralm.md`
 (dralm_*), `docs/papers/amirafshar_2023_cdm.md` (cdm_*; the sign-magnitude cdm_51 / 73 / 95 beat
-exact on no hardware metric, see s.5). Best trade-offs so far: booth_axfa5 (FID 78.3, -0.3 % energy), dralm_t4 (FID 79.6,
+exact on no hardware metric, see s.5), `docs/papers/shi_2025_ham.md` (ham_*; none beats exact on
+any hardware metric, see s.5). Best trade-offs so far: booth_axfa5 (FID 78.3, -0.3 % energy), dralm_t4 (FID 79.6,
 -0.7 % energy, -42 % mul8 area) and booth_akc (largest energy saving with recognisable images,
 -1.6 %, at FID 133.6).
+
+### 5.2 Per-paper verdict
+
+The rule for a student variant: at least one hardware metric (area, power, energy or delay)
+better than DC's exact `a * b` at 400 MHz.
+
+- **Venkatachalam & Ko 2017 (approximate HA / FA / 4:2).** Best trade-off: booth_axfa5 (FID
+  78.3, chip energy and power -0.3 %, mul8 power -22.6 %, minimum period -0.2 %). Both bw_axfa6
+  and booth_axfa5 pass the rule, through the structured Dadda tree's lower power rather than the
+  approximate cells (their exact twins pass too); neither is smaller or faster than exact.
+- **Aizaz & Khare 2022 (truncated Booth, TACBM).** Both pass on area, power and energy;
+  booth_akc is the best trade-off (-22.9 % mul8 area, -50.8 % mul8 power, -1.6 % energy) but at
+  FID 133.6 from its -43 bias per product; booth_trunc5 passes too but its constant compensation
+  ruins the zero products (FID 183).
+- **Yin et al. 2021 (DR-ALM).** The best trade-off of all five papers: dralm_t4 (FID 79.6,
+  -42.3 % mul8 area, -42.0 % mul8 power, -0.7 % energy) and dralm_t5 (FID 77.1, -35 / -26 %);
+  dralm_t6 also passes. Only the ablation dralm_t6e fails: exact two's-complement sign units in
+  series with the log datapath (+58 % mul8 area, DC upsizing for 400 MHz).
+- **Amirafshar et al. 2023 (carry-disregard).** The unbiased sign-magnitude cdm_51 / 73 / 95 fail
+  (+24..+50 % mul8 area): the one's-complement magnitudes, correction rows and sign XORs cost
+  more than the disregarded carries save, not a timing effect (cdm_73 +33.7 % at 4.0 ns). Only the
+  two's-complement ablation cdm_51b passes (-4.3 % mul8 area, -0.4 % energy), at FID 102 from
+  its one-sided error. Best usable trade-off: none; cdm_51b if FID ~100 is acceptable.
+- **Shi et al. 2025 (HAM).** All three fail: ham_a, ham_c and ham_ae cost +271..+328 % mul8 area,
+  +15 % energy and +79 % mul8 delay. Sign handling is cheap here; the serial LOD -> PWL fit ->
+  shift datapath is +59..+68 % over exact even at 4.0 ns and is upsized 2.9x for 400 MHz. The
+  8-bit version of a design whose savings come from 16-bit scaling. ham_ae is the most accurate
+  approximate multiplier tested (38.2 dB, FID 78.9), at a cost no student would pay.
 
 ## 6. How a student adds and evaluates a multiplier
 

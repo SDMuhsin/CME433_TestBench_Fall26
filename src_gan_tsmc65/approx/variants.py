@@ -19,11 +19,15 @@ diagram with exact cells, so the pair isolates the effect of the approximation.
                 columns 2..x of the A x B_L array and 2..y of the A x B_H array disregarded),
                 sign-magnitude extension folded into the bit matrix (cdm.py), exact Dadda tree
   cdm_51b       ablation: CDM8_51 on the plain Baugh-Wooley array (no sign handling, cdm.py)
-The dralm_* entries are behavioural models (dralm.Dralm), not dot diagrams.
+  ham_a, ham_c  Shi et al. 2025 hybrid log / piecewise-linear multipliers HAM-A and HAM-C (8-bit
+                H7C0), the paper's sign scheme: partial complement (PACC) of the operands, sign
+                compensation (SC) of the result
+  ham_ae        ablation: HAM-A with exact two's-complement operand magnitudes (not in the paper)
+The dralm_* and ham_* entries are behavioural models (dralm.Dralm, ham.Ham), not dot diagrams.
 """
 from functools import partial
 
-from . import booth, cdm, dralm, pp, tacbm
+from . import booth, cdm, dralm, ham, pp, tacbm
 from .cells import EXACT, VK_HA_FA
 from .mult import build
 from .netlist import Net
@@ -57,3 +61,7 @@ VARIANTS['dralm_t6e'] = partial(dralm.Dralm, N, 6, 'exact')
 for _x, _y in ((5, 1), (7, 3), (9, 5)):
     VARIANTS[f'cdm_{_x:x}{_y:x}'] = partial(cdm.cdm, _x, _y)
 VARIANTS['cdm_51b'] = partial(cdm.cdm, 5, 1, 'bw')
+
+VARIANTS['ham_a'] = lambda: ham.HAM8['A']
+VARIANTS['ham_c'] = lambda: ham.HAM8['C']
+VARIANTS['ham_ae'] = lambda: ham.HAM8['A'].with_(me='exact')
