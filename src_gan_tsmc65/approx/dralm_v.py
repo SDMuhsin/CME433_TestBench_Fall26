@@ -1,32 +1,49 @@
-"""Verilog of a signed 8 x 8 DR-ALM gan_mul8 (Yin et al., IEEE TSUSC 2021), bit-exact with
-dralm.signed(a, b, 8, t, sign). Behavioural datapath, as in the paper (Fig. 2-3): sign
-detector, leading-one detector + dynamic truncation (logarithmic converter), (k+t-2)-bit
+"""Verilog of an n x n DR-ALM (Yin et al., IEEE TSUSC 2021): the signed gan_mul8 (n = 8),
+bit-exact with dralm.signed(a, b, n, t, sign), or with sign='none' the unsigned core,
+bit-exact with dralm.unsigned(a, b, n, t). Behavioural datapath, as in the paper (Fig. 2-3):
+sign detector, leading-one detector + dynamic truncation (logarithmic converter), (k+t-2)-bit
 adder with carry-in 1 and the result LSB fixed to 1 (compensation), antilogarithmic
 converter + shifter, sign set, zero flag.
 """
 
 
-def verilog(t, sign, header, module='gan_mul8'):
+def _sign_units(sign, n):
+    """(magnitude lines, output lines) of the sign detector / sign set; w = 2n output bits."""
+    w, h = 2 * n, n - 1
+    if sign == 'none':
+        return (['    // unsigned operands: no sign units',
+                 f'    wire [{h}:0] ma = a;',
+                 f'    wire [{h}:0] mb = b;'],
+                [f"    assign p = zero ? {w}'d0 : m;"])
+    if sign == 'paper':
+        return ([f'    // sign detector: |x| ~ ~x | 1 for x < 0 (one\'s complement, LSB OR-ed with 1)',
+                 f"    wire [{h - 1}:0] ma = (a[{h - 1}:0] ^ {{{h}{{a[{h}]}}}}) | {{{h - 1}'d0, a[{h}]}};",
+                 f"    wire [{h - 1}:0] mb = (b[{h - 1}:0] ^ {{{h}{{b[{h}]}}}}) | {{{h - 1}'d0, b[{h}]}};"],
+                ['    // sign set: -P ~ ~P | 1',
+                 f"    wire [{w - 1}:0] pm = {{2'b00, m}};",
+                 f"    assign p = zero ? {w}'sd0 : (neg ? $signed(~pm | {w}'d1) : $signed(pm));"])
+    return ([f"    // sign detector: exact two's-complement magnitude (|-{1 << h}| = {1 << h} fits {n} bits)",
+             f'    wire [{h}:0] ma = a[{h}] ? -a : a;',
+             f'    wire [{h}:0] mb = b[{h}] ? -b : b;'],
+            ['    // sign set: exact negation',
+             f"    assign p = zero ? {w}'sd0 : (neg ? -$signed(m) : $signed(m));"])
+
+
+def verilog(t, sign, header, module='gan_mul8', n_op=8):
+    """sign: 'paper' | 'exact' (signed) or 'none' (unsigned core); n_op = operand bits."""
     paper = sign == 'paper'
-    n = 7 if paper else 8                      # magnitude (core operand) width
-    kw = 3                                     # leading-one position 0..n-1
+    n = n_op - 1 if paper else n_op           # magnitude (core operand) width
+    kw = (n - 1).bit_length()                  # leading-one position 0..n-1
     f = t - 1                                  # mantissa bits incl. the forced 1
     ew = kw + 1                                # exponent of the sum, 0..2n-1
     pw = 2 * n                                 # magnitude product width
-    pre = f'dralm_t{t}{"" if paper else "e"}'
-    if paper:
-        mag = ['    // sign detector: |x| ~ ~x | 1 for x < 0 (one\'s complement, LSB OR-ed with 1)',
-               '    wire [6:0] ma = (a[6:0] ^ {7{a[7]}}) | {6\'d0, a[7]};',
-               '    wire [6:0] mb = (b[6:0] ^ {7{b[7]}}) | {6\'d0, b[7]};']
-        out = ['    // sign set: -P ~ ~P | 1',
-               '    wire [15:0] pm = {2\'b00, m};',
-               '    assign p = zero ? 16\'sd0 : (neg ? $signed(~pm | 16\'d1) : $signed(pm));']
-    else:
-        mag = ['    // sign detector: exact two\'s-complement magnitude (|-128| = 128 fits 8 bits)',
-               '    wire [7:0] ma = a[7] ? -a : a;',
-               '    wire [7:0] mb = b[7] ? -b : b;']
-        out = ['    // sign set: exact negation',
-               '    assign p = zero ? 16\'sd0 : (neg ? -$signed(m) : $signed(m));']
+    w = 2 * n_op                               # output width
+    pre = f'dralm_t{t}{"" if paper else "e" if sign == "exact" else "u"}'
+    if n_op != 8:
+        pre += f'_{n_op}'
+    mag, out = _sign_units(sign, n_op)
+    s = '' if sign == 'none' else 'signed '
+    hs = n_op - 1
     frac = (f'xs[{n - 2}:{n - t + 1}], 1\'b1' if t - 2 > 0 else "1'b1")
     lines = ['`timescale 1ns / 1ps', ''] + [f'// {h}' if h else '//' for h in header] + [
         '',
@@ -60,9 +77,9 @@ def verilog(t, sign, header, module='gan_mul8'):
         'endmodule',
         '',
         f'module {module} (',
-        '    input  wire signed [7:0]  a,',
-        '    input  wire signed [7:0]  b,',
-        '    output wire signed [15:0] p',
+        f'    input  wire {s}[{hs}:0]  a,',
+        f'    input  wire {s}[{hs}:0]  b,',
+        f'    output wire {s}[{w - 1}:0] p',
         ');'] + mag + [
         f'    wire [{kw + f - 1}:0] la, lb;',
         f'    {pre}_log u_la (.x(ma), .l(la));',
@@ -73,6 +90,6 @@ def verilog(t, sign, header, module='gan_mul8'):
         f'    wire [{ew + f - 1}:0] l = {{hi, 1\'b1}};',
         f'    wire [{pw - 1}:0] m;',
         f'    {pre}_antilog u_al (.l(l), .p(m));',
-        '    wire zero = ~|a | ~|b;',
-        '    wire neg = a[7] ^ b[7];'] + out + ['endmodule', '']
+        '    wire zero = ~|a | ~|b;'] + (
+        [] if sign == 'none' else [f'    wire neg = a[{hs}] ^ b[{hs}];']) + out + ['endmodule', '']
     return '\n'.join(lines)

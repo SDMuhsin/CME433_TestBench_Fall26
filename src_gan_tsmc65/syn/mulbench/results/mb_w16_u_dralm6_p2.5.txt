@@ -1,0 +1,13 @@
+mul_bench 65 nm DC summary
+width 16  design u_dralm6  period_ns 2.5  corner ss  mode topographical
+area_total_um2 1102.0  cells 364
+area_mul_um2 664.2  cells 300
+area_regs_um2 437.8
+setup  WNS   0.0016 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: a_q_reg_2_/CP -> p_reg_28_/D (arrival 2.224 ns)
+hold   WNS   0.1252 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: b_q_reg_14_/CP -> p_reg_15_/D (arrival 0.193 ns)
+setup_to_flops WNS   0.0016 ns  worst path: a_q_reg_2_/CP -> p_reg_28_/D (arrival 2.224 ns)
+mul_path slack 0.0016 ns  arrival 2.2236 ns  a_q_reg_2_/CP -> p_reg_28_/D
+mul_a_to_p_delay_ns 2.0311
+min_period_ns 2.4984  (period - slack of the path through u_mul)

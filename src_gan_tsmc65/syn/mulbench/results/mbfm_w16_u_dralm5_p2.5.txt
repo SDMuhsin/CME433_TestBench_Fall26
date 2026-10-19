@@ -1,0 +1,7 @@
+mul_bench Formality w16_u_dralm5_p2.5  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+   96 Passing compare points
+  Passing (equivalent)           0       0       0       0      32      64       0      96
+  Failing (not equivalent)       0       0       0       0       0       0       0       0

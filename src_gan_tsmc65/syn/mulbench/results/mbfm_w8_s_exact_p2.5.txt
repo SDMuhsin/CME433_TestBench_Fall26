@@ -1,0 +1,7 @@
+mul_bench Formality w8_s_exact_p2.5  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+   48 Passing compare points
+  Passing (equivalent)           0       0       0       0      16      32       0      48
+  Failing (not equivalent)       0       0       0       0       0       0       0       0

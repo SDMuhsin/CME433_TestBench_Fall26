@@ -77,14 +77,25 @@ def signed8(a, b, x, y):
     return np.where(sa ^ sb, -v, v)
 
 
-class Cdm16:
-    """CDM16_wxyz with the `products()` interface of mult.Multiplier (for exhaustive.py)."""
+def signed16(a, b, digits):
+    """Signed CDM16_wxyz, the sign-magnitude scheme of signed8 around unsigned16: 15-bit
+    one's-complement magnitudes, exact correction terms, exact sign application."""
+    a, b = np.asarray(a, np.int64), np.asarray(b, np.int64)
+    sa, sb = (a < 0).astype(np.int64), (b < 0).astype(np.int64)
+    am, bm = np.where(sa, ~a, a), np.where(sb, ~b, b)
+    v = unsigned16(am, bm, digits) + sa * bm + sb * am + sa * sb
+    return np.where(sa ^ sb, -v, v)
 
-    def __init__(self, digits):
-        self.digits, self.n, self.signed = digits, 16, False
+
+class Cdm16:
+    """CDM16_wxyz with the `products()` interface of mult.Multiplier (for exhaustive.py);
+    signed=True: the sign-magnitude extension (signed16)."""
+
+    def __init__(self, digits, signed=False):
+        self.digits, self.n, self.signed = digits, 16, signed
 
     def products(self, a, b):
-        return unsigned16(a, b, self.digits)
+        return (signed16 if self.signed else unsigned16)(a, b, self.digits)
 
 
 def matrix(net, a, b, x, y, bw=False):

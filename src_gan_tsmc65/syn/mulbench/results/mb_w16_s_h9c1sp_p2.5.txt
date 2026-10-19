@@ -1,0 +1,13 @@
+mul_bench 65 nm DC summary
+width 16  design s_h9c1sp  period_ns 2.5  corner ss  mode topographical
+area_total_um2 3582.7  cells 1235
+area_mul_um2 3136.0  cells 1170
+area_regs_um2 446.8
+setup  WNS   0.0001 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: b_q_reg_15_/CP -> p_reg_5_/D (arrival 2.268 ns)
+hold   WNS   0.1889 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: b_q_reg_12_/CP -> p_reg_16_/D (arrival 0.258 ns)
+setup_to_flops WNS   0.0001 ns  worst path: b_q_reg_15_/CP -> p_reg_5_/D (arrival 2.268 ns)
+mul_path slack 0.0001 ns  arrival 2.2679 ns  b_q_reg_15_/CP -> p_reg_5_/D
+mul_a_to_p_delay_ns 2.0894
+min_period_ns 2.4999  (period - slack of the path through u_mul)

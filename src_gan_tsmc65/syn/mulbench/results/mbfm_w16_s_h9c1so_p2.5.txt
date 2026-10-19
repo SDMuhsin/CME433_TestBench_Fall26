@@ -1,0 +1,7 @@
+mul_bench Formality w16_s_h9c1so_p2.5  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+   81 Passing compare points
+  Passing (equivalent)           0       0       0       0      32      49       0      81
+  Failing (not equivalent)       0       0       0       0       0       0       0       0
