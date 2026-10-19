@@ -1,0 +1,7 @@
+mul_bench Formality w16_tacbm_12_p2.5  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+   84 Passing compare points
+  Passing (equivalent)           0       0       0       0      32      52       0      84
+  Failing (not equivalent)       0       0       0       0       0       0       0       0

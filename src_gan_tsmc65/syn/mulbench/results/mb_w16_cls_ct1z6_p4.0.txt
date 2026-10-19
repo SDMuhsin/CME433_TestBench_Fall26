@@ -1,0 +1,13 @@
+mul_bench 65 nm DC summary
+width 16  design cls_ct1z6  period_ns 4.0  corner ss  mode topographical
+area_total_um2 2531.2  cells 881
+area_mul_um2 2126.5  cells 821
+area_regs_um2 404.6
+setup  WNS   0.0117 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: b_q_reg_4_/CP -> p_reg_31_/D (arrival 3.731 ns)
+hold   WNS   0.0498 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: b_q_reg_0_/CP -> p_reg_7_/D (arrival 0.115 ns)
+setup_to_flops WNS   0.0117 ns  worst path: b_q_reg_4_/CP -> p_reg_31_/D (arrival 3.731 ns)
+mul_path slack 0.0117 ns  arrival 3.7314 ns  b_q_reg_4_/CP -> p_reg_31_/D
+mul_a_to_p_delay_ns 3.5533
+min_period_ns 3.9883  (period - slack of the path through u_mul)

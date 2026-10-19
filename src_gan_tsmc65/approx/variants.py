@@ -29,11 +29,16 @@ diagram with exact cells, so the pair isolates the effect of the approximation.
   r256_6z       Zhu et al. 2022 approximate radix-256 Booth (zhu.py) scaled to 8 bits: Table III
                 digit on b[5:0] (multiples x 2^-2), one exact radix-4 row for b[7:6], exact 4:2
                 tree; zero-safe B_8M (b = 0 -> 0)
+  cls_ct1z      Wang et al. 2026 ABMCT1 (cls.py) at the paper's own 8-bit point: columns 0..3
+                truncated with the CLS-derived CTM2 word 2 + 4 (a0 + b0), CAE1 encoders and A4T2C_1
+                compressors (+ AND4 compensation) in columns 4..7, exact upper half; zero-safe CTM
+                (gated by OR(b), b = 0 -> 0)
+  cls_ct1z2     the same with an approximation band of 2 columns (4, 5); columns 6..7 exact
 The dralm_* and ham_* entries are behavioural models (dralm.Dralm, ham.Ham), not dot diagrams.
 """
 from functools import partial
 
-from . import booth, cdm, dralm, ham, park, pp, tacbm, zhu
+from . import booth, cdm, cls, dralm, ham, park, pp, tacbm, zhu
 from .cells import EXACT, VK_HA_FA
 from .mult import build
 from .netlist import Net
@@ -73,3 +78,5 @@ VARIANTS['ham_c'] = lambda: ham.HAM8['C']
 VARIANTS['ham_ae'] = lambda: ham.HAM8['A'].with_(me='exact')
 VARIANTS['park_5z'] = partial(park.park, N, 5, 5, True, True)
 VARIANTS['r256_6z'] = partial(zhu.zhu, N, 6, True)
+VARIANTS['cls_ct1z'] = partial(cls.paper, 'abmct1', N, 4, 4, True)
+VARIANTS['cls_ct1z2'] = partial(cls.paper, 'abmct1', N, 4, 2, True)

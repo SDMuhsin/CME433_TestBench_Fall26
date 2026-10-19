@@ -80,6 +80,17 @@ for _v in VARIANTS:
                          else "exact two's-complement operand magnitudes (not in the paper)."),
                      'A zero magnitude gives 0. Reference model: approx/ham.py.']
 
+ABOUT['cls_ct1z'] = [
+    'cls_ct1z: CLS-driven classified truncation approximate Booth multiplier ABMCT1 of Wang et al.',
+    '(IEEE TVLSI 34(9) 2026) at the paper\'s 8-bit point: columns 0..3 truncated and replaced by the',
+    'CTM2 word 2 + 4 (a0 + b0), approximate encoder CAE1 and approximate 4:2 compressors A4T2C_1',
+    '(+ the AND4 error compensation into column 8) in columns 4..7, exact radix-4 Booth and exact',
+    '4:2 compressors above. Not in the paper: CTM gated by OR(b), so an activation b = 0 gives 0.',
+    'Reference model: approx/cls.py.']
+ABOUT['cls_ct1z2'] = ['cls_ct1z2: cls_ct1z with the approximation band narrowed to columns 4..5 (CAE1 /',
+                      'A4T2C_1 there, AND4 compensation into column 6), columns 6..15 exact (not in the paper).',
+                      'CTM gated by OR(b), so an activation b = 0 gives 0. Reference model: approx/cls.py.']
+
 
 def cells_line(m):
     return 'Reduction cells: ' + ', '.join(f'{k} x{v}' for k, v in sorted(m.cell_count().items()))

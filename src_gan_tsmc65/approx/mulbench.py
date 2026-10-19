@@ -17,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import cdm, cdm16_v, dralm, dralm_v, ham, ham_v, park, zhu
+from . import cdm, cdm16_v, cls, dralm, dralm_v, ham, ham_v, park, tacbm, zhu
 from .emit import verilog as netlist_verilog
 
 HERE = Path(__file__).resolve().parent
@@ -91,6 +91,20 @@ B_ZHU = 'exact radix-4 Booth ACR4 (4:2 compressors), Table V'
 # no radix-4 rows) and also uses d = 6 (one radix-4 row, the 16-bit design's AR / radix-4 mix)
 ZHU = {16: {'8': (8, False), '8z': (8, True), '6z': (6, True), '10z': (10, True)},
        8: {'6': (6, False), '6z': (6, True), '8': (8, False), '8z': (8, True)}}
+
+# Wang 2026 Table VII (90 nm, 8-bit): (area um^2, power uW, delay ns)
+WANG_T7 = {'exact': (1320.4, 103.5, 2.59), 'abmct1': (982.2, 81.9, 0.65),
+           'abmct2': (860.1, 72.9, 0.64), 'abmft1': (820.5, 69.5, 0.64)}
+B_WANG = 'exact multiplier, Table VII'
+# bench name suffix -> (paper design, t, w, zero_fix); the paper's 8-bit t = w = 4 scales to
+# t = w = 8 at N = 16 (t + w = N: the band ends where the exact upper half starts); w = 6 / 2
+# are less aggressive bands (accuracy comparable to park_14z at 16 bits)
+WANG = {16: {'ct1': ('abmct1', 8, 8, False), 'ct2': ('abmct2', 8, 8, False),
+             'ft1': ('abmft1', 8, 8, False), 'ct1z': ('abmct1', 8, 8, True),
+             'ft1z': ('abmft1', 8, 8, True), 'ct1z6': ('abmct1', 8, 6, True)},
+        8: {'ct1': ('abmct1', 4, 4, False), 'ct2': ('abmct2', 4, 4, False),
+            'ft1': ('abmft1', 4, 4, False), 'ct1z': ('abmct1', 4, 4, True),
+            'ft1z': ('abmft1', 4, 4, True), 'ct1z2': ('abmct1', 4, 2, True)}}
 
 
 def _netlist(m, signed):
@@ -179,6 +193,22 @@ def _zhu(n):
     return out
 
 
+def _wang(n):
+    out = []
+    for k, (name, t, w, zf) in WANG[n].items():
+        what = (f'{name.upper()}, t = {t} truncated columns, approximation band of {w} columns'
+                + (', zero-safe CTM / encoder (not in the paper)' if zf else ''))
+        m = cls.paper(name, n, t, w, zf)
+        ref = n == 8 and not zf and (t, w) == (4, 4)
+        out.append(Design(f'cls_{k}', True, f'CLS truncated approximate Booth (Wang 2026), {what}',
+                          m, _netlist(m, True), ref and _pct(WANG_T7[name], WANG_T7['exact']),
+                          B_WANG if ref else ''))
+    if n == 16:
+        m = tacbm.tacbm(16, 12)
+        out.append(Design('tacbm_12', True, 'truncated Booth with carry-based compensation '
+                          '(Aizaz & Khare 2022), w = 12, all terms', m, _netlist(m, True)))
+    return out
+
 def designs(n):
     """name -> Design for operand width n (8 or 16)."""
     assert n in (8, 16)
@@ -191,7 +221,7 @@ def designs(n):
     d.append(Design('s_exact', True, 'exact signed a * b (DesignWare)', Exact(n, True),
                     lambda h: exact_v(n, True, h)))
     d += _ham(n) + [x for x in _cdm(n) if x.signed] + [x for x in _dralm(n) if x.signed]
-    d += _park(n) + _zhu(n)
+    d += _park(n) + _zhu(n) + _wang(n)
     return {x.name: x for x in d}
 
 

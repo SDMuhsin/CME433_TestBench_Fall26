@@ -168,6 +168,10 @@ activity), so the standalone bench reproduces the in-chip relations. The standal
 (497 um^2) is 20 % smaller than the in-chip instance (618 um^2), where the RF read leaves less
 of the cycle for the multiplier.
 
+**Post-2020 signed Booth round** (Park 2023, Zhu 2022, Wang 2026, plus Aizaz & Khare 2022 at
+16 bits): consolidated 16-bit table with all signed rows above and the recommendation for the
+16-bit chip in `booth16_round.md` (best Booth design: `park_14z`).
+
 ## 8. Reproduce
 
 ```
