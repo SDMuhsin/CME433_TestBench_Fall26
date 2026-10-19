@@ -9,15 +9,17 @@
 // Equivalence with the latch RF: bench/check_mem.sh (unit, random) and
 // bench/run_bench.sh --latch-rf (full chip).  Not for synthesis.
 // ============================================================================
-module dla_sram_1rw_256x8 (
-    input  wire       clk,
-    input  wire       we,
-    input  wire [7:0] addr,
-    input  wire [7:0] wdata,
-    output wire [7:0] rdata
+module dla_sram_1rw_256x8 #(
+    parameter integer W = 8
+) (
+    input  wire         clk,
+    input  wire         we,
+    input  wire [7:0]   addr,
+    input  wire [W-1:0] wdata,
+    output wire [W-1:0] rdata
 );
-    reg [7:0] mem [0:255];
-    reg [7:0] q_r;
+    reg [W-1:0] mem [0:255];
+    reg [W-1:0] q_r;
     always @(posedge clk) begin
         if (we) mem[addr] <= wdata;
         q_r <= mem[addr];

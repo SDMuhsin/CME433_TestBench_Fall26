@@ -6,13 +6,19 @@ internally with TF1-compatible bilinear interpolation (Inception-v3 to 299x299, 
   IS       : Inception-v3 logits, 10 splits
   P / R    : precision / recall of Kynkaenniemi et al. 2019, VGG-16 fc2 features, k = 3, against
              a fixed random train subset of the same size as the generated set (equal N, as in the paper)
-The train-set features are cached under build/gan65/fidelity_cache.
+The train-set features are cached under build/gan65/fidelity_cache. GAN65_FID_BATCH (default 500)
+sets the extractor batch size, for a shared GPU; the features are per image, so it does not
+change the metrics.
 """
+import os
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
 from ...common.paths import BUILD
+
+BATCH = int(os.environ.get('GAN65_FID_BATCH', 500))
 
 
 class Grey3(Dataset):
@@ -30,7 +36,7 @@ def _calc(gen_u8, ref_u8, cache, device, **metrics):
     import torch_fidelity
     torch.cuda.set_device(torch.device(device))
     return torch_fidelity.calculate_metrics(
-        input1=Grey3(gen_u8), input2=Grey3(ref_u8), cuda=True, batch_size=500, verbose=False,
+        input1=Grey3(gen_u8), input2=Grey3(ref_u8), cuda=True, batch_size=BATCH, verbose=False,
         input2_cache_name=cache, cache_root=str(BUILD / 'fidelity_cache'), **metrics)
 
 

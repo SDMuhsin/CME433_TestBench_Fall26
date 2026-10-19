@@ -1,0 +1,49 @@
+gan65_chip 65 nm DC summary
+period_ns 2.4  mode topographical  corner ss  multiplier exact
+total_cell_area_um2 175016.2
+nand2_area_um2 1.440
+gate_equivalents 121539
+leaf_cells 48901
+breakdown (cells, area um2):
+  comb           28617      65515.0   37.4 %
+  flops           1729      12857.8    7.3 %
+  latches        16384      82575.4   47.2 %
+  icg             2171      14068.1    8.0 %
+  rf_total       37585     138343.7   79.0 %
+  rf_latches     16384      82575.4   47.2 %
+  rf_icg          2056      13322.9    7.6 %
+  rf_flops         128        931.0    0.5 %
+  rf_comb        19017      41514.5   23.7 %
+hierarchy (leaf-cell area um2, cells):
+  host       u_host                         1410.5      330
+  csr        u_csr                          2338.9      508
+  seq        u_seq                          8397.4     2774
+  requant    u_seq/u_rq                     4277.9     1759
+  tanh_rom   u_seq/u_rq/u_rom                991.1      523
+  dla        u_dla                        162665.6    45207
+  controller u_dla/u_controller              175.0       48
+  a_buffer   u_dla/u_a_buffer              69409.1    18833
+  b_buffer   u_dla/u_b_buffer              69361.2    18848
+  pe_array   u_dla/u_pe_array              18990.4     6358
+  c_buffer   u_dla/u_c_buffer               3685.0      759
+  top_glue   (top)                           203.8       82
+area_split (cells, area um2, % of total):
+  pe_array           6358      18990.4   10.9 %
+  mul8_all           2781       9907.9    5.7 %
+  pe_other           3577       9082.4    5.2 %
+  latch_rf          37585     138343.7   79.0 %
+  rest               4958      17682.1   10.1 %
+pe_instances 16  mul8_instances 16  mul8_area_per_instance_um2 619.2  pe_area_per_instance_um2 1186.9
+dc_area Combinational      65514.960496
+dc_area Buf/Inv            6819.480264
+dc_area Noncombinational   109501.199548
+dc_area Macro/Black Box    0.000000
+dc_area Total cell         175016.160044
+dc_power internal 6.0025 mW  switching 5.0941e-02 mW  leakage 9.9576e+05 nW  total 7.0492 mW  (default activity)
+setup  WNS   0.0000 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_2__u_sram/u_rf/wd_r_reg_4_/CP -> u_dla/u_b_buffer/GEN_SRAM_GEN_B_COLS_2__u_sram/u_rf/GEN_W_216__lat_reg_4_/D (arrival 0.581 ns)
+hold   WNS   0.0007 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: u_host/sclk_sync_reg_0_/CP -> u_host/sclk_sync_reg_1_/D (arrival 0.075 ns)
+setup_to_flops WNS   0.0003 ns  worst path: u_seq/u_rq/state_reg_0_/CP -> u_seq/u_rq/tb_reg_41_/D (arrival 2.173 ns)
+setup_through_mul8 WNS   0.0008 ns  worst path: u_dla/u_a_buffer/GEN_SRAM_GEN_A_ROWS_3__u_sram/u_rf/q_r_reg_6_/CP -> u_dla/u_pe_array/GEN_PE_ROWS_3__GEN_PE_COLS_0__u_pe/acc_out_reg_19_/D (arrival 2.133 ns)
+mul8_a_to_p_delay max   1.3610 ns  path inside: u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_0__u_pe/u_mul/U123/I -> u_dla/u_pe_array/GEN_PE_ROWS_2__GEN_PE_COLS_0__u_pe/u_mul/U90/ZN

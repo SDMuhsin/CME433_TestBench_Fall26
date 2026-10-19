@@ -4,23 +4,25 @@
 // e2e_seq -- layer/tile sequencer of dla_e2e_chip (G300 generator,
 // 64 -> 256 -> 256 -> 784, ReLU/ReLU/Tanh, N=4 output neurons per DLA run).
 //
-// Stream layout (bytes, after START):
+// Stream layout (elements of DATA_W = 8*NB bits, NB bytes each, little endian;
+// after START):
 //   zq[0..63]
-//   L0: 64 tiles  x { b[4t..4t+3], W0 rows 4t..4t+3 (64 B each)  }
+//   L0: 64 tiles  x { b[4t..4t+3], W0 rows 4t..4t+3 (64 elements each)  }
 //   L2: 64 tiles  x { 4 b, 4 x 256 W }
-//   L4: 196 tiles x { 4 b, 4 x 256 W }                 total 283,984 B
+//   L4: 196 tiles x { 4 b, 4 x 256 W }         total 283,984 elements = 283,984 x NB B
 //
 // Buffer plan (dla_engine_top B bank, 4 columns x 256):
 //   L0 : input col0 (zq, k 0..63)  -> h0 into col1
 //   L2 : input col1 (h0)           -> h2 into col0 (zq dead)
 //   L4 : input col0 (h2)           -> pixel p<768 into col(1+p/256)[p%256],
 //                                     p>=768 into the 16-byte FF tail stash
+//                                     (pixels are 8-bit at every DATA_W)
 //
 // Per tile: the stream decoder pops the 4-byte skid FIFO, writes the 4 biases
 // into a double buffer and the 4 weight rows into A (only while the DLA is
 // idle), then -- once the previous tile's requant has finished -- pulses
 // `dla_start` with k_last = in_dim-1.  On the DLA's wb_done the requant FSM
-// reads C[r][col_in] for r = 0..3, runs e2e_requant and writes the int8
+// reads C[r][col_in] for r = 0..3, runs e2e_requant and writes the DATA_W-bit
 // result into B / the stash.  Requant B-writes have priority over stream
 // A-writes on the shared write port; both only happen while the DLA is idle.
 //
@@ -31,7 +33,12 @@
 //
 // Raw debug access (dbg_*) is honoured only while no image is in flight.
 // ============================================================================
-module e2e_seq (
+module e2e_seq #(
+    parameter integer DATA_W = 8,
+    parameter integer ACC_W  = 24,
+    parameter integer REQ_S  = 16,
+    parameter integer BC_W   = $clog2(283984 * (DATA_W / 8) + 1)   // stream byte counter
+) (
     input  wire        clk,
     input  wire        rst_n,
     input  wire        soft_rst,       // CTRL[0], level: holds the sequencer idle
@@ -49,7 +56,7 @@ module e2e_seq (
     input  wire        dbg_wr_en,
     input  wire        dbg_wr_sel,
     input  wire [9:0]  dbg_wr_addr,
-    input  wire [7:0]  dbg_wr_data,
+    input  wire [DATA_W-1:0] dbg_wr_data,
     input  wire        dbg_start,
     input  wire [7:0]  dbg_k_last,
     input  wire        dbg_rd_en,
@@ -61,10 +68,10 @@ module e2e_seq (
     output reg         dla_wr_en,
     output reg         dla_wr_sel,
     output reg  [9:0]  dla_wr_addr,
-    output reg  [7:0]  dla_wr_data,
+    output reg  [DATA_W-1:0] dla_wr_data,
     output wire        dla_rd_en,
     output wire [3:0]  dla_rd_addr,
-    input  wire [23:0] dla_rd_data,
+    input  wire [ACC_W-1:0]  dla_rd_data,
     input  wire        dla_wb_done,
     output reg         dla_active,     // a DLA run (compute + C writeback) is in flight
 
@@ -80,9 +87,10 @@ module e2e_seq (
     output reg         err_ovf,
     output reg  [1:0]  layer,
     output reg  [7:0]  tile,
-    output reg  [18:0] byte_cnt
+    output reg  [BC_W-1:0] byte_cnt
 );
-    localparam [18:0] TOTAL_BYTES = 19'd283984;
+    localparam integer NB = DATA_W / 8;                 // bytes per stream element
+    localparam [BC_W-1:0] TOTAL_BYTES = 283984 * NB;
 
     // ---------------------------------------------------------------- FIFO
     reg [7:0] fifo [0:3];
@@ -100,7 +108,7 @@ module e2e_seq (
     reg [1:0] drow;
     reg [7:0] dk;
     reg       wpar;                    // bias buffer being filled
-    reg [7:0] bias_buf [0:7];          // {par, row}
+    reg [DATA_W-1:0] bias_buf [0:7];   // {par, row}
 
     wire [7:0] k_last_cur = (layer == 2'd0) ? 8'd63 : 8'd255;
     wire [7:0] tile_last  = (layer == 2'd2) ? 8'd195 : 8'd63;
@@ -113,7 +121,7 @@ module e2e_seq (
     reg [1:0] rq_layer;
     reg [7:0] rq_tile;
     reg       rq_par;
-    reg [7:0] rq_res;
+    reg [DATA_W-1:0] rq_res;
     reg [7:0] stash [0:15];
 
     wire       rq_busy_tile = (rstate != R_IDLE);
@@ -139,10 +147,14 @@ module e2e_seq (
     wire       u_valid;
     wire       u_busy;     // unused: the requant FSM tracks the unit through u_valid
     wire       _unused = u_busy;
-    wire [7:0] u_q;
+    wire [DATA_W-1:0] u_q;
     wire       seq_clr = start_cmd | soft_rst;
 
-    e2e_requant u_rq (
+    e2e_requant #(
+        .DATA_W (DATA_W),
+        .ACC_W  (ACC_W),
+        .REQ_S  (REQ_S)
+    ) u_rq (
         .clk       (clk),
         .rst_n     (rst_n),
         .clear     (seq_clr),
@@ -165,9 +177,24 @@ module e2e_seq (
     // ---------------------------------------------------------- pop logic
     wire dla_busy_any   = dla_active | dla_start;
     wire dec_needs_port = (dstate == D_Z) || (dstate == D_W);
+    wire              w_last;     // the FIFO head byte completes an element
+    wire [DATA_W-1:0] w_word;     // that element
+    // only the byte completing a latent / weight word needs the DLA write port
     wire pop = armed && !f_empty &&
                ((dstate == D_BIAS) ||
-                (dec_needs_port && !dla_busy_any && !rq_wr));
+                (dec_needs_port && (!w_last || (!dla_busy_any && !rq_wr))));
+
+    // little-endian element assembly (NB = 1: w_word = f_head, w_last = 1)
+    e2e_word_asm #(.NB(NB)) u_wasm (
+        .clk     (clk),
+        .rst_n   (rst_n),
+        .clr     (seq_clr),
+        .take    (pop),
+        .byte_in (f_head),
+        .last    (w_last),
+        .word    (w_word)
+    );
+    wire pop_w = pop && w_last;                          // a whole element was taken
 
     wire start_ok = (dstate == D_WS) && !dla_busy_any && !rq_busy_tile && !dla_wr_en;
 
@@ -177,8 +204,8 @@ module e2e_seq (
     wire fifo_push = st_valid && armed && !seq_clr && !all_rcvd && !(f_full && !pop);
     always @(posedge clk) begin
         if (fifo_push) fifo[f_wp] <= st_byte;
-        if (!seq_clr && dstate == D_BIAS && pop) bias_buf[{wpar, drow}] <= f_head;
-        if (!seq_clr && rq_wr && rq_to_stash) stash[rq_n[3:0]] <= rq_res;
+        if (!seq_clr && dstate == D_BIAS && pop_w) bias_buf[{wpar, drow}] <= w_word;
+        if (!seq_clr && rq_wr && rq_to_stash) stash[rq_n[3:0]] <= rq_res[7:0];
     end
 
     reg wb_done_q;
@@ -189,12 +216,12 @@ module e2e_seq (
             f_wp <= 2'd0; f_rp <= 2'd0; f_cnt <= 3'd0;
             dstate <= D_IDLE; drow <= 2'd0; dk <= 8'd0; wpar <= 1'b0;
             rstate <= R_IDLE; rrow <= 2'd0; rq_layer <= 2'd0; rq_tile <= 8'd0;
-            rq_par <= 1'b0; rq_res <= 8'h00;
+            rq_par <= 1'b0; rq_res <= {DATA_W{1'b0}};
             dla_start <= 1'b0; dla_k_last <= 8'hFF;
-            dla_wr_en <= 1'b0; dla_wr_sel <= 1'b0; dla_wr_addr <= 10'd0; dla_wr_data <= 8'h00;
+            dla_wr_en <= 1'b0; dla_wr_sel <= 1'b0; dla_wr_addr <= 10'd0; dla_wr_data <= {DATA_W{1'b0}};
             dla_active <= 1'b0; wb_done_q <= 1'b0;
             armed <= 1'b0; done <= 1'b0; err_cmd <= 1'b0; err_ovf <= 1'b0;
-            layer <= 2'd0; tile <= 8'd0; byte_cnt <= 19'd0;
+            layer <= 2'd0; tile <= 8'd0; byte_cnt <= {BC_W{1'b0}};
         end else begin
             dla_start <= 1'b0;
             dla_wr_en <= 1'b0;
@@ -216,7 +243,7 @@ module e2e_seq (
                 err_cmd  <= 1'b0;
                 err_ovf  <= 1'b0;
                 drow <= 2'd0; dk <= 8'd0; wpar <= 1'b0;
-                layer <= 2'd0; tile <= 8'd0; byte_cnt <= 19'd0;
+                layer <= 2'd0; tile <= 8'd0; byte_cnt <= {BC_W{1'b0}};
                 rstate <= R_IDLE; rrow <= 2'd0;
             end else begin
                 // ---------------- FIFO push / pop ----------------
@@ -225,7 +252,7 @@ module e2e_seq (
                         err_ovf <= 1'b1;               // byte dropped
                     end else begin
                         f_wp       <= f_wp + 2'd1;
-                        byte_cnt   <= byte_cnt + 19'd1;
+                        byte_cnt   <= byte_cnt + 1'b1;
                     end
                 end
                 if (pop) f_rp <= f_rp + 2'd1;
@@ -234,11 +261,11 @@ module e2e_seq (
 
                 // ---------------- stream decoder ----------------
                 case (dstate)
-                    D_Z: if (pop) begin
+                    D_Z: if (pop_w) begin
                         dla_wr_en   <= 1'b1;
                         dla_wr_sel  <= 1'b1;                    // B col0, row k
                         dla_wr_addr <= {dk, 2'd0};
-                        dla_wr_data <= f_head;
+                        dla_wr_data <= w_word;
                         dk <= dk + 8'd1;
                         if (dk == 8'd63) begin
                             dk     <= 8'd0;
@@ -246,16 +273,16 @@ module e2e_seq (
                         end
                     end
 
-                    D_BIAS: if (pop) begin
+                    D_BIAS: if (pop_w) begin
                         drow <= drow + 2'd1;
                         if (drow == 2'd3) dstate <= D_W;
                     end
 
-                    D_W: if (pop) begin
+                    D_W: if (pop_w) begin
                         dla_wr_en   <= 1'b1;
                         dla_wr_sel  <= 1'b0;                    // A row r, col k
                         dla_wr_addr <= {drow, dk};
-                        dla_wr_data <= f_head;
+                        dla_wr_data <= w_word;
                         dk <= dk + 8'd1;
                         if (dk == k_last_cur) begin
                             dk   <= 8'd0;

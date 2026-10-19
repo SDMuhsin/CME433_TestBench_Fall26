@@ -200,3 +200,25 @@ under the unchanged benchmark TB at a 2.0 ns clock. The input is the latent
   timing pressure, so a fair comparison uses one common clock that all candidates meet.
 - The PT summaries also give the multiplier's own a/b -> p delay inside the chip
   (`mul8_a_to_p_delay`); minimum periods and these delays are in `docs/results.md` s.5.
+
+## 7. The 16-bit datapath (`--width 16`, exact multiplier)
+
+`syn/run_syn.sh exact --width 16 ...` runs the same flow on the INT16 chip (`docs/width16.md`);
+tags carry `_w16`, and `build/syn/<tag>/width` tells Formality, GLS and power which model and
+include directory to use.
+
+| Netlist | Total area (um^2) | 16 x multiplier (um^2, per instance) | Latch RF (um^2) | DC setup | FM | PT ss setup / tt setup / ff hold | Files |
+|---|---|---|---|---|---|---|---|
+| `exact_w16_ss_p2.4` | 334,519.9 | 37,149.8 (11.1 %, 2,321.9) | 256,753.8 (76.8 %) | met | SUCCEEDED, 37,341 points, 0 failing | +0.083 / +0.927 / -0.0043 (6 endpoints) @2.5 | `*exact_w16_ss_p2.4*` |
+| `exact_w16_ss_p1.8` | 374,886.7 | 64,423.4 (17.2 %, 4,026.5) | 261,314.6 (69.7 %) | -0.160 ns (568 endpoints) | not run | +0.025 @2.0 (ss) | `*exact_w16_ss_p1.8*` |
+
+- Minimum period (method of s.2): 2.0 - 0.025 = **1.975 ns ss** (506 MHz), INT8 1.817 ns. The
+  critical path is the INT8 one: A/B RF read register -> `gan_mul` -> 40-bit accumulator. The
+  multiplier's own a -> p delay is 1.200 ns in the 1.8 ns netlist (INT8 0.937 ns) and 1.50 ns
+  in the 2.4 ns one (sized for area).
+- The ff hold endpoints of the 2.4 ns netlist are `u_seq/u_rq/q_reg_*` -> `u_seq/rq_res_reg_*`,
+  the direct Q -> D pair of s.4, left to the P&R hold fix.
+- Against the INT8 2.4 ns netlist (174,855.2 um^2) the chip is 1.91x: RF 1.86x (twice the
+  bits, the same 2,048 word ICGs), multipliers 3.76x, PE array 2.89x.
+- GLS: the zero-delay and the SDF-timed (tt) gate-level runs of seed_0 at 2.5 ns match the INT16 golden on
+  784/784 pixels (4,606,025 clk); power is in `docs/width16.md` s.4.

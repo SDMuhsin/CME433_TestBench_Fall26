@@ -1,7 +1,7 @@
 // Second top level for the gate-level run of gan65_bench_tb: records the switching activity
 // of the netlist (gan65_bench_tb.dut) for the first image as SAIF, when +SAIF=<file> is given.
 // Window: from the first START command (after reset and the CSR writes) to the end of the
-// STATUS check, i.e. START, the 283,984-byte stream and the whole generator compute; only
+// STATUS check, i.e. START, the stream (283,984 elements) and the whole generator compute; only
 // the 784-pixel read-back (<1 % of the clocks) is outside.
 module gls_saif;
     string  saif;

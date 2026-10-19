@@ -2,7 +2,8 @@
 # Zero-delay gate-level simulation of a gan65 DC netlist with the benchmark TB (VCS):
 #   sim/gls/run_gls.csh <syn_tag> [seed=0] [clk_period_ns=40] [saif=0]
 #   netlist  $GAN65/build/syn/<syn_tag>/gan65_chip.v
-#   image    model/fmnist/ref_vectors/seed_<seed>: zq.memh in, expected.memh = golden pixels
+#   image    <model>/ref_vectors/seed_<seed>: zq.memh in, expected.memh = golden pixels
+#            (<model> = model/fmnist, or model/fmnist_w16 when build/syn/<syn_tag>/width is 16)
 #            (exact multiplier; for a variant the comparison only says whether it is exact)
 #   state    every register / latch starts at 0 (+vcs+initreg+0): the RTL is verified in
 #            2-state Verilator, and some datapath registers have no reset;
@@ -24,7 +25,10 @@ if ($#argv >= 4) set saif = $4
 set half = `echo "$period" | awk '{print $1 / 2}'`
 set net = $GAN65/build/syn/$1/gan65_chip.v
 set out = $GAN65/build/gls/$1_s$seed
+set width = 8
+if (-f $GAN65/build/syn/$1/width) set width = `cat $GAN65/build/syn/$1/width`
 set model = $GAN65/model/fmnist
+if ($width != 8) set model = $GAN65/model/fmnist_w$width
 set ref = $model/ref_vectors/seed_$seed
 set init = 0
 if ($?GAN65_GLS_INIT) then
@@ -44,7 +48,8 @@ mkdir -p $out
 cd $out
 echo "$act" > activity
 vcs -full64 -sverilog -timescale=1ns/1ps $dly +notimingcheck +lint=none -j8 +vcs+initreg+random \
-    -pvalue+gan65_bench_tb.CLK_HALF_NS=$half -v $MQ65_VLOG -top gan65_bench_tb -top gls_saif \
+    -pvalue+gan65_bench_tb.CLK_HALF_NS=$half +incdir+$GAN65/rtl/cfg/w$width \
+    -v $MQ65_VLOG -top gan65_bench_tb -top gls_saif \
     $net $GAN65/bench/tb/gan65_bench_tb.sv $GAN65/sim/gls/gls_saif.sv -o simv >& compile.log
 if (! -x simv) then
     echo "GLS_DONE $out:t compile FAILED (compile.log)"; exit 1

@@ -1,6 +1,6 @@
 # gan65_chip: Fashion-MNIST approximate-multiplier benchmark
 
-`bench/run_bench.sh [variant]` runs the full `gan65_chip` RTL on generator latents in Verilator, then compares every generated image with a bit-exact Python model of the chip. The only thing a student changes is the multiplier, `rtl/pe/gan_mul8.v`, which all 16 PEs of all three layers use.
+`bench/run_bench.sh [variant]` runs the full `gan65_chip` RTL on generator latents in Verilator, then compares every generated image with a bit-exact Python model of the chip. The only thing a student changes is the multiplier, `rtl/pe/gan_mul.v` (`gan_mul #(N)`; an 8-bit design may keep the module `gan_mul8` of `rtl/pe/gan_mul8.v`, which `bench/adapt/` wraps), which all 16 PEs of all three layers use. `--width 16` runs the same benchmark on the INT16 chip (`docs/width16.md`).
 
 ## Method
 1. **Model.** The 64-256-256-784 MLP generator (ReLU, ReLU, Tanh) was trained on Fashion-MNIST and quantised to per-tensor int8 with static requant multipliers, so one set of CSRs serves every latent (`model/fmnist/quant.json`). Over 8 latents, the int8 output differs from float by 2.18/255 grey levels (MAD).
@@ -84,6 +84,8 @@ ILM has the largest MAE of the useful variants but no bias, and it gives the bes
 ![exact](img/grid_exact.png)
 *First 64 images, exact multiplier (identical to golden).*
 
+16-bit datapath (`--width 16`, `model/fmnist_w16`, golden = the INT16 model): `exact` 256/256 bit-exact (10000/10000 at N = 10,000), 46.79 dB vs float, 4,606,025 clk/image (`bench/results/exact_w16_n256.md`); `mb:park_14z` (a 16-bit `mul_core` of `syn/mulbench`, N = 16) 0/16 bit-exact, 45.91 dB vs golden, labels 16/16, RTL == emulation 16/16 (`bench/results/mb_park_14z_w16_n16.md`).
+
 ![ilm](img/grid_mq_ilm.png)
 *Same latents with `mq:ilm`.*
 
@@ -142,8 +144,11 @@ For the floor row, the NN metrics use the first 10k train images, because the te
 | RTL `ham_a` | 84.67 | 3.95 ± 0.09 | 70.36 ± 2.26 | 0.618 | 0.004 | 32.85 | 16.06 / 16.19 | 70.5 % | 5.96 | 0.826 | 3.17 |
 | RTL `ham_c` | 84.79 | 3.94 ± 0.09 | 70.36 ± 2.27 | 0.612 | 0.005 | 32.68 | 16.03 / 16.17 | 70.5 % | 5.96 | 0.826 | 3.17 |
 | RTL `ham_ae` | 78.90 | 3.91 ± 0.07 | 64.90 ± 2.12 | 0.648 | 0.007 | 30.98 | 16.30 / 16.44 | 71.2 % | 6.04 | 0.828 | 3.19 |
+| INT16 golden (Python) | 77.83 | 3.91 ± 0.06 | 63.90 ± 2.12 | 0.645 | 0.008 | 30.81 | 16.37 / 16.51 | 71.7 % | 6.06 | 0.828 | 3.20 |
+| RTL `exact` (16-bit) | 77.83 | 3.91 ± 0.06 | 63.90 ± 2.12 | 0.645 | 0.008 | 30.81 | 16.37 / 16.51 | 71.7 % | 6.06 | 0.828 | 3.20 |
 
 - **The exact and EvoApprox-exact `mq:evo_1KV8` chips score the same as the int8 golden.** int8 quantisation costs 0.9 FID against the float generator (77.76 to 78.65).
+- **The 16-bit chip** (`--width 16`, `docs/width16.md`): its 10,000 RTL images equal the INT16 golden bit for bit and score FID 77.83, 0.07 from float (INT8: 0.89). 16-bit approximate multipliers are therefore measured against an almost float-quality baseline.
 - **`booth_axfa5` scores like exact** (FID 78.31 vs 78.65; KID 64.26 ± 2.15 vs 64.85 ± 2.12); `bw_axfa6` costs 18 FID, about twice trunc4, because of its -10.8 bias per product. The structured exact `bw_exact` / `booth_exact` reproduce the golden scores.
 - **The Aizaz & Khare truncated Booth variants are far off** (`docs/papers/aizaz_khare_2022.md`): `booth_akc` (TACBM, w = 6) FID 133.6, about `mq:evo_1KVL`, from its -43 bias per product at b >= 0; `booth_trunc5` FID 183.1, because its constant compensation (+32) also lands on the many zero products (ReLU zeros), which no other variant here disturbs.
 - **The Yin et al. DR-ALMs score at or below exact on FID** (`docs/papers/yin_2021_dralm.md`): `dralm_t6` 75.6, `dralm_t5` 77.1, `dralm_t4` 79.6, `dralm_t6e` 79.0 (exact 78.65), although their PSNR vs golden is only 20-31 dB and the paper-sign versions carry a +27..+30 bias per product at b >= 0. Precision drops with the truncation (0.578 for t = 4 vs 0.649) while IS and KID improve slightly, so the lower FID reflects a change in the spread of the samples, not higher fidelity to the golden images.
@@ -165,4 +170,6 @@ src_gan_tsmc65/bench/run_bench.sh exact --n 16 --jobs 16 --latch-rf
 pip install torch-fidelity==0.4.0                    # real-data metrics (weights download on first use)
 src_gan_tsmc65/bench/run_real.sh                     # 10k RTL images x 7 variants + scores (~3 h)
 python3 -m src_gan_tsmc65.classifier.train          # retrain the classifier (cuda:1, ~25 s)
+src_gan_tsmc65/bench/run_real.sh --width 16          # the INT16 chip: 10k RTL images (3 chunks of ~11 min) + rows *_w16
+GAN65_FID_BATCH=50 src_gan_tsmc65/bench/run_real.sh --width 16 --skip-rtl   # rescore only, smaller batches on a busy GPU
 ```

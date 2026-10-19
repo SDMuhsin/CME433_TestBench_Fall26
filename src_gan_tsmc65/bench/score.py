@@ -1,13 +1,15 @@
 """Score one benchmark run: RTL pixel dumps vs the bit-exact golden model.
 
-python3 -m src_gan_tsmc65.bench.score <variant> <run_dir> --n N [--zq latents.memh]
+python3 -m src_gan_tsmc65.bench.score <variant> <run_dir> --n N [--width 8|16] [--zq latents.memh]
 Reads <run_dir>/pix_<first>.memh (written by the chip simulations), the latents
-(default model/fmnist/latents.memh) and the int8 model; writes <run_dir>/{results.json,results.md,
+(default <model>/latents.memh) and the integer model of the width (model/fmnist, model/fmnist_w16); writes <run_dir>/{results.json,results.md,
 rtl_u8.npy, golden_u8.npy, grid_rtl.png, grid_golden.png} and prints the summary.
 Reported:
   * golden  : exact integer model of the chip (exact multiplier)  -> bit-exact images, PSNR, MAE
   * labels  : classifier/fmnist_cnn on RTL images vs on golden images -> label agreement
-  * emulated: (non-exact variants) the golden model with the variant's 256 x 256 product table;
+  * float   : RTL images vs the float generator on the same (unquantised) latents: PSNR, labels
+  * emulated: (non-exact variants) the golden model with the variant's multiplier model
+              (bench/mul_model.py: 8-bit product table, 16-bit mb: numpy model);
               RTL == emulation proves the run measured the multiplier, not a harness fault
 """
 import argparse
@@ -18,11 +20,12 @@ import numpy as np
 
 from ..classifier.net import CLASSES, predict
 from ..common.memh import read_memh
-from ..common.paths import MODEL
+from ..common.paths import model_dir
 from ..golden.model import forward, load_model
 from .images import save_grid, to_u8
 from .metrics import compare
-from .mul_table import mul8_table
+from .mul_model import mul_model
+from .real.sources import float_gen
 
 
 def load_rtl(run, n):
@@ -39,7 +42,8 @@ def fmt_db(v):
 
 def report(res):
     g, lab = res['vs_golden'], res['labels']
-    lines = [f"# gan65_chip benchmark: variant `{res['variant']}`, {res['n']} Fashion-MNIST latents", '',
+    wd = '' if res.get('width', 8) == 8 else f", {res['width']}-bit datapath"
+    lines = [f"# gan65_chip benchmark: variant `{res['variant']}`{wd}, {res['n']} Fashion-MNIST latents", '',
              '| metric | value |', '|---|---|',
              f"| bit-exact images vs golden | {g['bitexact_images']}/{g['images']} |",
              f"| pixels equal to golden | {g['pixels_match']}/{g['pixels']} |",
@@ -47,10 +51,15 @@ def report(res):
              f"| PSNR vs golden, worst / median image | {fmt_db(g['psnr_min_db'])} / {fmt_db(g['psnr_median_db'])} dB |",
              f"| MAE / max abs error | {g['mae']:.3f} / {g['max_abs']} grey levels |",
              f"| label agreement RTL vs golden | {lab['agree']}/{res['n']} ({100 * lab['agree'] / res['n']:.1f} %) |",
-             f"| mean classifier confidence RTL / golden | {lab['conf_rtl']:.3f} / {lab['conf_golden']:.3f} |"]
+             f"| mean classifier confidence RTL / golden | {lab['conf_rtl']:.3f} / {lab['conf_golden']:.3f} |",
+             f"| PSNR / MAE vs float generator | {fmt_db(res['vs_float']['psnr_db'])} dB / {res['vs_float']['mae']:.3f} |",
+             f"| label agreement RTL vs float generator | {lab['agree_float']}/{res['n']} "
+             f"({100 * lab['agree_float'] / res['n']:.1f} %) |"]
     if 'vs_emulation' in res:
         e = res['vs_emulation']
         lines.append(f"| RTL vs Python emulation of the variant | {e['bitexact_images']}/{e['images']} images bit-exact |")
+    elif res['variant'] != 'exact':
+        lines.append('| RTL vs Python emulation of the variant | n/a (no Python model of this variant) |')
     lines += ['', 'Golden label histogram: ' + ', '.join(f'{c} {k}' for c, k in lab['golden_hist'].items() if k), '']
     return '\n'.join(lines)
 
@@ -60,21 +69,26 @@ def main():
     ap.add_argument('variant')
     ap.add_argument('run', type=Path)
     ap.add_argument('--n', type=int, required=True)
-    ap.add_argument('--zq', type=Path, default=MODEL / 'latents.memh')
+    ap.add_argument('--width', type=int, default=8)
+    ap.add_argument('--zq', type=Path)
     a = ap.parse_args()
-    m = load_model()
-    zq = read_memh(a.zq).reshape(-1, 64)[:a.n]
+    mdir = model_dir(a.width)
+    m = load_model(mdir)
+    zq = read_memh(a.zq or mdir / 'latents.memh', bits=a.width).reshape(-1, 64)[:a.n]
     rtl = to_u8(load_rtl(a.run, a.n))
     gold = to_u8(forward(zq, m)['pix'])
-    res = dict(variant=a.variant, n=a.n, vs_golden=compare(rtl, gold))
-    if a.variant != 'exact':
-        table = mul8_table(a.variant, a.run / 'mul_table')
-        emu = to_u8(forward(zq, m, table)['pix'])
+    res = dict(variant=a.variant, width=a.width, n=a.n, vs_golden=compare(rtl, gold))
+    mul = mul_model(a.variant, a.width, a.run / 'mul_table')
+    if mul is not None:
+        emu = to_u8(forward(zq, m, mul)['pix'])
         res['vs_emulation'] = compare(rtl, emu)
         res['emulation_vs_golden'] = compare(emu, gold)
+    flt = float_gen(a.n).reshape(a.n, 784)
+    res['vs_float'] = compare(rtl, flt)
     lr, pr = predict(rtl)
     lg, pg = predict(gold)
-    res['labels'] = dict(agree=int((lr == lg).sum()), conf_rtl=float(pr.max(1).mean()), conf_golden=float(pg.max(1).mean()),
+    lf, _ = predict(flt)
+    res['labels'] = dict(agree=int((lr == lg).sum()), agree_float=int((lr == lf).sum()), conf_rtl=float(pr.max(1).mean()), conf_golden=float(pg.max(1).mean()),
                          golden_hist={c: int((lg == i).sum()) for i, c in enumerate(CLASSES)})
     np.save(a.run / 'rtl_u8.npy', rtl.reshape(-1, 28, 28))
     np.save(a.run / 'golden_u8.npy', gold.reshape(-1, 28, 28))

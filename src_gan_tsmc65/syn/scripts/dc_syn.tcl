@@ -5,6 +5,7 @@
 #   GAN65_PERIOD   clock period, ns
 #   GAN65_CORNER   ss | tt | ff: target library and RC corner
 #   GAN65_MUL_F    multiplier source list (variant), GAN65_VARIANT its name
+#   GAN65_WIDTH    datapath width 8 | 16 (include dir rtl/cfg/w<W>)
 #   GAN65_OUT      output directory (netlist, ddc, svf, spef, reports, summary)
 # Max library = the corner, min library ff for hold fixing (none in the ff run).
 
@@ -53,13 +54,13 @@ set_app_var compile_seqmap_propagate_constants true
 set_clock_gating_style -sequential_cell latch -positive_edge_logic integrated \
     -control_point before -minimum_bitwidth 4 -max_fanout 32
 # keep the PE / multiplier and memory hierarchies visible for per-block area reporting
-foreach d {gan_mul8* dla_pe* gan65_latch_rf* dla_sram_1rw_256x8*} {
+foreach d {gan_mul* dla_pe* gan65_latch_rf* dla_sram_1rw_256x8*} {
     set ds [get_designs -quiet $d]
     if {[sizeof_collection $ds]} { set_ungroup $ds false }
 }
 # the multiplier is a closed block (no logic moved across its ports), so its cell area is
 # the variant's own and comparable between variants
-set_boundary_optimization [get_designs gan_mul8*] false
+set_boundary_optimization [get_designs gan_mul*] false
 
 # ---------------------------------------------------------------- compile
 # no retiming: the netlist keeps the RTL register boundaries (Formality, per-unit reporting)

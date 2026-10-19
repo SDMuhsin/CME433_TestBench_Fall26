@@ -18,8 +18,7 @@ module dla_a_buffer_bank #(
 );
 
     localparam ROW_W        = (N <= 1) ? 1 : $clog2(N);
-    localparam SRAM_ADDR_W  = 8; // 256-depth SRAM
-    // USE_SRAM assumes DATA_W=8 to match the macro data width.
+    localparam SRAM_ADDR_W  = 8; // 256-depth SRAM, DATA_W-bit words
 
     wire [ROW_W-1:0]   wr_row;
     wire [K_IDX_W-1:0] wr_col;
@@ -37,17 +36,17 @@ module dla_a_buffer_bank #(
                 wire row_we;
                 wire [K_IDX_W-1:0] row_addr;
                 wire [SRAM_ADDR_W-1:0] sram_addr;
-                wire [7:0] sram_q_raw;
+                wire [DATA_W-1:0] sram_q_raw;
 
                 assign row_we   = wr_en && (wr_row == ROW_IDX);
                 assign row_addr = row_we ? wr_col : rd_col;
                 assign sram_addr = {{(SRAM_ADDR_W-K_IDX_W){1'b0}}, row_addr};
 
-                dla_sram_1rw_256x8 u_sram (
+                dla_sram_1rw_256x8 #(.W(DATA_W)) u_sram (
                     .clk(clk),
                     .we(row_we),
                     .addr(sram_addr),
-                    .wdata(wr_data[7:0]),
+                    .wdata(wr_data),
                     .rdata(sram_q_raw)
                 );
 

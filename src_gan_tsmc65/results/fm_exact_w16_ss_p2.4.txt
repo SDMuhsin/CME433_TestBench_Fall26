@@ -1,0 +1,13 @@
+gan65_chip 65 nm Formality summary (fm_exact_w16_ss_p2.4)
+netlist exact_w16_ss_p2.4  library corner ss  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+   37341 Passing compare points
+  Matched Compare Points     BBPin    Loop   BBNet     Cut    Port     DFF     LAT   TOTAL
+  Passing (equivalent)           0       0       0       0       9    2516   34816   37341
+  Failing (not equivalent)       0       0       0       0       0       0       0       0
+unmatched (after match, before verify):
+  159 Unmatched points (0 reference, 159 implementation):
+    Impl LATCG: 159
+guidance (accepted rejected unsupported unprocessed total) Total               :        270          0          0          0        270

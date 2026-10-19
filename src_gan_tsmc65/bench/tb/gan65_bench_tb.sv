@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "gan65_cfg.vh"
 
 // ============================================================================
 // gan65_bench_tb -- pad-level host model of gan65_chip for the image benchmark.
@@ -7,23 +8,28 @@
 // io[3:0] / hrdy, using the protocol of docs/dla_e2e_chip.md (host tasks taken
 // from tb/dla_e2e_chip_tb.sv).  After reset it writes the six requant CSRs,
 // then for each latent of a batch: START, STREAM_Q of zq + all weights and
-// biases (283,984 B at SCLK = clk/4, HRDY honoured before every byte), wait for
+// biases (283,984 elements of DATA_W/8 bytes, little endian, = 283,984 B on the
+// 8-bit chip; SCLK = clk/4, HRDY honoured before every byte), wait for
 // HRDY, check STATUS, RD_PIX_Q the 784 pixels (SCLK = clk/8) and append them to
 // the output file.  No pixel is checked here: the Python scorer compares the
 // dump with the golden model, so the same TB serves approximate multipliers.
 //
 // Plusargs (all required except HALF):
-//   +WDIR=<dir>      G300_{0,2,4}_{weight,bias}.memh (int8 hex, row-major [out][in])
+//   +WDIR=<dir>      G300_{0,2,4}_{weight,bias}.memh (DATA_W-bit hex, row-major [out][in])
 //   +CSR_MEMH=<f>    24 bytes MA0,MB0,MA2,MB2,MW4,MB4 (32-bit LE, CSR 0x10..0x27)
-//   +ZQ_ALL=<f>      latents, 64 int8 hex lines per image
+//   +ZQ_ALL=<f>      latents, 64 DATA_W-bit hex lines per image
 //   +FIRST=<i> +COUNT=<n>   run images FIRST .. FIRST+COUNT-1 of ZQ_ALL
 //   +OUT=<f>         pixel dump, 784 hex lines per image (int8 = uint8 pixel ^ 0x80)
+// DATA_W = `GAN65_DATA_W from rtl/cfg/w<W>/gan65_cfg.vh on the include path.
 //   +HALF=<n>        stream SCLK half period in clk (default 2 -> SCLK = clk/4)
 // Exit: "DONE <n> images" on success, "FAIL: ..." on a protocol / status error.
 // ============================================================================
 module gan65_bench_tb;
+    localparam int DW       = `GAN65_DATA_W;
+    localparam int NB       = DW / 8;     // bytes per stream element
+    localparam int NEL      = 283984;     // stream elements
+    localparam int TOTAL    = NEL * NB;   // stream bytes
     localparam int NPIX     = 784;
-    localparam int TOTAL    = 283984;
     localparam int MAX_IMG  = 16384;
     localparam int RD_HALF  = 4;          // reads: SCLK = clk/8
 
@@ -146,32 +152,38 @@ module gan65_bench_tb;
     endtask
 
     // ------------------------------------------------------------ data
-    reg [7:0] w0 [0:256*64-1];
-    reg [7:0] w2 [0:256*256-1];
-    reg [7:0] w4 [0:784*256-1];
-    reg [7:0] b0 [0:255];
-    reg [7:0] b2 [0:255];
-    reg [7:0] b4 [0:783];
-    reg [7:0] zq_all [0:64*MAX_IMG-1];
+    reg [DW-1:0] w0 [0:256*64-1];
+    reg [DW-1:0] w2 [0:256*256-1];
+    reg [DW-1:0] w4 [0:784*256-1];
+    reg [DW-1:0] b0 [0:255];
+    reg [DW-1:0] b2 [0:255];
+    reg [DW-1:0] b4 [0:783];
+    reg [DW-1:0] zq_all [0:64*MAX_IMG-1];
     reg [7:0] stream [0:TOTAL-1];
     reg [7:0] csr_bytes [0:23];
 
     // stream layout: zq[64]; L0 64 x {4 bias, 4 x 64 W}; L2 64 x {4 bias, 4 x 256 W};
-    // L4 196 x {4 bias, 4 x 256 W}.  The weight part is built once, zq is patched per image.
+    // L4 196 x {4 bias, 4 x 256 W}, each element NB bytes, least significant first.
+    // The weight part is built once, zq is patched per image.
+    task automatic put_el(inout integer p, input [DW-1:0] v);
+        integer j;
+        for (j = 0; j < NB; j = j + 1) begin stream[p] = v[8*j +: 8]; p = p + 1; end
+    endtask
+
     task automatic build_weight_stream;
         integer p, t, r, k;
-        p = 64;
+        p = 64 * NB;
         for (t = 0; t < 64; t = t + 1) begin
-            for (r = 0; r < 4; r = r + 1) begin stream[p] = b0[4*t+r]; p = p + 1; end
-            for (r = 0; r < 4; r = r + 1) for (k = 0; k < 64; k = k + 1) begin stream[p] = w0[(4*t+r)*64 + k]; p = p + 1; end
+            for (r = 0; r < 4; r = r + 1) put_el(p, b0[4*t+r]);
+            for (r = 0; r < 4; r = r + 1) for (k = 0; k < 64; k = k + 1) put_el(p, w0[(4*t+r)*64 + k]);
         end
         for (t = 0; t < 64; t = t + 1) begin
-            for (r = 0; r < 4; r = r + 1) begin stream[p] = b2[4*t+r]; p = p + 1; end
-            for (r = 0; r < 4; r = r + 1) for (k = 0; k < 256; k = k + 1) begin stream[p] = w2[(4*t+r)*256 + k]; p = p + 1; end
+            for (r = 0; r < 4; r = r + 1) put_el(p, b2[4*t+r]);
+            for (r = 0; r < 4; r = r + 1) for (k = 0; k < 256; k = k + 1) put_el(p, w2[(4*t+r)*256 + k]);
         end
         for (t = 0; t < 196; t = t + 1) begin
-            for (r = 0; r < 4; r = r + 1) begin stream[p] = b4[4*t+r]; p = p + 1; end
-            for (r = 0; r < 4; r = r + 1) for (k = 0; k < 256; k = k + 1) begin stream[p] = w4[(4*t+r)*256 + k]; p = p + 1; end
+            for (r = 0; r < 4; r = r + 1) put_el(p, b4[4*t+r]);
+            for (r = 0; r < 4; r = r + 1) for (k = 0; k < 256; k = k + 1) put_el(p, w4[(4*t+r)*256 + k]);
         end
         if (p != TOTAL) begin $display("FAIL: stream length %0d", p); $finish; end
     endtask
@@ -201,11 +213,12 @@ module gan65_bench_tb;
     endtask
 
     task automatic run_image(input integer img, input integer fd);
-        integer i;
+        integer i, p;
         reg [7:0] rb;
         reg [31:0] st;
         longint c0;
-        for (i = 0; i < 64; i = i + 1) stream[i] = zq_all[64*img + i];
+        p = 0;
+        for (i = 0; i < 64; i = i + 1) put_el(p, zq_all[64*img + i]);
         c0 = cyc;
         cmd_only(8'h31);                                   // START
         stream_all();

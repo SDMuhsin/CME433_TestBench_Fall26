@@ -2,7 +2,8 @@
 
 real      : Fashion-MNIST (torchvision, build/gan65/data), train 60k = the FID reference, test 10k
 float     : the trained float generator (model/fmnist/G300_float.npz) on the unquantised latents
-golden    : the bit-exact int8 model of the chip (golden/model.py) on the quantised latents
+golden    : the bit-exact integer model of the chip (golden/model.py) on the quantised latents
+            (INT8 model/fmnist, or INT16 model/fmnist_w16 for width 16)
 rtl       : Verilator chip images of a run_bench.sh run (build/gan65/runs/<tag>_n<N>/rtl_u8.npy)
 Latents: z = torch.randn(N, 64, seed 2000); the first 256 equal the committed model/fmnist/latents.memh.
 """
@@ -10,7 +11,7 @@ import json
 
 import numpy as np
 
-from ...common.paths import BUILD, MODEL
+from ...common.paths import BUILD, MODEL, model_dir
 from ...golden.latents import quant_z
 from ...golden.model import forward, load_model
 from ..images import to_u8
@@ -38,9 +39,10 @@ def float_gen(n):
     return np.clip(np.round((y + 1) * 127.5), 0, 255).astype(np.uint8).reshape(-1, 28, 28)
 
 
-def golden(n):
-    sz = json.loads((MODEL / 'quant.json').read_text())['calibration']['sZ']
-    return to_u8(forward(quant_z(latents(n), sz), load_model())['pix']).reshape(-1, 28, 28)
+def golden(n, width=8):
+    mdir = model_dir(width)
+    sz = json.loads((mdir / 'quant.json').read_text())['calibration']['sZ']
+    return to_u8(forward(quant_z(latents(n), sz, width), load_model(mdir))['pix']).reshape(-1, 28, 28)
 
 
 def rtl(tag, n):

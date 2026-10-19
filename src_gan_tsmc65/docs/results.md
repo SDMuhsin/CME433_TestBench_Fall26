@@ -351,8 +351,37 @@ better than DC's exact `a * b` at 400 MHz.
 4. Check the netlist's function: copy `build/gls/my_mul_ss_p2.4_s0_sdftt/pix.memh` and run
    `python3 -m src_gan_tsmc65.sim.gls.check_pix my_mul pix.memh` (784/784 expected).
 5. `sync.sh pull` copies the summaries to `results/`; compare with the table above.
+6. A 16-bit multiplier: module `gan_mul16 (a, b, p)` or `gan_mul #(N)`, or a `mul_core` of
+   `syn/mulbench` as `mb:<design>`; add `--width 16` to every command (`docs/width16.md`).
 
-## 7. Limits
+## 7. The INT16 chip (`--width 16`, exact multiplier)
+
+Same generator, 16 PEs and flow with a 16-bit datapath (40-bit accumulators, 8 x 256x16 latch
+RF); method, quantisation and full tables in `docs/width16.md`. Pre-layout, DC ss 2.4 ns
+netlist, PT and PrimePower at 2.5 ns = 400 MHz, compared with the 8-bit `exact` row of s.5.
+
+| | INT16 chip | INT8 chip |
+|---|---|---|
+| RTL vs golden | 256/256 and 10000/10000 bit-exact | 256/256, 10000/10000 |
+| PSNR vs float generator (256) / labels vs float | 46.79 dB / 256/256 | 35.32 dB / 250/256 |
+| FID-10k / IS / KID x10^3 / P / R (float: 77.76 / 3.91 / 63.80 / 0.645 / 0.008) | 77.83 / 3.91 / 63.90 / 0.645 / 0.008 | 78.65 / 3.90 / 64.85 / 0.649 / 0.007 |
+| Formality / zero-delay and SDF GLS (tt, 2.5 ns, seed_0) | SUCCEEDED (37,341 points) / 784/784 both | SUCCEEDED / 784/784 both |
+| Area (um^2) | 334,519.9 | 174,855.2 |
+| 16 x multiplier area | 37,149.8 (11.1 %; 2,321.9 each) | 9,890.3 (5.7 %; 618.1 each) |
+| Latch RF area | 256,753.8 (76.8 %) | 138,249.0 (79.1 %) |
+| PT ss setup / ff hold @2.5 | +0.083 / -0.0043 ns (6 endpoints, s.2 residue) | +0.085 / +0.0016 ns |
+| Power tt, SDF activity (chip / multipliers / latch RF) | 10.24 / 0.581 (5.7 %) / 8.24 mW | 8.82 / 0.192 (2.2 %) / 7.47 mW |
+| Clock cycles / energy per image | 4,606,025 / 117.97 uJ | 2,346,721 / 51.72 uJ |
+| Min period ss (1.8 ns netlist, PT at 2.0 ns) | 1.975 ns (506 MHz) | 1.817 ns (550 MHz) |
+| Multiplier a -> p delay ss (1.8 ns netlist) | 1.200 ns | 0.937 ns |
+
+INT16 removes the quantisation loss (0.07 FID from float, against 0.89), for 1.91x the area
+and 2.28x the energy per image (1.96x the cycles: twice the weight bytes over the same QSPI
+stream; power only +16 %, because the RF word-ICG clock power does not grow with the word).
+The multipliers are 11 % of the area and 6 % of the power, so a 16-bit multiplier saving of X %
+shows as about 0.11 X in chip area and 0.06 X in chip power.
+
+## 8. Limits
 
 - Pre-layout: no clock tree (root clock net estimated separately), DC estimated parasitics,
   ideal clocks. The ff hold residue of the 1.8 ns netlist is left to the P&R hold fix.

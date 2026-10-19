@@ -25,7 +25,9 @@ setenv GAN65_CORNER $corner
 setenv GAN65_RC $rc
 setenv GAN65_PERIOD $period
 # clocks per image (bench: reset to last pixel read; docs/bench.md), same for every variant
-setenv GAN65_CLK_IMG 2346721
+# clk per image of the GLS run (TB line "IMAGE <i> <clk> clk"; 2,346,721 for the 8-bit chip)
+setenv GAN65_CLK_IMG `awk '/^IMAGE/ {print $3; exit}' $gls/tb.log`
+if ("$GAN65_CLK_IMG" == "") setenv GAN65_CLK_IMG 2346721
 setenv GAN65_TAG pwr_$1_$2_$corner
 setenv GAN65_OUT $GAN65/build/power/$1_$2_$corner
 mkdir -p $GAN65_OUT $GAN65/build/summary

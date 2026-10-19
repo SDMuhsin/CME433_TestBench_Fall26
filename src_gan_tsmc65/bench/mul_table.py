@@ -1,5 +1,5 @@
-"""256 x 256 product table of a gan_mul8 variant from an exhaustive iverilog run.
-T[a + 128, b + 128] = gan_mul8(a, b) as a signed 16-bit value (a = weight, b = activation)."""
+"""256 x 256 product table of an 8-bit multiplier variant (gan_mul, N = 8) from an exhaustive iverilog run.
+T[a + 128, b + 128] = gan_mul(a, b) as a signed 16-bit value (a = weight, b = activation)."""
 import subprocess
 from pathlib import Path
 

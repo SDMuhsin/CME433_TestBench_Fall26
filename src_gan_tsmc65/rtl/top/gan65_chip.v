@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+`include "gan65_cfg.vh"
 
 // ============================================================================
 // gan65_chip -- END-TO-END G300 GAN generator core for 65 nm (synthesis top).
@@ -14,6 +15,13 @@
 //   io_in/out/oe    : quad IO[3:0]; IO0 = MOSI, IO1 = MISO
 //   hrdy            : host ready / image done
 // Single clock domain (clk); rst_n asynchronous active low.
+//
+// Datapath width DATA_W = `GAN65_DATA_W (rtl/cfg/w8 | w16 on the include path,
+// docs/width16.md): A/B words, multipliers, requant operands are DATA_W bits,
+// the accumulators ACC_W = 2*DATA_W + 8.  The host protocol stays byte based:
+// stream elements and debug writes are DATA_W/8 bytes (little endian), a C
+// debug read returns 4 (DATA_W = 8) or 8 bytes per accumulator, and pixels
+// are 8-bit (one byte each) at every width.
 // ============================================================================
 module gan65_chip (
     input  wire       clk,
@@ -25,6 +33,14 @@ module gan65_chip (
     output wire [3:0] io_oe,
     output wire       hrdy
 );
+    `include "g300_quant_params.vh"
+    localparam integer DATA_W = `GAN65_DATA_W;
+    localparam integer ACC_W  = 2 * DATA_W + 8;        // 256-term dot products of 2*DATA_W-bit products
+    localparam integer NB     = DATA_W / 8;            // bytes per stream / debug element
+    localparam integer CB_L   = (ACC_W > 32) ? 3 : 2;  // log2 bytes per C debug word
+    localparam integer BC_W   = $clog2(283984 * NB + 1);
+    localparam integer REQ_S  = G300_REQ_SHIFT;
+
 
     // ---------------------------------------------------------------- host
     wire [15:0] h_addr;
@@ -72,9 +88,9 @@ module gan65_chip (
     wire        s_armed, s_done, s_err_cmd, s_err_ovf;
     wire [1:0]  s_layer;
     wire [7:0]  s_tile;
-    wire [18:0] s_byte_cnt;
+    wire [BC_W-1:0] s_byte_cnt;
 
-    e2e_csr u_csr (
+    e2e_csr #(.BC_W(BC_W)) u_csr (
         .clk            (clk),
         .rst_n          (rst_n),
         .we             (csr_we),
@@ -99,15 +115,34 @@ module gan65_chip (
     wire        dla_start, dla_wr_en, dla_wr_sel, dla_rd_en;
     wire [7:0]  dla_k_last;
     wire [9:0]  dla_wr_addr;
-    wire [7:0]  dla_wr_data;
+    wire [DATA_W-1:0] dla_wr_data;
     wire [3:0]  dla_rd_addr;
-    wire signed [23:0] dla_rd_data;
+    wire signed [ACC_W-1:0] dla_rd_data;
     wire        dla_wb_done, dla_done, dla_busy;
     wire        dla_active;
-    wire [31:0] b_rd_data;
+    wire [4*DATA_W-1:0] b_rd_data;
     wire [7:0]  stash_rd_data;
 
-    e2e_seq u_seq (
+    // debug writes: host bytes -> DATA_W-bit A/B elements
+    wire              dbg_el_we;
+    wire [9:0]        dbg_el_addr;
+    wire [DATA_W-1:0] dbg_el_data;
+    e2e_dbg_pack #(.NB(NB)) u_dbg (
+        .clk     (clk),
+        .wr_en   (dbg_wr_en),
+        .h_addr  (h_addr),
+        .wr_byte (dbg_wr_data),
+        .el_we   (dbg_el_we),
+        .el_addr (dbg_el_addr),
+        .el_data (dbg_el_data)
+    );
+
+    e2e_seq #(
+        .DATA_W (DATA_W),
+        .ACC_W  (ACC_W),
+        .REQ_S  (REQ_S),
+        .BC_W   (BC_W)
+    ) u_seq (
         .clk           (clk),
         .rst_n         (rst_n),
         .soft_rst      (soft_rst),
@@ -116,14 +151,14 @@ module gan65_chip (
         .st_valid      (st_valid),
         .err_cmd_in    (err_cmd_p),
         .ma0 (ma0), .mb0 (mb0), .ma2 (ma2), .mb2 (mb2), .mw4 (mw4), .mb4 (mb4),
-        .dbg_wr_en     (dbg_wr_en),
+        .dbg_wr_en     (dbg_el_we),
         .dbg_wr_sel    (dbg_wr_sel),
-        .dbg_wr_addr   (h_addr[9:0]),
-        .dbg_wr_data   (dbg_wr_data),
+        .dbg_wr_addr   (dbg_el_addr),
+        .dbg_wr_data   (dbg_el_data),
         .dbg_start     (dbg_start),
         .dbg_k_last    (dbg_k_last),
         .dbg_rd_en     (rd_src == 2'd3),
-        .dbg_rd_addr   (h_addr[5:2]),
+        .dbg_rd_addr   (h_addr[CB_L+3:CB_L]),
         .dla_start     (dla_start),
         .dla_k_last    (dla_k_last),
         .dla_wr_en     (dla_wr_en),
@@ -152,6 +187,8 @@ module gan65_chip (
     wire b_rd_sel = (rd_src == 2'd2) && !dla_active;
 
     dla_engine_top #(
+        .DATA_W  (DATA_W),
+        .ACC_W   (ACC_W),
         .E2E_EXT (1)
     ) u_dla (
         .clk       (clk),
@@ -176,26 +213,21 @@ module gan65_chip (
     // ---------------------------------------------------------------- read mux
     // pixel p: p < 768 -> B col (1 + p/256) row p%256 ; p >= 768 -> tail stash.
     // h_addr is stable from rd_req through the capture cycle.
+    // (the pixel is the low byte of the DATA_W-bit B word)
     reg [7:0] pix_b;
     always @* begin
         case (h_addr[9:8])
-            2'd0:    pix_b = b_rd_data[15:8];
-            2'd1:    pix_b = b_rd_data[23:16];
-            default: pix_b = b_rd_data[31:24];
+            2'd0:    pix_b = b_rd_data[1*DATA_W +: 8];
+            2'd1:    pix_b = b_rd_data[2*DATA_W +: 8];
+            default: pix_b = b_rd_data[3*DATA_W +: 8];
         endcase
     end
     wire       pix_tail = (h_addr[9:8] == 2'd3);
     wire [7:0] pix_data = pix_tail ? stash_rd_data : pix_b;
 
-    reg [7:0] c_byte;
-    always @* begin
-        case (h_addr[1:0])
-            2'd0:    c_byte = dla_rd_data[7:0];
-            2'd1:    c_byte = dla_rd_data[15:8];
-            2'd2:    c_byte = dla_rd_data[23:16];
-            default: c_byte = {8{dla_rd_data[23]}};
-        endcase
-    end
+    // C debug read: byte h_addr[CB_L-1:0] of the sign-extended accumulator, little endian
+    wire signed [8*(1<<CB_L)-1:0] c_word = dla_rd_data;
+    wire [7:0] c_byte = c_word[8*h_addr[CB_L-1:0] +: 8];
 
     always @* begin
         case (rd_src)
@@ -209,7 +241,7 @@ module gan65_chip (
     // ---- unused ----
     wire _unused;
     assign _unused = &{1'b0, dla_done, dla_busy, pe_col_gate_en, h_addr[15:10],
-                        rd_req, b_rd_data[7:0]};
+                        rd_req, b_rd_data};
 
 endmodule
 

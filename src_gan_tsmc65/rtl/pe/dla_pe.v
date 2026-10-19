@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 // Processing Element (PE): accumulates a*b when enabled.
-// The product comes from gan_mul8 (gan_mul8.v, the approximate-multiplier swap
-// point); gan_mul8 is 8 x 8 -> 16, so DATA_W must stay 8.
+// The product comes from gan_mul #(DATA_W) (gan_mul.v, the approximate-multiplier
+// swap point): DATA_W x DATA_W -> 2*DATA_W, sign-extended to the ACC_W accumulator.
 module dla_pe #(
     parameter DATA_W = 8,
     parameter ACC_W  = 24
@@ -20,7 +20,7 @@ module dla_pe #(
     wire signed [ACC_W-1:0]      mult_ext;
 
     // Multiply in DATA_W domain, then sign-extend to accumulator width.
-    gan_mul8 u_mul (
+    gan_mul #(.N(DATA_W)) u_mul (
         .a (a_in),
         .b (b_in),
         .p (mult_res)

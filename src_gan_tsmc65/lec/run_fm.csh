@@ -7,6 +7,8 @@ source $GAN65/syn/common/env_pt.csh
 setenv GAN65_SYN $GAN65/build/syn/$1
 setenv GAN65_CORNER `cat $GAN65_SYN/corner`
 setenv GAN65_MUL_F $GAN65_SYN/mul.f
+setenv GAN65_WIDTH 8
+if (-f $GAN65_SYN/width) setenv GAN65_WIDTH `cat $GAN65_SYN/width`
 setenv GAN65_TAG fm_$1
 setenv GAN65_OUT $GAN65/build/lec/$1
 mkdir -p $GAN65_OUT $GAN65/build/summary
