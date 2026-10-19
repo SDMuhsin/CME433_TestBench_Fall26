@@ -15,11 +15,15 @@ diagram with exact cells, so the pair isolates the effect of the approximation.
   dralm_t<k>    Yin et al. 2021 signed DR-ALM-k (logarithmic, operands truncated to k bits
                 from the leading one, compensation), the paper's approximate sign units
   dralm_t6e     DR-ALM-6 core with exact two's-complement sign units (not in the paper)
+  cdm_<xy>      Amirafshar et al. 2023 carry-disregard multiplier CDM8_xy (hex x, y: carries of
+                columns 2..x of the A x B_L array and 2..y of the A x B_H array disregarded),
+                sign-magnitude extension folded into the bit matrix (cdm.py), exact Dadda tree
+  cdm_51b       ablation: CDM8_51 on the plain Baugh-Wooley array (no sign handling, cdm.py)
 The dralm_* entries are behavioural models (dralm.Dralm), not dot diagrams.
 """
 from functools import partial
 
-from . import booth, dralm, pp, tacbm
+from . import booth, cdm, dralm, pp, tacbm
 from .cells import EXACT, VK_HA_FA
 from .mult import build
 from .netlist import Net
@@ -49,3 +53,7 @@ VARIANTS = {
 for _t in (4, 5, 6):
     VARIANTS[f'dralm_t{_t}'] = partial(dralm.Dralm, N, _t, 'paper')
 VARIANTS['dralm_t6e'] = partial(dralm.Dralm, N, 6, 'exact')
+
+for _x, _y in ((5, 1), (7, 3), (9, 5)):
+    VARIANTS[f'cdm_{_x:x}{_y:x}'] = partial(cdm.cdm, _x, _y)
+VARIANTS['cdm_51b'] = partial(cdm.cdm, 5, 1, 'bw')

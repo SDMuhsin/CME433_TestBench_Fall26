@@ -42,7 +42,18 @@ for _v, _m in VARIANTS.items():
                          "approximate sign units (one's complement OR 1)." if _m.sign == 'paper'
                          else "exact two's-complement sign units (not in the paper)."),
                      'A zero operand gives 0. Reference model: approx/dralm.py.']
-
+for _v in VARIANTS:
+    if _v.startswith('cdm_'):
+        _x, _y = int(_v[4], 16), int(_v[5], 16)
+        ABOUT[_v] = [f'{_v}: signed 8 x 8 carry-disregard multiplier CDM8_{_v[4:6]} of Amirafshar et al.',
+                     '(IEEE TCAS-I 70(12) 2023, Fig. 2-4, Table I): A x B_L array cd_' + f'{_x:x}, A x B_H',
+                     f'array cd_{_y:x} (carries of columns 2..{_x} / 2..{_y} disregarded: XOR columns), rest exact.'] + (
+            ['Ablation (not in the paper): plain Baugh-Wooley two\'s-complement array, carries',
+             'disregarded among the AND bits a_i b_j (i, j < 7), sign bits and constant exact.']
+            if _v.endswith('b') else
+            ['Sign-magnitude extension (not in the paper): one\'s-complement magnitudes,',
+             'exact correction rows, product sign XOR-ed into the bit matrix.']) + [
+            'Exact Dadda tree, one carry-propagate adder. Reference model: approx/cdm.py.']
 
 def cells_line(m):
     return 'Reduction cells: ' + ', '.join(f'{k} x{v}' for k, v in sorted(m.cell_count().items()))

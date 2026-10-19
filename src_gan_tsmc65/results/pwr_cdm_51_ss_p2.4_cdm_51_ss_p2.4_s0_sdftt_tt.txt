@@ -1,0 +1,64 @@
+gan65_chip 65 nm power summary (pwr_cdm_51_ss_p2.4_cdm_51_ss_p2.4_s0_sdftt_tt)
+netlist cdm_51_ss_p2.4  corner tt  parasitics max  period_ns 2.5  clocks ideal (pre-layout)
+mode averaged  activity SAIF from SDF-timed GLS (tt corner, glitches counted)
+saif_window_s 5.834420e-03  (5834420000.00 x 1 ps)
+switching activity annotation:
+  saif: Total number of nets = 52894
+  saif: Number of annotated nets = 52894 (100.00%)
+  saif: Total number of leaf cells = 50719
+  saif: Number of fully annotated leaf cells = 50719 (100.00%)
+  Object Type       File (%)          SSA (%)      SSA Force (%) SSA Force (%)   SCA (%)         Clock (%)       Default (%)     Propagated(%)   Implied(%)      Annotated(%)  Total
+   Nets             52894(100.00%)    0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      52894
+  Primary Input     8(100.00%)        0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      8
+  Tri-State         0(0%)             0(0%)        0(0%)        0(0%)            0(0%)           0(0%)           0(0%)           0(0%)           0(0%)           0(0%)         0
+  Black Box         0(0%)             0(0%)        0(0%)        0(0%)            0(0%)           0(0%)           0(0%)           0(0%)           0(0%)           0(0%)         0
+  Sequential        18113(100.00%)    0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      18113
+  Combinational     32602(100.00%)    0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      32602
+  Memory            0(0%)             0(0%)        0(0%)        0(0%)            0(0%)           0(0%)           0(0%)           0(0%)           0(0%)           0(0%)         0
+  Clock Gate        2171(100.00%)     0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      2171
+  Object Type       File (%)          SSA (%)      SSA Force (%) SSA Force (%)   SCA (%)         Clock (%)       Default (%)     Propagated(%)   Implied(%)      Annotated(%)  Total
+   Nets             52894(100.00%)    0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      52894
+  Primary Input     8(100.00%)        0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      8
+  Tri-State         0(0%)             0(0%)        0(0%)        0(0%)            0(0%)           0(0%)           0(0%)           0(0%)           0(0%)           0(0%)         0
+  Black Box         0(0%)             0(0%)        0(0%)        0(0%)            0(0%)           0(0%)           0(0%)           0(0%)           0(0%)           0(0%)         0
+  Sequential        18113(100.00%)    0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      18113
+  Combinational     32602(100.00%)    0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      32602
+  Memory            0(0%)             0(0%)        0(0%)        0(0%)            0(0%)           0(0%)           0(0%)           0(0%)           0(0%)           0(0%)         0
+  Clock Gate        2171(100.00%)     0(0.00%)     0(0.00%)     0(0.00%)         0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)        0(0.00%)      2171
+internal_power   7.865133e-03 W
+switching_power  3.660320e-04 W
+leakage_power    7.443242e-04 W
+total_power      8.975489e-03 W
+power groups:
+  clock_network           7.573e-03 3.056e-05 5.928e-05 7.663e-03 (85.37%)  i
+  register                4.877e-05 2.726e-05 3.961e-04 4.721e-04 ( 5.26%)  
+  combinational           2.435e-04 3.082e-04 2.890e-04 8.407e-04 ( 9.37%)  
+  sequential                 0.0000    0.0000    0.0000    0.0000 ( 0.00%)  
+  memory                     0.0000    0.0000    0.0000    0.0000 ( 0.00%)  
+  io_pad                     0.0000    0.0000    0.0000    0.0000 ( 0.00%)  
+  black_box                  0.0000    0.0000    0.0000    0.0000 ( 0.00%)  
+    Net Switching Power  = 3.660e-04   ( 4.08%)
+    Cell Internal Power  = 7.865e-03   (87.63%)
+    Cell Leakage Power   = 7.443e-04   ( 8.29%)
+  Total Power            = 8.975e-03  (100.00%)
+power_split (W: total, dynamic = internal + switching, leakage; % of chip total):
+  chip          8.9755e-03  8.2312e-03  7.4432e-04  100.0 %
+  pe_array      5.5915e-04  4.4789e-04  1.1126e-04    6.2 %
+  mul8_all      2.9212e-04  2.2567e-04  6.6456e-05    3.3 %
+  latch_rf      7.4837e-03  6.9331e-03  5.5057e-04   83.4 %
+  rest          9.3266e-04  8.5016e-04  8.2497e-05   10.4 %
+hierarchy total power (W):
+  host       u_host                   0.0002022616560246604
+  csr        u_csr                    0.0001016253473788975
+  seq        u_seq                    0.0004344390453554503
+  requant    u_seq/u_rq               7.909965027730337e-05
+  tanh_rom   u_seq/u_rq/u_rom         4.578920630216032e-06
+  dla        u_dla                    0.00823585231124091
+  controller u_dla/u_controller       6.053458941579493e-05
+  a_buffer   u_dla/u_a_buffer         0.00384075518742355
+  b_buffer   u_dla/u_b_buffer         0.003661297329018209
+  pe_array   u_dla/u_pe_array         0.0005591524885384391
+  c_buffer   u_dla/u_c_buffer         7.390859519773585e-05
+image_time_s 5.866803e-03  (2346721 clk x 2.5 ns)  images_per_s 170.45
+energy_per_image_uJ 52.6574  (dynamic 48.2906  leakage 4.3668)
+clock_root_net loads 2279  cap 3.9519 pF  toggle_rate 0.7999997735023499 /ns  reported switching 0 W

@@ -129,6 +129,10 @@ its outputs; `mul8_a_to_p_delay` in the PT summary).
 | dralm_t5 | 173,497.0 (**-0.8 %**) | 6,395.8 (-35.3 %) | 17,570.5 | 8.805 (**-0.1 %**) | 0.415 | 0.142 (-25.7 %) | 51.66 (**-0.1 %**) | 23.45 | 90.2 % | 77.12 | 3.98 | 60.92 | 0.618 | 0.008 | +0.082 / +0.0016 | 784/784 | 1.817 | 1.001 |
 | dralm_t6 | 174,334.0 (**-0.3 %**) | 7,399.8 (-25.2 %) | 18,800.3 | 8.836 (**+0.2 %**) | 0.443 | 0.159 (-17.2 %) | 51.84 (**+0.2 %**) | 25.61 | 91.0 % | 75.59 | 3.96 | 60.37 | 0.637 | 0.008 | +0.080 / +0.0009 | 784/784 | 1.742 | 0.946 |
 | dralm_t6e | 182,306.5 (**+4.3 %**) | 15,613.6 (+57.9 %) | 26,364.2 | 9.150 (**+3.8 %**) | 0.696 | 0.416 (+117.3 %) | 53.68 (**+3.8 %**) | 30.90 | 94.5 % | 79.04 | 3.92 | 64.70 | 0.645 | 0.007 | +0.080 / +0.0009 | 784/784 | **2.005** | 1.250 |
+| cdm_51 | 180,527.0 (**+3.2 %**) | 14,834.2 (+50.0 %) | 24,343.2 | 8.975 (**+1.8 %**) | 0.559 | 0.292 (+52.5 %) | 52.66 (**+1.8 %**) | 30.32 | 94.9 % | 79.09 | 3.88 | 65.82 | 0.645 | 0.006 | +0.088 / **-0.0061** | 784/784 | 1.840 | 1.037 |
+| cdm_73 | 179,000.3 (**+2.4 %**) | 13,105.1 (+32.5 %) | 22,731.1 | 8.950 (**+1.5 %**) | 0.525 | 0.255 (+33.4 %) | 52.51 (**+1.5 %**) | 23.96 | 87.5 % | 82.51 | 3.82 | 69.97 | 0.636 | 0.007 | +0.086 / **-0.0053** | 784/784 | 1.815 | 1.054 |
+| cdm_95 | 177,823.1 (**+1.7 %**) | 12,285.4 (+24.2 %) | 21,689.6 | 8.911 (**+1.1 %**) | 0.506 | 0.239 (+24.7 %) | 52.28 (**+1.1 %**) | 20.44 | 80.1 % | 83.92 | 3.76 | 71.71 | 0.621 | 0.004 | +0.082 / +0.0012 | 784/784 | 1.815 | 1.016 |
+| cdm_51b (ablation) | 174,445.9 (**-0.2 %**) | 9,469.4 (-4.3 %) | 18,527.4 | 8.783 (**-0.4 %**) | 0.368 | 0.131 (-31.8 %) | 51.53 (**-0.4 %**) | 18.81 | 87.9 % | 102.20 | 3.68 | 93.63 | 0.647 | 0.005 | +0.082 / +0.0008 | 784/784 | 1.813 | 0.998 |
 
 FID-10k / IS / KID / precision / recall: 10,000 RTL images vs the Fashion-MNIST train set
 (`bench/results/real_n10000.md`, `docs/bench.md`). bw_* and booth_* are the structured
@@ -138,25 +142,29 @@ booth_akc are truncated Booth multipliers after Aizaz & Khare 2022
 (`docs/papers/aizaz_khare_2022.md`); their exact twin is booth_exact dralm_* are the dynamic-range
 approximate logarithmic multipliers of Yin et al. 2021 (`docs/papers/yin_2021_dralm.md`);
 dralm_t6e uses exact sign units instead of the paper's one's-complement ones. They have no
-structured exact twin.
+structured exact twin. cdm_* are the carry-disregard multipliers of Amirafshar et al. 2023
+(`docs/papers/amirafshar_2023_cdm.md`): CDM8_51 / 73 / 95 with a sign-magnitude extension
+(the paper is unsigned); cdm_51b is CDM8_51 on the plain Baugh-Wooley array (ablation), whose
+exact twin is bw_exact.
 
 Files: `results/syn_<v>_ss_p2.4.txt`, `results/sta_<v>_ss_p2.4_{ss_max,ff_min}_at2.5.txt`,
 `results/pwr_<v>_ss_p2.4_<v>_ss_p2.4_s0_sdftt_tt.txt` (`<v>` = exact, example_trunc4,
 mq_ilm, mq_evo_1KV8, mq_evo_1KR8, mq_evo_1KVL, mq_evo_1KR3, bw_exact, bw_axfa6, booth_exact,
-booth_axfa5, booth_trunc5, booth_akc, dralm_t4, dralm_t5, dralm_t6, dralm_t6e); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
+booth_axfa5, booth_trunc5, booth_akc, dralm_t4, dralm_t5, dralm_t6, dralm_t6e, cdm_51, cdm_73, cdm_95, cdm_51b); zero-delay runs are the same names without `_sdftt` (exact 8.741, trunc4 8.709,
 mq:ilm 9.626, evo_1KV8 8.759, evo_1KR8 8.691, evo_1KVL 8.614, evo_1KR3 8.501, bw_exact 8.675,
 bw_axfa6 8.662, booth_exact 8.699, booth_axfa5 8.684, booth_trunc5 8.665, booth_akc 8.588, dralm_t4 8.658, dralm_t5 8.692,
-dralm_t6 8.718, dralm_t6e 8.938 mW).
-Formality SUCCEEDED for all seventeen
+dralm_t6 8.718, dralm_t6e 8.938, cdm_51 8.846, cdm_73 8.815, cdm_95 8.786, cdm_51b 8.661 mW).
+Formality SUCCEEDED for all twenty-one
 (`results/fm_*_ss_p2.4.txt`). GLS: zero-delay and SDF-timed pixels of seed_0 match each
 variant's own integer emulation (`sim/gls/check_pix.py`); exact, evo_1KV8, bw_exact and
 booth_exact also match the golden pixels. The four bw_* / booth_* variants run the whole
-hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc and the dralm_*). Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
+hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc, the dralm_* and the cdm_*). Delay columns: `results/sta_<v>_ss_p1.8_ss_max_at2.0.txt` (`setup_to_flops`,
 `mul8_a_to_p_delay`), netlists `syn_<v>_ss_p1.8.txt`, FM `fm_<v>_ss_p1.8.txt` (all SUCCEEDED).
 
-- All seventeen meet ss setup at 400 MHz, and all but bw_axfa6 meet ff hold. bw_axfa6 misses ff
-  hold by 4.4 ps on 8 endpoints, all `u_seq/u_rq/q_reg_*` -> `u_seq/rq_res_reg_*`: the direct
-  Q -> D residue of section 2, outside the multiplier, left to the P&R hold fix like there.
+- All twenty-one meet ss setup at 400 MHz, and all but bw_axfa6, cdm_51 and cdm_73 meet ff hold.
+  These miss ff hold by 4.4 / 6.1 / 5.3 ps on 7-8 endpoints, all `u_seq/u_rq/q_reg_*` ->
+  `u_seq/rq_res_reg_*`: the direct Q -> D residue of section 2, outside the multiplier, left to
+  the P&R hold fix like there.
 - **Structured multipliers (bw_*, booth_*).** Written as gate-level Dadda trees, they are
   3-12 % larger than DC's `a * b` but use 19-27 % less multiplier power (SDF; zero delay:
   bw_exact 0.116 vs exact 0.187 mW, with lower leakage too), so they save 0.3-0.4 % chip energy
@@ -214,6 +222,21 @@ hardware flow with `syn/run_variant_flow.sh <v>` (also booth_trunc5, booth_akc a
   of `mq:ilm`'s cost. Despite their +27..+30 bias per product at b >= 0, the paper-sign
   DR-ALMs reach FIDs at or below exact (PSNR vs golden 20-26 dB); the error is a magnitude
   error of both signs, not the one-sided bias of the truncated Booth multipliers.
+- **Carry-disregard multipliers (cdm_*).** The paper's CDM8s are unsigned. On this signed chip
+  the carry disregard itself saves what the paper reports: cdm_51b (CDM8_51 on the Baugh-Wooley
+  array) has -11.8 % mul8 area and -10.9 % mul8 power against its twin bw_exact (paper: -10.4 /
+  -8.8 % vs its exact array) and beats exact on area (-0.2 %), mul8 area (-4.3 %), chip power and
+  energy (-0.4 %); but every error of a two's-complement CDM is <= 0 (the dense bits of small
+  negative weights lose carries), a -14 bias per product, and the images drop to 18.8 dB
+  (FID 102.2). The sign-magnitude versions cdm_51 / 73 / 95 are unbiased and keep the paper's
+  error per magnitude (FID 79.1 / 82.5 / 83.9, PSNR 30.3 / 24.0 / 20.4 dB), but beat exact on no
+  hardware metric: mul8 area +50 / +33 / +24 %, mul8 power +53 / +33 / +25 %, energy +1.8 /
+  +1.5 / +1.1 %, mul8 delay +9 to +13 % (their 1.815 ns minimum period vs exact's 1.817 is noise).
+  The one's-complement magnitudes, the exact correction rows and the per-bit sign XORs cost
+  about +50 % gates on the exact array, more than the carry disregard saves (9 / 25 / 43 % of
+  the unsigned core), and not because of timing (cdm_73 at 4.0 ns: +33.7 % mul8 area vs exact,
+  `results/syn_{exact,cdm_73}_ss_p4.txt`). At 8 bits the paper's savings do not survive an
+  unbiased signed extension.
 
 ### 5.1 All variants at a glance
 
@@ -243,10 +266,15 @@ than exact on every hardware metric at 8 bits.
 | dralm_t5 | 77.12 | 3.98 | 60.92 | 0.618 | 0.008 | 90.2 % | 173,497.0 | 6,395.8 | 8.805 / 0.142 | 51.66 | 1.817 | 1.001 | -0.8 / -35.3 / -0.1 / -25.7 / -0.1 / +0.0 / +6.8 |
 | dralm_t6 | 75.59 | 3.96 | 60.37 | 0.637 | 0.008 | 91.0 % | 174,334.0 | 7,399.8 | 8.836 / 0.159 | 51.84 | 1.742 | 0.946 | -0.3 / -25.2 / +0.2 / -17.2 / +0.2 / -4.1 / +1.0 |
 | dralm_t6e | 79.04 | 3.92 | 64.70 | 0.645 | 0.007 | 94.5 % | 182,306.5 | 15,613.6 | 9.150 / 0.416 | 53.68 | 2.005 | 1.250 | +4.3 / +57.9 / +3.8 / +117.3 / +3.8 / +10.4 / +33.5 |
+| cdm_51 | 79.09 | 3.88 | 65.82 | 0.645 | 0.006 | 94.9 % | 180,527.0 | 14,834.2 | 8.975 / 0.292 | 52.66 | 1.840 | 1.037 | +3.2 / +50.0 / +1.8 / +52.5 / +1.8 / +1.3 / +10.7 |
+| cdm_73 | 82.51 | 3.82 | 69.97 | 0.636 | 0.007 | 87.5 % | 179,000.3 | 13,105.1 | 8.950 / 0.255 | 52.51 | 1.815 | 1.054 | +2.4 / +32.5 / +1.5 / +33.4 / +1.5 / -0.1 / +12.5 |
+| cdm_95 | 83.92 | 3.76 | 71.71 | 0.621 | 0.004 | 80.1 % | 177,823.1 | 12,285.4 | 8.911 / 0.239 | 52.28 | 1.815 | 1.016 | +1.7 / +24.2 / +1.1 / +24.7 / +1.1 / -0.1 / +8.5 |
+| cdm_51b (ablation) | 102.20 | 3.68 | 93.63 | 0.647 | 0.005 | 87.9 % | 174,445.9 | 9,469.4 | 8.783 / 0.131 | 51.53 | 1.813 | 0.998 | -0.2 / -4.3 / -0.4 / -31.8 / -0.4 / -0.2 / +6.5 |
 
 Paper sources: `docs/papers/venkatachalam_ko_2017.md` (bw_*, booth_axfa5),
 `docs/papers/aizaz_khare_2022.md` (booth_trunc5, booth_akc), `docs/papers/yin_2021_dralm.md`
-(dralm_*). Best trade-offs so far: booth_axfa5 (FID 78.3, -0.3 % energy), dralm_t4 (FID 79.6,
+(dralm_*), `docs/papers/amirafshar_2023_cdm.md` (cdm_*; the sign-magnitude cdm_51 / 73 / 95 beat
+exact on no hardware metric, see s.5). Best trade-offs so far: booth_axfa5 (FID 78.3, -0.3 % energy), dralm_t4 (FID 79.6,
 -0.7 % energy, -42 % mul8 area) and booth_akc (largest energy saving with recognisable images,
 -1.6 %, at FID 133.6).
 

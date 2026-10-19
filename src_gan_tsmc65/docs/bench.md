@@ -38,6 +38,10 @@
 | `dralm_t6` | 0/256 | 25.61 / 16.82 / 26.72 | 6.77 / 207 | 233/256 (91.0 %) | 256/256 |
 | `dralm_t5` | 0/256 | 23.45 / 16.26 / 24.49 | 9.04 / 218 | 231/256 (90.2 %) | 256/256 |
 | `dralm_t4` | 0/256 | 19.97 / 12.43 / 21.18 | 13.82 / 251 | 221/256 (86.3 %) | 256/256 |
+| `cdm_51` | 0/256 | 30.32 / 22.89 / 31.14 | 4.12 / 112 | 243/256 (94.9 %) | 256/256 |
+| `cdm_73` | 0/256 | 23.96 / 14.50 / 24.91 | 8.30 / 205 | 224/256 (87.5 %) | 256/256 |
+| `cdm_95` | 0/256 | 20.44 / 11.17 / 21.84 | 12.74 / 244 | 205/256 (80.1 %) | 256/256 |
+| `cdm_51b` (ablation) | 0/256 | 18.81 / 11.39 / 19.20 | 17.23 / 201 | 225/256 (87.9 %) | 256/256 |
 
 The full per-variant tables, including classifier confidence, are in `bench/results/<variant>_n256.md`.
 
@@ -64,6 +68,10 @@ The table below gives each variant's product error over all 65,536 inputs (`benc
 | `dralm_t5` | 157.0 / -0.74 | 159.4 / +29.22 | 23.45 |
 | `dralm_t6` | 125.2 / -0.73 | 116.6 / +27.26 | 25.61 |
 | `dralm_t6e` | 115.4 / +0.02 | 113.8 / -1.60 | 30.90 |
+| `cdm_51` | 14.25 / 0.0 | 14.25 / 0.0 | 30.32 |
+| `cdm_73` | 89.25 / 0.0 | 89.25 / 0.0 | 23.96 |
+| `cdm_95` | 281.25 / 0.0 | 281.25 / 0.0 | 20.44 |
+| `cdm_51b` | 14.25 / -14.25 | 14.25 / -14.25 | 18.81 |
 
 ILM has the largest MAE of the useful variants but no bias, and it gives the best images. Rank candidates with this benchmark, not with the error statistics of the multiplier alone.
 
@@ -121,11 +129,16 @@ For the floor row, the NN metrics use the first 10k train images, because the te
 | RTL `dralm_t5` | 77.12 | 3.98 ± 0.07 | 60.92 ± 2.06 | 0.618 | 0.008 | 26.80 | 16.00 / 16.11 | 70.7 % | 6.08 | 0.832 | 3.19 |
 | RTL `dralm_t6` | 75.59 | 3.96 ± 0.05 | 60.37 ± 2.02 | 0.637 | 0.008 | 27.81 | 16.23 / 16.36 | 71.4 % | 6.07 | 0.830 | 3.19 |
 | RTL `dralm_t6e` | 79.04 | 3.92 ± 0.07 | 64.70 ± 2.17 | 0.645 | 0.007 | 30.78 | 16.25 / 16.38 | 71.1 % | 6.05 | 0.828 | 3.19 |
+| RTL `cdm_51` | 79.09 | 3.88 ± 0.06 | 65.82 ± 2.13 | 0.645 | 0.006 | 33.49 | 16.42 / 16.56 | 71.1 % | 6.00 | 0.825 | 3.20 |
+| RTL `cdm_73` | 82.51 | 3.82 ± 0.08 | 69.97 ± 2.09 | 0.636 | 0.007 | 38.70 | 16.49 / 16.65 | 70.1 % | 5.88 | 0.820 | 3.18 |
+| RTL `cdm_95` | 83.92 | 3.76 ± 0.08 | 71.71 ± 2.10 | 0.621 | 0.004 | 46.48 | 16.67 / 16.83 | 69.4 % | 5.71 | 0.811 | 3.16 |
+| RTL `cdm_51b` | 102.20 | 3.68 ± 0.07 | 93.63 ± 2.54 | 0.647 | 0.005 | 53.66 | 16.42 / 16.51 | 67.7 % | 5.76 | 0.811 | 3.19 |
 
 - **The exact and EvoApprox-exact `mq:evo_1KV8` chips score the same as the int8 golden.** int8 quantisation costs 0.9 FID against the float generator (77.76 to 78.65).
 - **`booth_axfa5` scores like exact** (FID 78.31 vs 78.65; KID 64.26 ± 2.15 vs 64.85 ± 2.12); `bw_axfa6` costs 18 FID, about twice trunc4, because of its -10.8 bias per product. The structured exact `bw_exact` / `booth_exact` reproduce the golden scores.
 - **The Aizaz & Khare truncated Booth variants are far off** (`docs/papers/aizaz_khare_2022.md`): `booth_akc` (TACBM, w = 6) FID 133.6, about `mq:evo_1KVL`, from its -43 bias per product at b >= 0; `booth_trunc5` FID 183.1, because its constant compensation (+32) also lands on the many zero products (ReLU zeros), which no other variant here disturbs.
 - **The Yin et al. DR-ALMs score at or below exact on FID** (`docs/papers/yin_2021_dralm.md`): `dralm_t6` 75.6, `dralm_t5` 77.1, `dralm_t4` 79.6, `dralm_t6e` 79.0 (exact 78.65), although their PSNR vs golden is only 20-31 dB and the paper-sign versions carry a +27..+30 bias per product at b >= 0. Precision drops with the truncation (0.578 for t = 4 vs 0.649) while IS and KID improve slightly, so the lower FID reflects a change in the spread of the samples, not higher fidelity to the golden images.
+- **The Amirafshar et al. carry-disregard multipliers** (`docs/papers/amirafshar_2023_cdm.md`), signed by sign-magnitude so the error is unbiased: `cdm_51` FID 79.1 (exact 78.65), `cdm_73` 82.5, `cdm_95` 83.9. The same CDM8_51 on a plain two's-complement array (`cdm_51b`, ablation) has the same MAE but a -14.25 bias per product and scores 102.2.
 - **`mq:ilm` is almost free on real-data metrics** (+0.5 FID). `example_trunc4` and `mq:evo_1KR8` cost about 8-10 FID. `mq:evo_1KVL` is clearly degraded (FID 132, precision 0.27). `mq:evo_1KR3` collapses: the CNN puts 99 % of its images in one class (entropy 0.12 bits), and the near-chance IS of 1.04 says the same.
 - **The ranking is the same as with the golden-referenced PSNR**, but the gaps are on the scale a GAN paper would report. The GAN, not the multiplier, dominates the distance to real data: the floor is 1.49 FID, against 78.65 for the exact chip.
 - **Recall is close to 0 for every generator, including float.** This MLP GAN covers little of the real VGG-16 manifold, because of mode coverage and its speckle texture. A low recall here is a property of the model, not of the hardware.
@@ -137,7 +150,7 @@ For the floor row, the NN metrics use the first 10k train images, because the te
 ```bash
 python3 -m src_gan_tsmc65.golden.check_ref
 src_gan_tsmc65/bench/check_mem.sh
-for v in exact mq:evo_1KV8 mq:ilm example_trunc4 mq:evo_1KR8 mq:evo_1KVL mq:evo_1KR3 bw_exact bw_axfa6 booth_exact booth_axfa5 booth_trunc5 booth_akc dralm_t4 dralm_t5 dralm_t6 dralm_t6e; do src_gan_tsmc65/bench/run_bench.sh $v; done
+for v in exact mq:evo_1KV8 mq:ilm example_trunc4 mq:evo_1KR8 mq:evo_1KVL mq:evo_1KR3 bw_exact bw_axfa6 booth_exact booth_axfa5 booth_trunc5 booth_akc dralm_t4 dralm_t5 dralm_t6 dralm_t6e cdm_51 cdm_73 cdm_95 cdm_51b; do src_gan_tsmc65/bench/run_bench.sh $v; done
 src_gan_tsmc65/bench/run_bench.sh exact --n 16 --jobs 16 --latch-rf
 pip install torch-fidelity==0.4.0                    # real-data metrics (weights download on first use)
 src_gan_tsmc65/bench/run_real.sh                     # 10k RTL images x 7 variants + scores (~3 h)
