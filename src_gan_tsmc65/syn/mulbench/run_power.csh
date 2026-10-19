@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 # Power of a mul_bench netlist on the server, one stimulus set:
 #   syn/mulbench/run_power.csh <syn_tag> <uniform|gan> [period_ns=2.5] [count=20000]
-# 1. stimulus (stimulus.py; signed for designs s_*, unsigned for u_*)
+# 1. stimulus (stimulus.py; unsigned for designs u_*, signed for all others)
 # 2. SDF at tt (write_sdf.tcl, once per netlist) and SDF-timed VCS GLS with SAIF (tb_mul_saif.sv)
 # 3. PrimePower tt averaged (pp_mul.tcl)
 # Output $GAN65/build/mulbench/<syn_tag>/pwr_<set>/, summary copied to
@@ -15,8 +15,8 @@ if ($#argv >= 3) set period = $3
 set count = 20000
 if ($#argv >= 4) set count = $4
 set n = `echo $tag | sed -E 's/^w([0-9]+)_.*/\1/'`
-set sign = unsigned
-if ("`echo $tag | grep -c '^w[0-9]*_s_'`" == 1) set sign = signed
+set sign = signed
+if ("`echo $tag | grep -c '^w[0-9]*_u_'`" == 1) set sign = unsigned
 set mb = $GAN65/syn/mulbench
 setenv MB_SYN $GAN65/build/mulbench/$tag
 setenv MB_CORNER tt

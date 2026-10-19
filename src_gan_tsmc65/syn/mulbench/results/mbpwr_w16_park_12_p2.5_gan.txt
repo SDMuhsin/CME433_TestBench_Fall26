@@ -1,0 +1,8 @@
+mul_bench power (w16_park_12_p2.5_gan)  corner tt  rc max  period_ns 2.5  SAIF from SDF-timed GLS (glitches counted)
+  saif: Total number of nets = 920
+  saif: Number of annotated nets = 920 (100.00%)
+  saif: Total number of leaf cells = 875
+  saif: Number of fully annotated leaf cells = 875 (100.00%)
+total internal 5.666049e-04  switching 2.916109e-04  leakage 1.097534e-05  total 8.691911e-04 W
+mul   internal 2.438962e-04  switching 2.249138e-04  leakage 8.715913e-06  total 4.775260e-04 W
+energy_per_op_pJ mul 1.1938  total 2.1730  (power x period, one product per clock)

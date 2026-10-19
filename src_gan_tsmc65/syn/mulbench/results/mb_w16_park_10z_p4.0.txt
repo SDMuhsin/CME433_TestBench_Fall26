@@ -1,0 +1,13 @@
+mul_bench 65 nm DC summary
+width 16  design park_10z  period_ns 4.0  corner ss  mode topographical
+area_total_um2 2419.9  cells 737
+area_mul_um2 1982.2  cells 673
+area_regs_um2 437.8
+setup  WNS   0.0085 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: b_q_reg_3_/CP -> p_reg_30_/D (arrival 3.735 ns)
+hold   WNS   0.0780 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: a_q_reg_0_/CP -> p_reg_0_/D (arrival 0.145 ns)
+setup_to_flops WNS   0.0085 ns  worst path: b_q_reg_3_/CP -> p_reg_30_/D (arrival 3.735 ns)
+mul_path slack 0.0085 ns  arrival 3.7349 ns  b_q_reg_3_/CP -> p_reg_30_/D
+mul_a_to_p_delay_ns 3.5499
+min_period_ns 3.9915  (period - slack of the path through u_mul)

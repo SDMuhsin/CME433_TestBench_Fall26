@@ -32,6 +32,13 @@ ABOUT = {
                   't1_6 = P0,5 | P1,3 & P2,1 (eq. 2) in column 6, neg_i OR-ed with each row\'s first',
                   'partial product (Fig. 2(b)), exact Dadda tree.'],
 }
+ABOUT['park_5z'] = [
+    'park_5z: approximate radix-4 Booth multiplier of Park, Kung & Lee (IEEE TCAS-II 70(3) 2023)',
+    'at the paper\'s 16-bit (wG, wA) = (10, 10) scaled to 8 bits (5, 5): approximate encoders in',
+    'columns 0..4, approximate 4:2 compressors (sum = p0, carry = p2 p3) in columns 0..4, last',
+    'neg OR-ed with its row\'s first bit (Fig. 1), grouped 4:2 tree, one CPA. Not in the paper:',
+    'zero-safe encoder b_2i+1 | a_j (b_2i | b_2i-1), so an activation b = 0 gives 0.',
+    'Reference model: approx/park.py.']
 for _v, _m in VARIANTS.items():
     if _v.startswith('dralm_'):
         _m = _m()

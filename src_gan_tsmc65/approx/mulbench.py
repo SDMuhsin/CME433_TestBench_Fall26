@@ -17,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import cdm, cdm16_v, dralm, dralm_v, ham, ham_v
+from . import cdm, cdm16_v, dralm, dralm_v, ham, ham_v, park
 from .emit import verilog as netlist_verilog
 
 HERE = Path(__file__).resolve().parent
@@ -74,6 +74,15 @@ B_CDM = 'Exact16 (four exact 8-bit arrays), Table V'
 B_YIN = 'exact unsigned 16-bit, Table 6'
 B_YINS = 'exact Booth 16-bit, Table 6'
 B_SHI = 'exact radix-4 Booth, 500 MHz, Table IV'
+# Park 2023 Table III (28 nm): (wG, wA) -> (area um^2, power mW, delay ns)
+PARK_T3 = {(0, 0): (1393.70, 1.0340, 0.62), (10, 10): (981.51, 0.7546, 0.61),
+           (12, 12): (873.64, 0.6892, 0.61), (14, 14): (745.99, 0.5685, 0.61)}
+B_PARK = 'exact radix-4 Booth (4:2 compressors), Table III'
+# bench name suffix -> (wG, wA, zero_fix, neg_or); N = 8 scales the paper's 16-bit wG = wA by 1/2
+PARK = {16: {'0': (0, 0, False, False), '10': (10, 10, False, True), '12': (12, 12, False, True),
+             '14': (14, 14, False, True), '10z': (10, 10, True, True), '14z': (14, 14, True, True)},
+        8: {'0': (0, 0, False, False), '5': (5, 5, False, True), '6': (6, 6, False, True),
+            '7': (7, 7, False, True), '5z': (5, 5, True, True)}}
 
 
 def _netlist(m, signed):
@@ -136,6 +145,18 @@ def _ham(n):
             for name, key, h, about in hams]
 
 
+def _park(n):
+    out = []
+    for k, (wg, wa, zf, no) in PARK[n].items():
+        what = ('exact twin: same rows and 4:2 tree, no OR(neg, PP)' if not wg else
+                f'(wG, wA) = ({wg}, {wa})' + (', zero-safe encoder (not in the paper)' if zf else ''))
+        m = park.park(n, wg, wa, zf, no)
+        ref = PARK_T3.get((wg, wa)) if n == 16 and not zf else None
+        out.append(Design(f'park_{k}', True, f'approximate radix-4 Booth (Park 2023), {what}', m,
+                          _netlist(m, True), ref and _pct(ref, PARK_T3[(0, 0)]), B_PARK if ref else ''))
+    return out
+
+
 def designs(n):
     """name -> Design for operand width n (8 or 16)."""
     assert n in (8, 16)
@@ -148,6 +169,7 @@ def designs(n):
     d.append(Design('s_exact', True, 'exact signed a * b (DesignWare)', Exact(n, True),
                     lambda h: exact_v(n, True, h)))
     d += _ham(n) + [x for x in _cdm(n) if x.signed] + [x for x in _dralm(n) if x.signed]
+    d += _park(n)
     return {x.name: x for x in d}
 
 
