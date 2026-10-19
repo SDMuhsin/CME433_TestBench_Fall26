@@ -1,0 +1,7 @@
+mul_bench Formality w16_r256_8_p2.5  verify_return 1
+  !!! Verification results are valid assuming the following setup constraints: !!!
+  ********************************* Verification Results *********************************
+  Verification SUCCEEDED
+   89 Passing compare points
+  Passing (equivalent)           0       0       0       0      32      57       0      89
+  Failing (not equivalent)       0       0       0       0       0       0       0       0

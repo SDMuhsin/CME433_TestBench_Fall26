@@ -26,11 +26,14 @@ diagram with exact cells, so the pair isolates the effect of the approximation.
   park_5z       Park, Kung & Lee 2023 approximate radix-4 Booth (park.py), the paper's 16-bit
                 (wG, wA) = (10, 10) scaled to 8 bits: OR-gate encoders in columns 0..4, the AND
                 4:2 compressor in columns 0..4, grouped 4:2 tree; zero-safe encoder (b = 0 -> 0)
+  r256_6z       Zhu et al. 2022 approximate radix-256 Booth (zhu.py) scaled to 8 bits: Table III
+                digit on b[5:0] (multiples x 2^-2), one exact radix-4 row for b[7:6], exact 4:2
+                tree; zero-safe B_8M (b = 0 -> 0)
 The dralm_* and ham_* entries are behavioural models (dralm.Dralm, ham.Ham), not dot diagrams.
 """
 from functools import partial
 
-from . import booth, cdm, dralm, ham, park, pp, tacbm
+from . import booth, cdm, dralm, ham, park, pp, tacbm, zhu
 from .cells import EXACT, VK_HA_FA
 from .mult import build
 from .netlist import Net
@@ -69,3 +72,4 @@ VARIANTS['ham_a'] = lambda: ham.HAM8['A']
 VARIANTS['ham_c'] = lambda: ham.HAM8['C']
 VARIANTS['ham_ae'] = lambda: ham.HAM8['A'].with_(me='exact')
 VARIANTS['park_5z'] = partial(park.park, N, 5, 5, True, True)
+VARIANTS['r256_6z'] = partial(zhu.zhu, N, 6, True)

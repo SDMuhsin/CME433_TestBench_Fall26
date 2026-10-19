@@ -17,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import cdm, cdm16_v, dralm, dralm_v, ham, ham_v, park
+from . import cdm, cdm16_v, dralm, dralm_v, ham, ham_v, park, zhu
 from .emit import verilog as netlist_verilog
 
 HERE = Path(__file__).resolve().parent
@@ -83,6 +83,14 @@ PARK = {16: {'0': (0, 0, False, False), '10': (10, 10, False, True), '12': (12, 
              '14': (14, 14, False, True), '10z': (10, 10, True, True), '14z': (14, 14, True, True)},
         8: {'0': (0, 0, False, False), '5': (5, 5, False, True), '6': (6, 6, False, True),
             '7': (7, 7, False, True), '5z': (5, 5, True, True)}}
+# Zhu 2022 Table V (0.18 um): AR256 vs ACR4 (area um^2, power mW, delay ns)
+ZHU_T5 = {'ACR4': (25659, 6.197, 7.11), 'AR256': (14782, 4.586, 6.61)}
+B_ZHU = 'exact radix-4 Booth ACR4 (4:2 compressors), Table V'
+# bench name suffix -> (d = AR digit width, zero_fix); d = 8 is the paper's radix-256 digit,
+# other d scale Table III by 2^(d-8) (radix-2^d); N = 8 keeps the paper's 8-bit AR digit (d = 8,
+# no radix-4 rows) and also uses d = 6 (one radix-4 row, the 16-bit design's AR / radix-4 mix)
+ZHU = {16: {'8': (8, False), '8z': (8, True), '6z': (6, True), '10z': (10, True)},
+       8: {'6': (6, False), '6z': (6, True), '8': (8, False), '8z': (8, True)}}
 
 
 def _netlist(m, signed):
@@ -157,6 +165,20 @@ def _park(n):
     return out
 
 
+def _zhu(n):
+    out = []
+    for k, (d, zf) in ZHU[n].items():
+        what = (f'AR digit of {d} bits' + (' (the paper\'s AR256)' if d == 8 else
+                                            f' (Table III scaled by 2^{d - 8})')
+                + (', zero-safe B_8M (not in the paper)' if zf else ''))
+        m = zhu.zhu(n, d, zf)
+        ref = n == 16 and d == 8 and not zf
+        out.append(Design(f'r256_{k}', True, f'approximate radix-256 Booth (Zhu 2022), {what}', m,
+                          _netlist(m, True), ref and _pct(ZHU_T5['AR256'], ZHU_T5['ACR4']),
+                          B_ZHU if ref else ''))
+    return out
+
+
 def designs(n):
     """name -> Design for operand width n (8 or 16)."""
     assert n in (8, 16)
@@ -169,7 +191,7 @@ def designs(n):
     d.append(Design('s_exact', True, 'exact signed a * b (DesignWare)', Exact(n, True),
                     lambda h: exact_v(n, True, h)))
     d += _ham(n) + [x for x in _cdm(n) if x.signed] + [x for x in _dralm(n) if x.signed]
-    d += _park(n)
+    d += _park(n) + _zhu(n)
     return {x.name: x for x in d}
 
 

@@ -39,6 +39,12 @@ ABOUT['park_5z'] = [
     'neg OR-ed with its row\'s first bit (Fig. 1), grouped 4:2 tree, one CPA. Not in the paper:',
     'zero-safe encoder b_2i+1 | a_j (b_2i | b_2i-1), so an activation b = 0 gives 0.',
     'Reference model: approx/park.py.']
+ABOUT['r256_6z'] = [
+    'r256_6z: approximate radix-256 Booth encoding of Zhu et al. (IEEE TCAS-II 69(4) 2022) scaled',
+    'to 8 bits: b[5:0] is one approximate digit, only its top 4 bits encoded (Table III with every',
+    'multiple x 2^-2), as two rows PPA / PPB (eq. 8); b[7:6] one exact radix-4 Booth row; exact',
+    '4:2 tree, one CPA. Not in the paper: B_8M gated by OR(b[5:0]), so an activation b = 0 gives 0.',
+    'Reference model: approx/zhu.py.']
 for _v, _m in VARIANTS.items():
     if _v.startswith('dralm_'):
         _m = _m()

@@ -1,0 +1,13 @@
+mul_bench 65 nm DC summary
+width 16  design r256_10z  period_ns 1.2  corner ss  mode topographical
+area_total_um2 4828.0  cells 1322
+area_mul_um2 4313.2  cells 1252
+area_regs_um2 514.8
+setup  WNS  -0.3225 ns  TNS    -5.911 ns  violating_endpoints 23
+       worst path: b_q_reg_9_/CP -> p_reg_28_/D (arrival 1.272 ns)
+hold   WNS   0.0879 ns  TNS     0.000 ns  violating_endpoints 0
+       worst path: b_q_reg_15_/CP -> p_reg_31_/D (arrival 0.157 ns)
+setup_to_flops WNS  -0.3225 ns  worst path: b_q_reg_9_/CP -> p_reg_28_/D (arrival 1.272 ns)
+mul_path slack -0.3225 ns  arrival 1.2717 ns  b_q_reg_9_/CP -> p_reg_28_/D
+mul_a_to_p_delay_ns 1.0932
+min_period_ns 1.5225  (period - slack of the path through u_mul)
